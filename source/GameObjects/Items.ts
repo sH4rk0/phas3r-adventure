@@ -13,23 +13,22 @@ module z89 {
 
         constructor(scene: GameCity, itemObj: any) {
 
-            //console.log(itemObj)
+            
             super(scene, itemObj.x, itemObj.y, itemObj.sprite);
             this.scene=scene;
 
             let config:AnimationConfig;
             let repeat:number=-1;
-           // console.log(itemObj)
+          
             if (itemObj.animations != undefined) {
              
                 itemObj.animations.forEach(element => {
 
-                  //console.log(element)
                     if(!element.loop) repeat=0;
                     config={
                         key: itemObj.id+"-"+element.name,
                         
-                        frames: scene.anims.generateFrameNumbers(itemObj.sprite,{ frames:true, outputArray:element.frames  }),
+                        frames: scene.anims.generateFrameNumbers(itemObj.sprite,{ frames:element.frames  }),
                         frameRate: element.rate,
                         repeat:repeat
                     };
@@ -38,16 +37,13 @@ module z89 {
 
                 });
                 
-                //console.log(itemObj.currentAnimation);
-
                 this.play(itemObj.id+"-"+itemObj.currentAnimation);
-                this.depth=this.y;
+              
             }
 
+        
 
-            
-
-            this.setOrigin(0.5, 1).setInteractive();
+            this.setDepth(this.y).setOrigin(0.5, 1).setInteractive();
 
             if (itemObj.scale != undefined) this.setScale(itemObj.scale);
             
@@ -57,20 +53,13 @@ module z89 {
             this.name = itemObj.name;
             this._isInteractive = itemObj.interactive;
 
-            if(itemObj.fixedToCamera) this.setScrollFactor(0);
-           
-
             if(itemObj.turnLeft!=undefined) this.turnLeft();
 
             if(this.isInteractive){
 
-                //this.input.enabled = true;
-                //this.input.priorityID = 1;
-
-                
+              
 
             this.on("pointerdown",() => {
-
             
                 if(this.scene.isInteractionDisabled()) return;
                 let _currentItem: Items = this.scene.getCurrentItem();
@@ -100,7 +89,7 @@ module z89 {
         update() {
 
             
-            if (this.fixedToCamera) this.cameraOffset.x = (this.scene.camera.x * -1.1) + this.itemObj.x;
+           if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
 
         }
 
@@ -128,7 +117,6 @@ module z89 {
             this.itemObj[_key]=_value;
             if(_key=="name") this.name=_value;
             
-
         }
 
         playAnim(_anim:string):void{

@@ -115,9 +115,9 @@ let gameData={
     ingame:{conversation:null,logic:null,items:null},
     assets:null,
     menuBlink:null,
+    menuBtns:null,
     skills:[{s:"phaser",v:60},{s:"javascript",v:70},{s:"html",v:75},{s:"typescript",v:60},{s:"css",v:65},{s:".net",v:70},{s:"c#",v:65},{s:"gamedev",v:50},{s:"design",v:60},{s:"ux",v:65},{s:"clm",v:80},{s:"tsql",v:70},{s:"firebase",v:60}]
 }
-
 
 let eases = [
     'Linear',

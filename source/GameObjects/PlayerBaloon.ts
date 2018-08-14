@@ -45,11 +45,11 @@ namespace z89 {
 
 
 
-
+  /*
 
     public showBaloonExtra(_obj: any) {
 
-        /*
+      
 
       if (_obj == undefined) return;
 
@@ -108,9 +108,9 @@ namespace z89 {
         repeat: -1
       });
 
-      */
+      
 
-    }
+    }*/
 
     public showBaloon(_text: string) {
 

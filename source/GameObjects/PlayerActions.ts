@@ -16,7 +16,6 @@ namespace z89 {
     scene: GameCity;
 
     private isOpen: boolean = false;
-    private toggleBtn: Phaser.GameObjects.Sprite;
     private menuBg: Phaser.GameObjects.Sprite;
     private actionList: Array<string> = [
       "PUSH",
@@ -52,6 +51,9 @@ namespace z89 {
     private actionBnts: Array<Phaser.GameObjects.Sprite> = [];
     private actionBntsTxt: Array<Phaser.GameObjects.BitmapText> = [];
 
+    private inventoryBtns: Array<Phaser.GameObjects.Sprite> = [];
+    private inventoryBtnsItems: Array<Phaser.GameObjects.Sprite> = [];
+
     constructor(scene: GameCity) {
       super(scene);
 
@@ -68,9 +70,10 @@ namespace z89 {
       //ACTION buttons
       let _btn: Phaser.GameObjects.Sprite;
       let _txt: Phaser.GameObjects.BitmapText;
+
       this.actionList.forEach((element, index) => {
-        _btn = this.scene.add.sprite(30, index * 55, "menuActionBtn");
-        _btn
+        _btn = this.scene.add
+          .sprite(30, index * 55, "menuActionBtn")
           .setZ(index)
           .setName(element)
           .setDepth(100)
@@ -78,8 +81,8 @@ namespace z89 {
           .setOrigin(0)
           .setInteractive();
 
-        _txt = this.scene.add.bitmapText(0, 0, "commodore", element, 20);
-        _txt
+        _txt = this.scene.add
+          .bitmapText(0, 0, "commodore", element, 20)
           .setName(element + "-text")
           .setTint(0xffffff)
           .setDepth(101)
@@ -121,18 +124,23 @@ namespace z89 {
         { x: 197, y: 675 }
       ];
 
-      for (var index = 0; index < 4; index++) {
+      [0, 1, 2, 3].forEach(element => {
         _icon = this.scene.add.sprite(
-          _iconPos[index].x,
-          _iconPos[index].y,
+          _iconPos[element].x,
+          _iconPos[element].y,
           "inventory"
         );
-        _icon.setInteractive().setScrollFactor(0);
-        _icon.alpha = this.iconAlpha;
 
+        _icon
+          .setZ(element)
+          .setInteractive()
+          .setScrollFactor(0)
+          .setAlpha(this.iconAlpha);
+
+        var icon = _icon;
         _icon.on(
           "pointerdown",
-          (icon: Phaser.GameObjects.Sprite) => {
+          () => {
             if (this.scene.isInteractionDisabled()) return;
 
             if (this.isInverntoryItemSelected(icon.z) != -1) {
@@ -146,6 +154,7 @@ namespace z89 {
               if (this.currentAction == -1) {
                 this.scene.player.showBaloon(z89.getLabel(29));
               } else {
+                if (this.inventory[icon.z] == undefined) return;
                 icon.setFrame(1);
                 this.inventorySelected.push(icon.z);
                 this.scene.doActionSequence();
@@ -155,8 +164,9 @@ namespace z89 {
           this
         );
 
+        this.inventoryBtns.push(_icon);
         this.add(_icon);
-      }
+      });
 
       this.actionText = this.scene.add.bitmapText(
         320,
@@ -171,17 +181,6 @@ namespace z89 {
       this.scene.add.existing(this);
     }
 
-    btnClick(btn: Phaser.GameObjects.Sprite): void {
-      console.log(this, btn);
-      if (this.scene.isInteractionDisabled()) return;
-      this.resetActions();
-      this.currentAction = btn.z;
-      this.setText(this.actionList[btn.z]);
-      let _txt: Phaser.GameObjects.BitmapText = this.actionBntsTxt[btn.z];
-      _txt.tint = 0x00ff00;
-      this.scene.doActionSequence();
-    }
-
     private isInverntoryItemSelected(itemIndex: number): number {
       let _itemAt: number = this.inventorySelected.indexOf(itemIndex);
       if (_itemAt != -1) {
@@ -193,6 +192,7 @@ namespace z89 {
 
     private deselectItems(): void {
       this.inventorySelected = [];
+
       //this.iconGroup.setAll("frame", 0);
     }
 
@@ -202,9 +202,14 @@ namespace z89 {
 
     getInventorySelected(): Array<Items> {
       let _selectedItems: Array<Items> = [];
-      this.inventorySelected.forEach(element => {
-        _selectedItems.push(this.inventory[element]);
-      });
+      console.log(this.inventorySelected);
+      if (this.inventorySelected.length > 0) {
+        this.inventorySelected.forEach(element => {
+          if (this.inventory[element] != undefined)
+            _selectedItems.push(this.inventory[element]);
+        });
+      }
+
       return _selectedItems;
     }
 
@@ -222,7 +227,7 @@ namespace z89 {
 
         this.scene.tweens.add({
           targets: this,
-          x: 0,
+          x: -30,
           duration: 400,
           ease: "Quad.easeInOut",
           onComplete: () => {
@@ -260,7 +265,9 @@ namespace z89 {
           this.currentAction = -1;
 
           this.deselectItems();
+
           this.resetActions();
+          this.uncheckInventoryIcons();
           this.scene.setActionObject(null);
           this.setText("");
         }
@@ -325,64 +332,89 @@ namespace z89 {
     }
 
     removeItem(item: Items): void {
+      console.log(item);
+
       this.cleanInventoryIcons();
       this.cleanInventoryFromItem(item);
       this.remapInventoryItemsIndex();
       this.assignItemToIcon();
 
-      //this.scene.saveGameObj.updatePlayerInventory(this.inventory);
+      this.scene.saveGameObj.updatePlayerInventory(this.inventory);
     }
 
-    private assignItemToIcon(): void {
-      /*
-            let _icon: Phaser.GameObjects.Sprite;
-            this.inventory.forEach((element: Items, index: number) => {
-
-                _icon = <Phaser.GameObjects.Sprite>this.iconGroup.getChildAt(index);
-                let _inv: Phaser.GameObjects.Sprite = this.game.add.sprite(35, 35, element.itemObj.sprite);
-                _inv.anchor.set(.5);
-                _icon.addChild(_inv);
-
-            });
-            */
+    private uncheckInventoryIcons(): void {
+      this.inventoryBtns.forEach(
+        (element: Phaser.GameObjects.Sprite, index: number) => {
+          element.setFrame(0);
+        }
+      );
     }
-
     //remove child items from the inventory icons
     private cleanInventoryIcons(): void {
-      /*
-            this.iconGroup.forEach((icon: Phaser.Sprite) => {
-
-                if (icon.children.length > 0) icon.removeChildAt(0);
-
-            }, this);
-
-            this.iconGroup.setAll("frame", 0);
-            */
+      this.inventoryBtns.forEach(
+        (element: Phaser.GameObjects.Sprite, index: number) => {
+          element.setFrame(0);
+          if (this.inventoryBtnsItems[index] != undefined)
+            this.inventoryBtnsItems[index].destroy();
+        }
+      );
+      this.inventoryBtnsItems = [];
     }
 
     // remove itemes from inventory array
     private cleanInventoryFromItem(item: Items): void {
+      //console.log("cleanInventoryFromItem before",this.inventory)
+
+      //console.log("cleanInventoryFromItem index:",item.inventoryIndex);
       this.inventory.splice(item.inventoryIndex, 1);
+      //console.log("cleanInventoryFromItem after",this.inventory)
     }
 
     private remapInventoryItemsIndex() {
+      //console.log("remapInventoryItemsIndex before",this.inventory)
       this.inventory.forEach((element: Items, index: number) => {
         element.inventoryIndex = index;
       });
+      //console.log("remapInventoryItemsIndex after",this.inventory)
+    }
+
+    private assignItemToIcon(): void {
+      this.inventory.forEach((element: Items, index: number) => {
+        let _inv: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+          35,
+          35,
+          element.itemObj.sprite
+        );
+
+        _inv.setOrigin(0.5).setScrollFactor(0);
+        Phaser.Display.Align.In.Center(_inv, this.inventoryBtns[index]);
+        this.inventoryBtnsItems.push(_inv);
+        this.add(_inv);
+      });
+
+      console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
     }
 
     addItem(item: Items): void {
       item.inventoryIndex = this.inventory.length;
       this.inventory.push(item);
 
-      /*
-            let _icon: Phaser.Sprite = <Phaser.Sprite>this.iconGroup.getChildAt(this.inventory.length - 1)
+      let _icon: Phaser.GameObjects.Sprite = this.inventoryBtns[
+        this.inventory.length - 1
+      ];
 
-            let _inv: Phaser.Sprite = this.game.add.sprite(35, 35, item.itemObj.sprite);
-            _inv.anchor.set(.5);
-            _icon.addChild(_inv);
-*/
-      //this.scene.saveGameObj.updatePlayerInventory(this.inventory);
+      let _inv: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        35,
+        35,
+        item.itemObj.sprite
+      );
+      _inv.setOrigin(0.5).setScrollFactor(0);
+
+      Phaser.Display.Align.In.Center(_inv, _icon);
+      this.inventoryBtnsItems.push(_inv);
+      this.add(_inv);
+
+      this.scene.saveGameObj.updatePlayerInventory(this.inventory);
     }
 
     isInInventory(item: Items): boolean {

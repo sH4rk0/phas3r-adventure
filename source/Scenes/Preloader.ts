@@ -4,11 +4,21 @@ namespace z89 {
 
     constructor(test) {
       super({
-        key: "Preloader"
-      });
+        key: 'Preloader',
+        pack: {
+            files: [{
+                type: 'plugin',
+                key: 'rexwebfontloaderplugin',
+                url: '/js/libs/webfonts.plugin.js',
+                start: true
+            }]
+        }
+    });
+
     }
 
     preload() {
+
 	  console.log("Preloader:preload");
 	  
 	  this.loadAssets();
@@ -52,7 +62,7 @@ namespace z89 {
         console.log("load assetts complete");
       });
 
-      //this.load.script("webfont", "js/libs/webfonts.js");
+      
 
       //Assets Load
       //--------------------------
@@ -80,6 +90,34 @@ namespace z89 {
       gameData.assets.sounds.forEach(element => {
         this.load.audio(element.name, element.paths);
       });
+
+
+      if(isOnline()){
+        getZero89Data().forEach(element => {
+          this.load.image("zeroImg"+element.key,"http://www.zero89.it/"+element.c);
+         });
+
+         
+         this.plugins.get('rexwebfontloaderplugin').addToScene(this);
+
+         var config = {
+             google: {
+                 families: ['Roboto']
+             }
+         };
+        this.load.rexWebFont(config);
+
+
+      }
+     
+
+      
+      //
+
+      
+      
+
+
 
       /*this.load.shader("noise", "js/game/fragments/noise.frag");
       this.load.shader("convergence", "js/game/fragments/convergence.frag");

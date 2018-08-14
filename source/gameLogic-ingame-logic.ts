@@ -92,13 +92,15 @@ gameData.ingame.logic =
 
             let item: any = cs.gameItemsUtils.getItemById(4);
             if (!item.itemObj.moved) {
-                cs.player.play("use");
+                cs.player.play("player-use");
                 item.itemObj.moved = true;
                 if (cs.player.x < 450) {
-                    cs.game.add.tween(item).to({ x: 500 }, 500, Phaser.Easing.Quadratic.Out, true, 400, 0, false);
+                    cs.tweens.add({targets:item,x:500,duration:500,ease:"Quad.easeOut",delay:400})
+
                     item.updateItemObj("x", 500);
+                    
                 } else {
-                    cs.game.add.tween(item).to({ x: 400 }, 500, Phaser.Easing.Quadratic.Out, true, 400, 0, false);
+                    cs.tweens.add({targets:item,x:400,duration:500,ease:"Quad.easeOut",delay:400})
                     item.updateItemObj("x", 400);
                 }
 
@@ -111,6 +113,8 @@ gameData.ingame.logic =
 
         //examine scotch tape
         EXAMINE_24: (cs: z89.GameCity) => { cs.player.showBaloon(z89.getLabel(58)); },
+
+        
 
         //examine energy box
         EXAMINE_23: (cs: z89.GameCity) => {
@@ -129,13 +133,32 @@ gameData.ingame.logic =
         //pickup scotch
         PICKUP_24: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(24)); },
 
+         //pickup scotch
+         PICKUP_25: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(25)); },
+
+          //pickup scotch
+          PICKUP_30: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(30)); },
+
+           //pickup scotch
+         PICKUP_32: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(32)); },
+
+
         //drop scotch
         DROP_24: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
+
+         //drop scotch
+         DROP_25: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
+
+           //drop scotch
+           DROP_30: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
+
+             //drop scotch
+         DROP_32: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
 
         //use scotch on broken 
         USE_24_23: (cs: z89.GameCity) => {
 
-            cs.player.play("use");
+            cs.player.play("player-use");
             cs.removeInventoryItems();
             cs.gameUtils.addDelay(1000, () => {
                 cs.updateItemObject(23, "name", z89.getLabel(57))
@@ -237,6 +260,15 @@ gameData.ingame.logic =
             }
 
             cs.conversationBaloon.setUpConversation(convObj);
+
+        },
+
+        USE_30_32: (cs: z89.GameCity) => {
+            console.log("bitcoin on blockchain");
+            cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
+            cs.removeInventoryItems();
+            cs.addInventory(31,true);
+           
 
         },
 

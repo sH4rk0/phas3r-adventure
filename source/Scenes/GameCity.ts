@@ -1,3 +1,4 @@
+var _gamecity;
 namespace z89 {
   export class GameCity extends Phaser.Scene {
     player: Player;
@@ -6,9 +7,9 @@ namespace z89 {
     playerBaloon: PlayerBaloon;
     conversationBaloon: conversationBaloon;
     currentItem: Items;
-    //   Terminal: Terminal;
+    Terminal: Terminal;
 
-    private mainCamera: Phaser.Cameras.Scene2D.Camera;
+    public mainCamera: Phaser.Cameras.Scene2D.Camera;
     private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
     private bgLevel1: Phaser.GameObjects.TileSprite;
     private bgLevel2: Phaser.GameObjects.TileSprite;
@@ -29,7 +30,7 @@ namespace z89 {
     // private filters: Array<Phaser.Filter>;
     private gameInteracion: boolean = true;
 
-    //public saveGameObj: saveGame;
+    public saveGameObj: saveGame;
     public gameUtils: GameUtils;
     public gameItemsUtils: GameItemsUtils;
 
@@ -53,7 +54,8 @@ namespace z89 {
       console.log("GameCity:create");
       this.cameras.main.setBounds(0, 0, 3670, 720);
       this.gameItemsUtils = new GameItemsUtils(this);
-      this.gameUtils=new GameUtils(this);
+      this.gameUtils = new GameUtils(this);
+      this.saveGameObj = new saveGame(this);
       //this.physics.world.setBounds(0, 0, 3670, 720);
 
       // +++++++++++++++++++++++++++++++++++++++
@@ -128,12 +130,6 @@ namespace z89 {
 
       this.groupAll.add(this.player);
 
-      gameData.ingame.items.forEach(element => {
-        if (element.onStart) {
-          this.gameItemsUtils.addItem(element.id);
-        }
-      });
-
       // +++++++++++++++++++++++++++++++++++++++
       // group Front
       // +++++++++++++++++++++++++++++++++++++++
@@ -161,16 +157,44 @@ namespace z89 {
       // +++++++++++++++++++++++++++++++++++++++
       // group Action
       // +++++++++++++++++++++++++++++++++++++++
-     
+
       this.playerActions = new PlayerActions(this);
-      this.playerActions.depth=999;
+      this.playerActions.setDepth(999);
 
       // +++++++++++++++++++++++++++++++++++++++
       // group Menu
       // +++++++++++++++++++++++++++++++++++++++
 
       this.playerMenu = new PlayerMenu(this);
-      this.playerMenu.depth = 1000;
+      this.playerMenu.setDepth(1000);
+
+      // +++++++++++++++++++++++++++++++++++++++
+      // group Terminal
+      // +++++++++++++++++++++++++++++++++++++++
+
+      this.Terminal = new Terminal(this);
+      this.Terminal.setDepth(2000);
+      ///this.Terminal.fixedToCamera = true;
+      ///this.Terminal.cameraOffset.x = 0; //(1080 - 640) / 2;
+      ///this.Terminal.cameraOffset.y = 0; //(720 - 500) / 2;
+      ///this.Terminal.inputEnableChildren = false;
+     
+      // +++++++++++++++++++++++++++++++++++++++
+      // saved game
+      // +++++++++++++++++++++++++++++++++++++++
+
+      if (this.saveGameObj.gameIsSaved()) {
+        this.processSavedGame();
+      } else {
+        gameData.ingame.items.forEach(element => {
+          if (element.onStart) {
+            this.gameItemsUtils.addItem(element.id);
+          }
+        });
+        this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
+        this.saveGameObj.updateItems();
+        this.playerMenu.openOnStart();
+      }
 
       /* var cursors = this.input.keyboard.createCursorKeys();
 
@@ -190,11 +214,28 @@ namespace z89 {
       );*/
 
       this.mainCamera = this.cameras.main;
-      this.mainCamera.startFollow(this.player, true, 0.1, 1);
+      this.mainCamera.startFollow(this.player, true, 0.15, 1);
 
       // +++++++++++++++++++++++++++++++++++++++
       // GROUND
       // +++++++++++++++++++++++++++++++++++++++
+
+      bgLevel0.on(
+        "pointerdown",
+        (ground: Phaser.GameObjects.Sprite) => {
+          if (!this.gameInteracion) return;
+
+          //if (this.playerActions.IsOpen()) this.playerActions.hide();
+          this.player.goTo(
+            this.input.x + this.mainCamera.scrollX,
+            this.input.y
+          );
+        },
+        this
+      );
+
+
+      
 
       /*this.ground = this.add.sprite(
         0,
@@ -219,21 +260,17 @@ namespace z89 {
       
       this.ground.setOrigin(0);
       this.ground.setAlpha(0,1);*/
-      bgLevel0.on(
-        "pointerdown",
-        (ground: Phaser.GameObjects.Sprite) => {
-          if (!this.gameInteracion) return;
+      
 
-          //if (this.playerActions.IsOpen()) this.playerActions.hide();
-          this.player.goTo(
-            this.input.x + this.mainCamera.scrollX,
-            this.input.y
-          );
-        },
-        this
-      );
+      /*  this.add
+        .text(100, 100, "Hello ", {
+          fontFamily: "Ranga",
+          fontSize: 50
+        })
+        .setScrollFactor(0)
+        .setDepth(5000);
 
-      /*   this.input.on(
+        this.input.on(
         "pointerdown",
         function(pointer) {
           if (!this.gameInteracion) return;
@@ -247,6 +284,15 @@ namespace z89 {
         this
       );
 */
+
+      this.addInventoryItem(this.gameItemsUtils.getItemById(24));
+      this.addInventoryItem(this.gameItemsUtils.getItemById(25));
+      this.addInventoryItem(this.gameItemsUtils.getItemById(30));
+      this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+
+     
+
+      _gamecity=this;
     }
 
     stopSound(): void {
@@ -259,7 +305,7 @@ namespace z89 {
     // }
 
     restartGame(): void {
-      //this.saveGameObj.destroy();
+      this.saveGameObj.destroy();
       document.location.reload();
       console.log("restart game");
     }
@@ -272,19 +318,10 @@ namespace z89 {
         this.front.tilePositionX = this.mainCamera.scrollX * 1.25;
       }
 
-      /*
-    this.groupAll.children.each((element:Phaser.GameObjects.Sprite)=>{
-
-      //console.log(element.name,element.y,element.depth);
-      element.depth=element.y;
-    },this)
-    */
-
       // console.log([ 'x: ' + this.mainCamera.scrollX, 'y: ' + this.mainCamera.scrollY ]);
     }
 
     processSavedGame(): void {
-      /*
       let _saved = this.saveGameObj.getSaved();
       this.player.x = _saved.position.x;
       this.player.y = _saved.position.y;
@@ -299,15 +336,19 @@ namespace z89 {
           // console.log(element.type )
           switch (element.type) {
             case 2:
-              this.groupAll.add(new ItemsTruck(this.game, element));
+              // this.groupAll.add(new ItemsTruck(this.game, element));
               break;
 
             case 3:
-              this.groupAll.add(new ItemsContent(this.game, element));
+              this.groupAll.add(new ItemsContent(this, element));
+              break;
+
+            case 4:
+              this.groupAll.add(new ItemsSkill(this, element));
               break;
 
             default:
-              this.groupAll.add(new Items(this.game, element));
+              this.groupAll.add(new Items(this, element));
               break;
           }
 
@@ -316,8 +357,6 @@ namespace z89 {
           this.addInventoryItem(this.gameItemsUtils.getItemById(element.id));
         });
       }
-
-      */
     }
 
     render() {
@@ -334,7 +373,7 @@ namespace z89 {
     }
 
     doActionSequence(_item?: Items): void {
-      // console.log("checkActions");
+      console.log("checkActions");
       this.createActionObject(); //create the action object based on action/inventory/items selection
       this.createActionText(); //create the action text based on the above selection
 
@@ -393,6 +432,8 @@ namespace z89 {
 
       returnObj.inventory = this.getInventorySelected();
 
+      console.log(returnObj.inventory);
+
       let _Item: Items;
 
       if (_itemSelected != undefined) {
@@ -405,8 +446,9 @@ namespace z89 {
       if (returnObj.item != null) ItemId = returnObj.item.id;
 
       returnObj.inventory.forEach((element: Items) => {
-        _inventoryIds.push(element.itemObj.id);
+        if (element != undefined) _inventoryIds.push(element.itemObj.id);
       });
+
       if (_inventoryIds.length > 0) _Inventoryitems = _inventoryIds.join("_");
 
       if (ItemId != "" && _Inventoryitems != "")
@@ -635,7 +677,7 @@ namespace z89 {
       this.player.showBaloon(_mess);
     }
 
-    returnMessageExtra(): void {
+    /* returnMessageExtra(): void {
       let _currActionObj: any = this.getActionObject();
       let _item: Items;
       if (_currActionObj.item == null) {
@@ -647,7 +689,7 @@ namespace z89 {
       let _obj: any = _item.itemObj.actions[_currActionObj.action];
       this.player.showBaloonExtra(_obj);
     }
-
+*/
     setCurrentItem(_item: Items): void {
       this.currentItem = _item;
     }
@@ -705,35 +747,42 @@ namespace z89 {
       return !this.gameInteracion;
     }
 
-    addInventoryItem(item?: Items): void {
+    addInventory(itemIndex: number, noAnimation?: boolean) {
+      this.gameItemsUtils.addItem(31);
+      this.addInventoryItem(this.gameItemsUtils.getItemById(31), noAnimation);
+    }
+
+    addInventoryItem(item?: Items, noAnimation?: boolean): void {
       if (item != undefined) {
-        // console.log(item);
+        //console.log(item);
 
         this.playerActions.addItem(item);
-        this.groupAll.remove(item);
-        this.player.play("pickdrop");
+        this.groupAll.remove(item, true);
+        if (noAnimation != undefined && !noAnimation)
+          this.player.play("player-pickdrop");
       } else {
         let _currActionObj: any = this.getActionObject();
-        let _item: Items;
-        if (_currActionObj.item == null) {
-          _item = _currActionObj.inventory[0];
-        } else {
-          _item = _currActionObj.item;
-        }
 
-        //console.log(this.playerActions.isInInventory(_item));
+        if (_currActionObj != undefined) {
+          let _item: Items;
+          if (_currActionObj.item == null) {
+            _item = _currActionObj.inventory[0];
+          } else {
+            _item = _currActionObj.item;
+          }
 
-        if (this.playerActions.isInInventory(_item)) {
-          this.player.showBaloon(z89.getLabel(28));
-        } else {
-          this.player.play("pickdrop");
-          this.playerActions.addItem(_item);
-          this.groupAll.remove(_item);
-          this.setCurrentItem(null);
+          if (this.playerActions.isInInventory(_item)) {
+            this.player.showBaloon(z89.getLabel(28));
+          } else {
+            this.player.play("player-pickdrop");
+            this.playerActions.addItem(_item);
+            this.groupAll.remove(_item);
+            this.setCurrentItem(null);
+          }
         }
       }
 
-      //this.saveGameObj.updateItems();
+      this.saveGameObj.updateItems();
     }
 
     updateItemObject(itemId: number, key: string, value: any): void {
@@ -758,7 +807,9 @@ namespace z89 {
         return;
       }
 
-      if (this.player.y >= 705) {
+      console.log(_item);
+
+      if (this.player.y >= 660) {
         _item.itemObj.fixedToCamera = true;
 
         let _x = this.player.x * 1.08;
@@ -777,9 +828,9 @@ namespace z89 {
 
       this.playerActions.removeItem(_item);
       _item.destroy();
-      this.player.play("pickdrop");
+      this.player.play("player-pickdrop");
 
-      //this.saveGameObj.updateItems();
+      this.saveGameObj.updateItems();
     }
 
     displayChapterTitle(chapterIndex: number): void {
@@ -811,7 +862,7 @@ namespace z89 {
     }
 
     getContentsBycontexts(contexts: Array<string>): Array<any> {
-      let _arr: Array<any>; //= getZero89Data();
+      let _arr: Array<any> = getZero89Data();
       // console.log(contexts,_arr)
       if (_arr == undefined) return [{}];
       let _con: Array<any>;

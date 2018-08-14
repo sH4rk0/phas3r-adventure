@@ -1,0 +1,1 @@
+_gamecity.Terminal.TerminalLogic.someLogic = function (_this) {  _this.returnShellError('>:', true);  };_gamecity.Terminal.TerminalLogic.someLogic(_gamecity.Terminal.TerminalLogic); 

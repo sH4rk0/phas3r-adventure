@@ -4,13 +4,13 @@ gameData.ingame.conversation = {
     RESTART: [{
 
 
-        text: z89.getLabel(85),
+        text: "Do you want to restart the game?", //z89.getLabel(85),
         isItem: false,
-        fork: true,
+        fork: false,
         options: [
             { option: "YES", action: (cs: z89.GameCity, target: z89.Items) => { cs.restartGame(); } },
-            { option: "NO", action: (cs: z89.GameCity, target: z89.Items) => { cs.conversationBaloon.hideBaloon(); } }
-        ]
+           { option: "NO", action: (cs: z89.GameCity, target: z89.Items) => { cs.conversationBaloon.hideBaloon(); } }
+       ]
 
     }],
 
@@ -111,7 +111,7 @@ gameData.ingame.conversation = {
                 },
                 {
                     option: "Some 8bit Tune", action: (cs: z89.GameCity, target: z89.Items) => {
-                        cs.playSound(0);
+                        //cs.playSound(0);
                         cs.gameUtils.addDelay(500, () => { 
                             let _jukebox=cs.gameItemsUtils.getItemById(11);
                             _jukebox.play("play");

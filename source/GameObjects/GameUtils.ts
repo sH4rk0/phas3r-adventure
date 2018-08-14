@@ -10,6 +10,8 @@ namespace z89 {
 
     addDelay(delay: number, callback: any): void {
       // this.scene.time.events.add(delay, callback);
+
+      this.scene.time.addEvent({ delay:delay, callback:callback})
     }
 
     tweenTint(

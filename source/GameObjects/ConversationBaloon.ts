@@ -6,20 +6,17 @@ namespace z89 {
     private baloonBg: Phaser.GameObjects.Image;
     private baloonBorder: Phaser.GameObjects.Image;
     private baloonPin: Phaser.GameObjects.Image;
-
     private baloonTarget: Items;
     private conversationKey: string;
     private conversationObj: any;
     private currentStep: number;
-
     private baloonX: number;
     private baloonY: number;
     private isPlaying: boolean;
-
     private timeEvent: Phaser.Time.TimerEvent;
     private isSkippable: boolean;
-
-    // this.game.time.events
+    private forkBtns: Array<Phaser.GameObjects.Sprite> = [];
+    private forkBtnsText: Array<Phaser.GameObjects.BitmapText> = [];
 
     constructor(scene: GameCity, x: number, y: number) {
       super(scene);
@@ -40,18 +37,14 @@ namespace z89 {
           this
         );
 
-      this.add(this.baloonBg);
-
       this.baloonBorder = this.scene.add.image(0, 20, "baloonBorder");
       this.baloonBorder.setOrigin(0.5, 1);
-      this.add(this.baloonBorder);
 
       this.baloonPin = this.scene.add.image(0, 30, "baloonPin");
       this.baloonPin.setOrigin(0.5, 1);
-      this.add(this.baloonPin);
 
       this.baloonText = this.scene.add.text(0, 0, "", {
-        fontFamily: "Arial",
+        fontFamily: "Roboto",
         fontSize: 20
       });
 
@@ -60,7 +53,13 @@ namespace z89 {
         .setTint(0x00ff00)
         .setOrigin(0.5)
         .setDepth(2001);
-      this.add(this.baloonText);
+
+      this.add([
+        this.baloonBg,
+        this.baloonBorder,
+        this.baloonPin,
+        this.baloonText
+      ]);
 
       this.scene.add.existing(this);
     }
@@ -68,8 +67,7 @@ namespace z89 {
     skip(): void {
       if (!this.isSkippable) return;
       this.hideBaloon();
-
-      //this.scene.time.events.remove(this.timeEvent);
+      this.timeEvent.remove(false);
       this.currentStep++;
       let _obj = this.conversationObj[this.currentStep];
       if (_obj != undefined) {
@@ -77,9 +75,10 @@ namespace z89 {
       } else {
         this.isPlaying = false;
       }
-      //console.log(_obj)
 
-      //if(_obj.next!=undefined ){ this.displayStep(); }
+      if (_obj.next != undefined) {
+        this.displayStep();
+      }
     }
 
     public showBaloon(_text: string): void {
@@ -95,24 +94,39 @@ namespace z89 {
       });
     }
 
-    public hideBaloon(): void {
-        this.baloonText.setY(0);
-        this.setAlpha(0);
+    public hideBaloon(callback?: any): void {
+      this.scene.tweens.add({
+        targets: this,
+        y: this.y - 10,
+        alpha: 0,
+        duration: 200,
+        onComplete: () => {
+          if (callback != undefined) callback();
+        }
+      });
     }
 
     stopConversation(): void {
-      //this.forkBtns.children.removeAll();
+      this.hideBaloon(() => {
+        this.removeForks();
+        this.baloonText.setY(0);
+        this.isPlaying = false;
 
-      this.baloonText.y = 0;
-      this.isPlaying = false;
-      this.hideBaloon();
+        if (this.baloonTarget != null) {
+          this.baloonX = this.baloonTarget.x;
+          this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
+          this.showBaloon(z89.getLabel(39));
 
-      if (this.baloonTarget != null) {
-        this.baloonX = this.baloonTarget.x;
-        this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
-        this.showBaloon(z89.getLabel(39));
-        // this.game.time.events.add(1500, () => { this.hideBaloon(); }, this);
-      }
+          this.scene.time.addEvent({
+            delay: 500,
+            callback: () => {
+              this.hideBaloon();
+            },
+            callbackScope: this,
+            loop: false
+          });
+        }
+      });
     }
 
     setUpConversation(_actionObj: any): void {
@@ -121,7 +135,6 @@ namespace z89 {
       if (_actionObj.item != null) this.setItemTarget(_actionObj.item);
       this.setConversationKey(_actionObj.key);
       this.setConversationObj(_actionObj.key);
-
       this.startConversation();
     }
 
@@ -137,8 +150,8 @@ namespace z89 {
     }
 
     fixSize(): void {
-      this.setX(this.scene.player.x);
-      this.setY(this.scene.player.y - this.scene.player.height - 50);
+      this.setX(this.baloonX);
+      this.setY(this.baloonY);
       this.baloonBg.setScale(1, (this.baloonText.getBounds().height + 20) / 50);
 
       var bound = this.baloonBg.getBounds();
@@ -158,17 +171,19 @@ namespace z89 {
         }
       }
 
-      this.hideBaloon();
-      this.displayStep();
+      this.hideBaloon(() => {
+        this.displayStep();
+      });
     }
 
     displayStep(): void {
-      this.baloonText.y = 0;
-      // this.forkBtns.removeAll();
+      this.removeForks();
+      this.baloonText.setY(0);
       this.isSkippable = true;
       if (!this.isPlaying) {
         return;
       }
+
       let _obj = this.conversationObj[this.currentStep];
       if (_obj == undefined) {
         this.hideBaloon();
@@ -190,11 +205,30 @@ namespace z89 {
         this.baloonY = this.scene.player.y - this.scene.player.height - 50;
       }
 
-      /*
-            if (_obj.next != undefined) { this.timeEvent = this.game.time.events.add(this.getTime(_obj.text.length), () => { this.currentStep++; this.displayStep(); }, this) }
+      if (_obj.next != undefined) {
+        this.timeEvent = this.scene.time.addEvent({
+          delay: this.getTime(_obj.text.length),
+          callback: () => {
+            this.currentStep++;
+            this.displayStep();
+          },
+          callbackScope: this,
+          loop: false
+        });
+      }
 
-            if (_obj.end != undefined) { this.timeEvent = this.game.time.events.add(this.getTime(_obj.text.length), () => { this.currentStep = 0; this.hideBaloon(); this.isPlaying = false; }, this) }
-            */
+      if (_obj.end != undefined) {
+        this.timeEvent = this.scene.time.addEvent({
+          delay: this.getTime(_obj.text.length),
+          callback: () => {
+            this.currentStep = 0;
+            this.hideBaloon();
+            this.isPlaying = false;
+          },
+          callbackScope: this,
+          loop: false
+        });
+      }
 
       if (_obj.callback != undefined) {
         _obj.callback(this.scene);
@@ -219,43 +253,50 @@ namespace z89 {
 
     showOptions(_obj: any): void {
       if (_obj == undefined) return;
+
+      this.baloonText.setText(_obj.text);
+
       this.x = this.baloonX;
       this.y = this.baloonY;
 
       let _btn: Phaser.GameObjects.Sprite;
-      let _btnText: Phaser.GameObjects.Text;
-      let _nextPos: number = 0;
-      let _totHeight: number = 0;
+      let _btnText: Phaser.GameObjects.BitmapText;
+
+      //options loop
       _obj.options.forEach((element, index) => {
+        _btn = this.scene.add.sprite(0, 0, "forkBtn");
+        var _option = element;
+        _btn
+          .setOrigin(0.5, 1)
+          .setInteractive()
+          .on(
+            "pointerdown",
+            () => {
+              if (_option.goto != undefined) {
+                this.currentStep = this.goToLabel(_option.goto);
+              }
+              if (_option.link != undefined) {
+                this.currentStep++;
+                window.open(_option.link, "_blank");
+              }
+              if (_option.action != undefined) {
+                _option.action(this.scene, this.baloonTarget);
+                this.hideBaloon();
+                return;
+              }
 
-        _btn = this.scene.add.sprite(0, _nextPos, "forkBtn");
+              this.displayStep();
+            },
+            this
+          );
 
-        _btn.setOrigin(0.5, 1).setInteractive().on(
-          "pointerdown",
-          (a, b, c) => {
-            if (c.goto != undefined) {
-              this.currentStep = this.goToLabel(c.goto);
-            }
-            if (c.link != undefined) {
-              this.currentStep++;
-              window.open(c.link, "_blank");
-            }
-            if (c.action != undefined) {
-              c.action(this.scene, this.baloonTarget);
-              this.hideBaloon();
-              return;
-            }
-
-            this.displayStep();
-          },
-          this
+        _btnText = this.scene.add.bitmapText(
+          0,
+          80,
+          "commodore",
+          element.option,
+          20
         );
-
-        _btnText = this.scene.add.text(0, _nextPos - 10, element.option, {
-          fontFamily: "Arial",
-          fontSize: 10
-        });
-
         _btnText.setOrigin(0.5, 1);
 
         if (_obj.isItem) {
@@ -266,25 +307,51 @@ namespace z89 {
           _btnText.setTint(0xffffff);
         }
 
-        _btn.height = _btnText.height + 30;
-        _nextPos = _nextPos - (_btnText.height + 25) - 20;
-        _totHeight = _totHeight + _btnText.height + 50;
-       
+        this.forkBtns.push(_btn);
+        this.forkBtnsText.push(_btnText);
+
+        this.add([_btn, _btnText]);
       });
 
-      if (_obj.text != undefined && _obj.text != "") {
-        this.baloonText.text = _obj.text;
-        this.baloonText.y = _nextPos;
-        _totHeight += this.baloonText.height + 15;
-      }
+      this.displayItems();
 
-      this.baloonBg.height = _totHeight + 15;
+      this.scene.tweens.add({
+        targets: this,
+        duration: 300,
+        y: this.y + 10,
+        alpha: 1
+      });
+    }
 
-      this.alpha = 1;
+    displayItems(): void {
+      let totH = this.forkBtns.length * 70 + this.baloonText.getBounds().height;
 
-      this.add([_btn,_btnText]);
+      this.setX(this.scene.player.x);
+      this.setY(this.scene.player.y - this.scene.player.height - 50);
+      this.baloonBg.setScale(1, (totH + 20) / 50);
 
-      //this.game.add.tween(this).to({ y: this.y + 10, alpha: 1 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
+      this.baloonText.setY(
+        this.baloonText.y -
+          (this.baloonText.getBounds().y - this.baloonBg.getBounds().y) +
+          10
+      );
+
+      this.forkBtns.forEach(
+        (element: Phaser.GameObjects.Sprite, index: number) => {
+          element.setY(-(this.forkBtns.length - 1 - index) * 70);
+
+          Phaser.Display.Align.In.Center(this.forkBtnsText[index], element);
+        }
+      );
+    }
+
+    removeForks(): void {
+      this.forkBtns.forEach((element: Phaser.GameObjects.Sprite, index) => {
+        element.destroy();
+        this.forkBtnsText[index].destroy();
+      });
+      this.forkBtns = [];
+      this.forkBtnsText = [];
     }
 
     goToLabel(label: string): number {

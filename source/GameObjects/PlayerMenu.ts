@@ -7,27 +7,31 @@ namespace z89 {
     private isOpenOnStart: boolean = false;
     private btnOffsetX: number = 440;
     private btnOffsetY: number = 140;
+    private fontSize:number = 12;
+    private fontFamily:string = "commodore";
+    private textOffsetY:number = 48;
 
     constructor(scene: GameCity) {
       super(scene, 0, 0);
 
       this.scene = scene;
 
-      this.setScrollFactor(0);
+      this.setScrollFactor(0).setAlpha(0);
 
       this.menuBg = this.scene.add
         .image(0, 0, "menu-phone-bg")
         .setOrigin(0)
         .setInteractive()
         .setDepth(999)
-        .setAlpha(0.5)
-        .setScrollFactor(0);
-        this.menuBg.name="bg";
+        .setAlpha(1)
+        .setScrollFactor(0)
+        .setName("bg");
+
+       
       this.menuBg.on(
         "pointerdown",
         () => {
-            this.hide();
-          console.log("close menu bg");
+          if (!this.isOpenOnStart) this.hide();
         },
         this
       );
@@ -39,25 +43,17 @@ namespace z89 {
         .setOrigin(0.5)
         .setScale(1)
         .setDepth(1000)
-         .setInteractive()
-         .setScrollFactor(0);
-        this.menuBgPhone.name="bg-phone";
-      this.menuBgPhone.on(
-        "pointerdown",
-        pointer => {
-            this.hide();
-          console.log("close menu phone");
-          //if (!this.isOpenOnStart) this.hide();
-        },
-        this
-      );
+        
+        .setScrollFactor(0)
+        .setName("bg-phone");
 
       this.add(this.menuBgPhone);
 
       //blinks btns
       //+++++++++++++++++++++++++++++++++
       let blinkBtn: Phaser.GameObjects.Sprite;
-      let blinkText: Phaser.GameObjects.BitmapText
+      let blinkText: Phaser.GameObjects.BitmapText;
+
       gameData.menuBlink.forEach(element => {
         blinkBtn = this.scene.add.sprite(
           element.x + this.btnOffsetX,
@@ -65,28 +61,29 @@ namespace z89 {
           "icons",
           element.frame
         );
-        blinkBtn.setInteractive().setDepth(1001).setScrollFactor(0);
-        blinkBtn.name = "iconsBtn";
+        blinkBtn
+          .setInteractive()
+          .setDepth(1001)
+          .setScrollFactor(0)
+          .setName("iconsBtn")
+          .on(
+            "pointerdown",
+            pointer => {
+              this.hide();
+              this.scene.player.blinkTo(element.to);
+            },
+            this
+          );
 
-        blinkBtn.on(
-          "pointerdown",
-          pointer => {
-            this.hide();
-            this.scene.player.blinkTo(element.to);
-          },
-          this
-        );
-
-         blinkText = this.scene.add.bitmapText(
+        blinkText = this.scene.add.bitmapText(
           0,
           80,
-          "commodore",
+          this.fontFamily,
           element.name,
-          10
+          this.fontSize
         );
-        blinkText.name = "iconsBtn";
-        blinkText.setScrollFactor(0);
-        Phaser.Display.Align.In.Center(blinkText, blinkBtn, null, 48);
+        blinkText.setName("iconsBtn").setScrollFactor(0);
+        Phaser.Display.Align.In.Center(blinkText, blinkBtn, null, this.textOffsetY);
 
         this.add(blinkBtn);
         this.add(blinkText);
@@ -94,241 +91,243 @@ namespace z89 {
 
       //action btn
       //+++++++++++++++++++++++++++++++++
-      let actionBtn: Phaser.GameObjects.Sprite;
-      actionBtn = this.scene.add.sprite(
-        100 + this.btnOffsetX,
-        220 + this.btnOffsetY,
+
+      let actionBtn: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        gameData.menuBtns.actions.x + this.btnOffsetX,
+        gameData.menuBtns.actions.y + this.btnOffsetY,
         "icons",
-        1
+        gameData.menuBtns.actions.frame
       );
-      actionBtn.setInteractive().setScrollFactor(0);
-      actionBtn.name = "iconsBtn";
-      actionBtn.on(
-        "pointerdown",
-        pointer => {
-          this.scene.playerActions.toogle();
-          this.hide();
-        },
-        this
-      );
-      let actionText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        0,
-        80,
-        "commodore",
-        "Menu",
-        10
-      );
-      actionText.name = "iconsBtn";
-      Phaser.Display.Align.In.Center(actionText, actionBtn, null, 48);
+      actionBtn
+        .setInteractive()
+        .setScrollFactor(0)
+        .setName("iconsBtn")
+        .on(
+          "pointerdown",
+          pointer => {
+            this.scene.playerActions.toogle();
+            this.hide();
+          },
+          this
+        );
+
+      let actionText: Phaser.GameObjects.BitmapText = this.scene.add
+        .bitmapText(0, 0, this.fontFamily,  gameData.menuBtns.actions.name, this.fontSize)
+        .setName("iconsBtn");
+      Phaser.Display.Align.In.Center(actionText, actionBtn, null, this.textOffsetY);
       this.add(actionBtn);
       this.add(actionText);
 
       //RESTART btn
       //+++++++++++++++++++++++++++++++++
-      let restartBtn: Phaser.GameObjects.Sprite;
-      restartBtn = this.scene.add.sprite(
-        200 + this.btnOffsetX,
-        220 + this.btnOffsetY,
-        "icons",
-        10
-      );
-      restartBtn.setInteractive().setScrollFactor(0);
-      restartBtn.name = "iconsBtn";
-      restartBtn.on(
-        "pointerdown",
-        pointer => {
-          
-                this.scene.conversationBaloon.setUpConversation({
-                    key: "RESTART",
-                    action: null,
-                    inventory: null,
-                    item: null
-                });
-          this.hide();
-        },
-        this
-      );
 
-      let restartText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        0,
-        80,
-        "commodore",
-        "Restart",
-        10
+      let restartBtn: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        gameData.menuBtns.restart.x + this.btnOffsetX,
+        gameData.menuBtns.restart.y + this.btnOffsetY,
+        "icons",
+        gameData.menuBtns.restart.frame
       );
-      restartText.name = "iconsBtn";
-      Phaser.Display.Align.In.Center(restartText, restartBtn, null, 48);
+      restartBtn
+        .setInteractive()
+        .setScrollFactor(0)
+        .setName("iconsBtn")
+        .on(
+          "pointerdown",
+          pointer => {
+            this.scene.conversationBaloon.setUpConversation({
+              key: "RESTART",
+              action: null,
+              inventory: null,
+              item: null
+            });
+            this.hide();
+          },
+          this
+        );
+
+      let restartText: Phaser.GameObjects.BitmapText = this.scene.add
+        .bitmapText(0, 0, this.fontFamily,  gameData.menuBtns.restart.name, this.fontSize)
+        .setName("iconsBtn");
+      Phaser.Display.Align.In.Center(restartText, restartBtn, null, this.textOffsetY);
       this.add(restartBtn);
       this.add(restartText);
 
       //info btn
       //+++++++++++++++++++++++++++++++++
-      let infoBtn: Phaser.GameObjects.Sprite;
-      infoBtn = this.scene.add.sprite(
-        this.btnOffsetX,
-        330 + this.btnOffsetY,
+
+      let infoBtn: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        gameData.menuBtns.info.x + this.btnOffsetX,
+        gameData.menuBtns.info.y + this.btnOffsetY,
         "icons",
-        2
+        gameData.menuBtns.info.frame
       );
-      infoBtn.setInteractive().setScrollFactor(0);
-      infoBtn.name = "iconsBtn";
-      infoBtn.on(
-        "pointerdown",
-        pointer => {
+      infoBtn
+        .setInteractive()
+        .setScrollFactor(0)
+        .setName("iconsBtn")
+        .on(
+          "pointerdown",
+          pointer => {
+            this.scene.conversationBaloon.setUpConversation({
+              key: "INFO",
+              action: null,
+              inventory: null,
+              item: null
+            });
 
+            this.hide();
+          },
+          this
+        );
+      let infoText: Phaser.GameObjects.BitmapText = this.scene.add
+        .bitmapText(0, 0, this.fontFamily,  gameData.menuBtns.info.name, this.fontSize)
+        .setName("iconsBtn");
 
-          /* this.scene.conversationBaloon.setUpConversation({
-                    key: "INFO",
-                    action: null,
-                    inventory: null,
-                    item: null
-                });
-                */
-
-                this.scene.playerBaloon.showBaloon("aaa");
-          this.hide();
-        },
-        this
-      );
-      let infoText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        0,
-        80,
-        "commodore",
-        "Info",
-        10
-      );
-      infoText.name = "iconsBtn";
-      Phaser.Display.Align.In.Center(infoText, infoBtn, null, 48);
+      Phaser.Display.Align.In.Center(infoText, infoBtn, null, this.textOffsetY);
       this.add(infoBtn);
       this.add(infoText);
 
-    
-
       //options btn
       //+++++++++++++++++++++++++++++++++
-      let optionBtn: Phaser.GameObjects.Sprite;
-      optionBtn = this.scene.add.sprite( 100+this.btnOffsetX,
-        330 + this.btnOffsetY, "icons", 3);
-      optionBtn.setInteractive().setScrollFactor(0);
-      optionBtn.name = "iconsBtn";
-      optionBtn.on(
-        "pointerDown",
-        pointer => {
-          
-                this.scene.conversationBaloon.setUpConversation({
-                    key: "OPTIONS",
-                    action: null,
-                    inventory: null,
-                    item: null
-                });
-                
-          this.hide();
-        },
-        this
-      );
 
-      let optionText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        0,
-        80,
-        "commodore",
-        "Options",
-        10
+      let optionBtn: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        gameData.menuBtns.options.x + this.btnOffsetX,
+        gameData.menuBtns.options.y + this.btnOffsetY,
+        "icons",
+        3
       );
-      optionText.name = "iconsBtn";
-      Phaser.Display.Align.In.Center(optionText, optionBtn , null, 48);
+      optionBtn
+        .setInteractive()
+        .setScrollFactor(0)
+        .setName("iconsBtn")
+        .on(
+          "pointerDown",
+          pointer => {
+
+            this.scene.conversationBaloon.setUpConversation({
+              key: "OPTIONS",
+              action: null,
+              inventory: null,
+              item: null
+            });
+
+            this.hide();
+          },
+          this
+        );
+
+      let optionText: Phaser.GameObjects.BitmapText = this.scene.add
+        .bitmapText(0, 0, this.fontFamily,  gameData.menuBtns.options.name, this.fontSize)
+        .setName("iconsBtn");
+      Phaser.Display.Align.In.Center(optionText, optionBtn, null, this.textOffsetY);
       this.add(optionBtn);
       this.add(optionText);
 
- 
 
-      //intro btn
+
       //+++++++++++++++++++++++++++++++++
-      let introText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        0,
-        0,
-        "commodore",
-        "Welcome to my adventure website experiment.\nComplete the quests to access the website sections... or explore the website without playing!",
-        12
-      );
-      introText.name = "start";
-      //introText.width=300;
-      this.add(introText);
+      //intro Text
+      //+++++++++++++++++++++++++++++++++
+      let introText: Phaser.GameObjects.Text = this.scene.add
+        .text(0, 0,  "Welcome to my adventure website experiment.\nComplete the quests to access the website sections... or explore the website without playing!", {
+          fontFamily: "Roboto",
+          fontSize: 20
+        }
 
+        ).setWordWrapWidth(280)
+        .setTint(0xffffff)
+        .setOrigin(0.5)
+        .setName("start");
+
+      Phaser.Display.Align.In.TopCenter(introText,this.menuBgPhone,0,-30)
+
+      //+++++++++++++++++++++++++++++++++
       //new game btn
       //+++++++++++++++++++++++++++++++++
-      let newGame: Phaser.GameObjects.Sprite;
-      newGame = this.scene.add.sprite(-130, -80, "roundedBtn");
-      newGame.name = "start";
-      newGame.setInteractive().setScrollFactor(0);
-      newGame.tint = 0x2a7600;
-      newGame.on(
-        "pointerdown",
-        pointer => {
-          this.newGame();
-        },
-        this
+      let newGame: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+       0,0,
+        "roundedBtn"
       );
+      newGame
+        .setName("start")
+        .setInteractive()
+        .setScrollFactor(0)
+        .setTint(0x2a7600)
+        .on(
+          "pointerdown",
+          pointer => {
+            this.newGame();
+          },
+          this
+        );
+        Phaser.Display.Align.In.TopCenter(newGame,this.menuBgPhone,0,-200);
+        
       let newGameText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        265 / 2,
-        18,
-        "commodore",
+        0,0,
+        this.fontFamily,
         "NEW GAME",
-        16
+        this.fontSize+10
       );
-      newGameText.setOrigin(0.5, 0);
+      newGameText.setName("start").setOrigin(0.5, 0).setScrollFactor(0);
       Phaser.Display.Align.In.Center(newGameText, newGame);
-      this.add(newGame);
-      this.add(newGameText);
-
-      //no game btn
-      //+++++++++++++++++++++++++++++++++
-      let noGame: Phaser.GameObjects.Sprite;
-      noGame = this.scene.add.sprite(-130, 0, "roundedBtn");
-      noGame.name = "start";
-
-      noGame.tint = 0x2a7600;
-      noGame.on(
-        "pointerdown",
-        () => {
-          this.noGame();
-        },
-        this
-      );
-      let noGameText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
-        265 / 2,
-        18,
-        "commodore",
-        "NO GAME",
-        16
-      );
-      noGameText.setOrigin(0.5, 0);
-
-      this.add(noGame);
-      this.add(noGameText);
-
-      this.scene.add.existing(this);
-
-      this.showState("iconsBtn");
+     
 
     
-      
+      //no game btn
+      //+++++++++++++++++++++++++++++++++
+
+      let noGame: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+       0,0,
+        "roundedBtn"
+      );
+      noGame
+        .setName("start")
+        .setInteractive()
+        .setScrollFactor(0)
+        .setTint(0x2a7600)
+        .on(
+          "pointerdown",
+          () => {
+            this.noGame();
+          },
+          this
+        );
+        Phaser.Display.Align.In.TopCenter(noGame,this.menuBgPhone,0,-300)
+
+      let noGameText: Phaser.GameObjects.BitmapText = this.scene.add.bitmapText(
+       0,0,
+        this.fontFamily,
+        "NO GAME",
+       this.fontSize+10
+      ).setName("start").setOrigin(0.5, 0).setScrollFactor(0);
+      Phaser.Display.Align.In.Center(noGameText, noGame);
+     
+
+      this.add([noGame,newGame,noGameText,newGameText,introText]);
+     
+
+     
+      this.setVisible(false);
+      this.scene.add.existing(this);
+
+
     }
 
-
-
     newGame(): void {
+      console.log("new game")
       this.scene.displayChapterTitle(0);
       this.scene.playerBaloon.showBaloon(getLabel(95));
       this.isOpenOnStart = false;
+      this.scene.saveGameObj.setFirstChoice(true);
       this.hide();
     }
 
     noGame(): void {
-      //console.log("nogame");
-
+      console.log("no game")
       gameData.chapters.forEach(element => {
         element.complete(this.scene);
       });
+      this.scene.saveGameObj.setFirstChoice(false);
       this.isOpenOnStart = false;
       this.hide();
     }
@@ -351,83 +350,58 @@ namespace z89 {
     }
 
     showState(state: string) {
-
-        this.getAll().forEach((element: Phaser.GameObjects.Sprite) => {
-            //console.log(element);
+      this.getAll().forEach((element: Phaser.GameObjects.Sprite) => {
+       
         if (element.name == state) {
           element.alpha = 1;
-    
-        } 
-        else if(element.name=="bg-phone") {
-            element.alpha = 1;
-          }
 
-        else if(element.name=="bg") {
-            element.alpha = .5;
-          }
-        else  {
+        } else if (element.name == "bg-phone") {
+          element.alpha = 1;
+        } else if (element.name == "bg") {
+         // element.alpha = 0.5;
+        } else {
           element.alpha = 0;
         }
-
       }, this);
     }
 
     show() {
-    this.visible=true;
+      if(this.isOpenOnStart){this.showState("start");}else{this.showState("iconsBtn");}
+      this.menuBg.setAlpha(0.01);
+      this.setVisible(true);
       this.scene.disableInteraction();
       this.scene.tweens.add({
         targets: this,
         y: 0,
-        alpha:1,
+        scaleY:1,
+        scaleX:1,
+        alpha: 1,
         ease: null,
-        duration: 300,
-        onComplete: (a, b, c) => {
+        duration: 200,
+        onComplete: () => {
+         
           this.isOpen = true;
         }
       });
 
-      /*
-
-            this.game.add.tween(this.cameraOffset).to({ y: 100 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false).onComplete.add(() => {
-
-                this.isOpen = true;
-
-            }, this);
-
-
-            this.game.add.tween(this.menuBg.scale).to({ y: 1, x: 1 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-            this.game.add.tween(this.menuBg).to({ height: 774 }, 600, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-*/
     }
 
     hide() {
+      this.scene.tweens.add({
+        targets: this,
+        y: this.y+400,
+        scaleY:0.75,
+        scaleX:1,
+        alpha: 0,
+        ease: null,
+        duration: 200,
+        onComplete: () => {
+          this.isOpen = false;
+          this.setVisible(false);
+          this.scene.enableInteraction();
+        }
+      });
 
-        this.scene.tweens.add({
-            targets: this,
-            y: 0,
-            alpha:0,
-            ease: null,
-            duration: 200,
-            onComplete: () => {
-              this.isOpen = false;
-              this.visible=false;
-              this.scene.enableInteraction();
-            }
-          });
-       
-      /*    this.game.add.tween(this.cameraOffset).to({ y: 710 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false).onComplete.add(() => {
-
-                this.isOpen = false;
-                this.currentState.enableInteraction();
-
-            }, this);
-
-            this.game.add.tween(this.menuBg.scale).to({ y: .7, x: .7 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-            this.game.add.tween(this.menuBg).to({ height: 350 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-
-*/
     }
-
-
   }
 }

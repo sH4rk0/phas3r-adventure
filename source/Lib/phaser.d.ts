@@ -208,7 +208,7 @@ declare type GenerateFrameNamesConfig = {
     /**
      * [description]
      */
-    frames?: boolean;
+    frames?: Array<string|number>;
 };
 
 declare type GenerateFrameNumbersConfig = {
@@ -231,7 +231,7 @@ declare type GenerateFrameNumbersConfig = {
     /**
      * [description]
      */
-    frames?: boolean;
+    frames?: Array<string|number>;
 };
 
 /**

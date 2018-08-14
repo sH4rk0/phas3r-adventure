@@ -42,7 +42,7 @@
             sprite: "newsbg",
             name: z89.getLabel(76),
             x: 866,
-            y: 336-48,
+            y: 291,
             interactive: true,
             offsetX: 0,
             fixedToCamera: false,
@@ -181,21 +181,85 @@
             sprite: "scotch",
             onStart: true,
             name: z89.getLabel(55),
-            x: 450,
+            x: 400,
             y: 648-48,
             interactive: true,
             offsetX: 30,
             fixedToCamera: false,
             checkIntersect: false
 
-        }, {
+        }, 
+        
+        {
+            id: 30,
+            type: 1,
+            sprite: "bitcoin",
+            onStart: true,
+            name: "bitcoin",//z89.getLabel(55),
+            x: 400,
+            y: 700-48,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+        {
+            id: 32,
+            type: 1,
+            sprite: "blockchain",
+            onStart: true,
+            name: "blockchain",//z89.getLabel(55),
+            x: 500,
+            y: 700-48,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+
+        {
+            id: 31,
+            type: 1,
+            sprite: "invite",
+            onStart: false,
+            name: "invite",//z89.getLabel(55),
+            x: 400,
+            y: 648-48,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+
+        
+        
+        
+        {
+            id: 25,
+            type: 1,
+            sprite: "coins",
+            onStart: true,
+            name: "coins",//z89.getLabel(55),
+            x: 940,
+            y: 740-48,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: true,
+            checkIntersect: false
+
+        },
+        
+        {
             id: 2,
             type: 1,
             onStart: true,
             sprite: "terminal",
             animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true },{ name: "working", frames: [5, 6], rate: 1, loop: true }],
             currentAnimation:"notWorking",
-            working:false,
+            working:true,
             name: z89.getLabel(12),
             x: 1214,
             y: 644-48,
@@ -228,7 +292,7 @@
             type: 1,
             sprite: "drink-machine",
             name: z89.getLabel(0),
-            x: 1700,
+            x: 800,
             y: 724-48,
             animations: [{ name: "idle", frames: [0,1], rate: 1, loop: true }],
             currentAnimation:"idle",

@@ -69,7 +69,7 @@
             { name: "halftone", path: "assets/images/game/halftone.png" },
             { name: "readmore", path: "assets/images/game/readmore.png" },
             
-            { name: "terminalBg", path: "assets/images/game/terminal/terminal.png" },
+            { name: "terminalBg", path: "assets/images/game/terminal/terminalBg.png" },
             { name: "terminalKeyboard", path: "assets/images/game/terminal/keyboard.png" },
 
             { name: "bg-home", path: "assets/images/game/buildings/home.png" },
@@ -79,6 +79,7 @@
             { name: "bg-arcade", path: "assets/images/game/buildings/arcade.png" },
             { name: "bg-aerosol", path: "assets/images/game/buildings/aerosol.png" },
             { name: "bg-contact", path: "assets/images/game/buildings/contact.png" },
+            ///{ name: "keyboardKey", path: "assets/images/game/terminal/key.png" },
             
             
 
