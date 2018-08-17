@@ -17,6 +17,7 @@ namespace z89 {
 
     private isOpen: boolean = false;
     private menuBg: Phaser.GameObjects.Sprite;
+    
     private actionList: Array<string> = [
       "PUSH",
       "PULL",
@@ -169,13 +170,13 @@ namespace z89 {
       });
 
       this.actionText = this.scene.add.bitmapText(
-        320,
+        200,
         690,
         "commodore",
         "",
         20
       );
-      this.actionText.setAlpha(0).setScrollFactor(0);
+      this.actionText.setAlpha(0).setScrollFactor(0).setTint(0x00ff00);
 
       this.add(this.actionText);
       this.scene.add.existing(this);
@@ -202,7 +203,7 @@ namespace z89 {
 
     getInventorySelected(): Array<Items> {
       let _selectedItems: Array<Items> = [];
-      console.log(this.inventorySelected);
+      //console.log(this.inventorySelected);
       if (this.inventorySelected.length > 0) {
         this.inventorySelected.forEach(element => {
           if (this.inventory[element] != undefined)
@@ -224,10 +225,11 @@ namespace z89 {
     show() {
       if (!this.isOpen) {
         this.scene.disableInteraction();
-
+       
         this.scene.tweens.add({
           targets: this,
           x: -30,
+          alpha:1,
           duration: 400,
           ease: "Quad.easeInOut",
           onComplete: () => {
@@ -235,6 +237,13 @@ namespace z89 {
             this.scene.enableInteraction();
           }
         });
+
+        this.actionText.setAlpha(0).setX(280);
+        this.actionTextTween = this.scene.tweens.add({targets:this.actionText, alpha: 1, x: 320, duration:500, delay:400, ease: "Quad.easeInOut",
+        onComplete: () => {
+          
+        }  });
+
       }
     }
 
@@ -258,6 +267,7 @@ namespace z89 {
       this.scene.tweens.add({
         targets: this,
         x: -300,
+        alpha:0,
         duration: 400,
         ease: "Quad.easeInOut",
         onComplete: () => {
@@ -265,7 +275,6 @@ namespace z89 {
           this.currentAction = -1;
 
           this.deselectItems();
-
           this.resetActions();
           this.uncheckInventoryIcons();
           this.scene.setActionObject(null);
@@ -287,12 +296,15 @@ namespace z89 {
     hideText() {
       if (this.actionTextTween != undefined) this.actionTextTween.stop();
 
-      this.actionText.setAlpha(0).setX(200);
+      //this.actionText.setAlpha(0).setX(200);
 
-      /* this.actionTextTween = this.game.add.tween(this.actionText).to({ alpha: 0, x: 500 }, 200, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
+       this.actionTextTween = this.scene.tweens.add({targets:this.actionText, alpha: 0, duration:500, delay:200, ease: "Quad.easeInOut",
+       onComplete: () => {
+         
+       }  });
 
-            this.actionTextTween.onComplete.add(() => { this.actionText.x = 200; }, this);
-            */
+           // this.actionTextTween.onComplete.add(() => { this.actionText.x = 200; }, this);
+           
     }
 
     IsOpen(): boolean {
@@ -317,11 +329,11 @@ namespace z89 {
                  this.actionText.tint = 0x00ffff
              } else { this.actionText.tint = 0x00ff00 }
              */
-      this.actionText.tint = 0x00ff00;
+     // this.actionText.tint = 0x00ff00;
 
-      this.actionText.setAlpha(1).setX(320);
+     // this.actionText.setAlpha(1).setX(320);
 
-      if (this.actionTextTween != undefined) this.actionTextTween.stop();
+      //if (this.actionTextTween != undefined) this.actionTextTween.stop();
       //this.actionTextTween = this.game.add.tween(this.actionText).to({ alpha: 1, x: 320 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
     }
 
@@ -332,7 +344,7 @@ namespace z89 {
     }
 
     removeItem(item: Items): void {
-      console.log(item);
+      //console.log(item);
 
       this.cleanInventoryIcons();
       this.cleanInventoryFromItem(item);
@@ -392,7 +404,7 @@ namespace z89 {
         this.add(_inv);
       });
 
-      console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
+      //console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
     }
 
     addItem(item: Items): void {
@@ -428,5 +440,12 @@ namespace z89 {
     }
 
     private dropItem(): void {}
+
+
+    update(){console.log("update")}
+
   }
+
+
+
 }

@@ -163,7 +163,7 @@ gameData.ingame.logic =
             cs.gameUtils.addDelay(1000, () => {
                 cs.updateItemObject(23, "name", z89.getLabel(57))
 
-                cs.gameItemsUtils.getItemById(23).playAnim("fixed");
+                cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
                 cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
                 cs.gameItemsUtils.getItemById(22).start();
                 
@@ -171,7 +171,7 @@ gameData.ingame.logic =
                 cs.updateItemObject(19, "conversationStatus", 1);
 
                 cs.updateItemObject(2,"working", true);
-                cs.gameItemsUtils.getItemById(2).playAnim("working");
+                cs.gameItemsUtils.getItemById(2).playAnim("2-working");
                 
                 cs.saveGameObj.updateItems();
 
@@ -186,6 +186,7 @@ gameData.ingame.logic =
     
                 cs.conversationBaloon.setUpConversation(convObj);
             
+                cs.disableInteraction();
                 
 
             });

@@ -35,7 +35,7 @@ namespace z89 {
     public gameItemsUtils: GameItemsUtils;
 
     public chapterTitle: Phaser.GameObjects.BitmapText;
-    public currentChapter: number;
+    public currentChapter: number=0;
 
     private half: Phaser.GameObjects.TileSprite;
 
@@ -178,7 +178,7 @@ namespace z89 {
       ///this.Terminal.cameraOffset.x = 0; //(1080 - 640) / 2;
       ///this.Terminal.cameraOffset.y = 0; //(720 - 500) / 2;
       ///this.Terminal.inputEnableChildren = false;
-     
+
       // +++++++++++++++++++++++++++++++++++++++
       // saved game
       // +++++++++++++++++++++++++++++++++++++++
@@ -234,8 +234,11 @@ namespace z89 {
         this
       );
 
-
-      
+      this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
+      this.chapterTitle
+        .setScrollFactor(0)
+        .setOrigin(0.5)
+        .setAlpha(0).setDepth(3000);
 
       /*this.ground = this.add.sprite(
         0,
@@ -260,7 +263,6 @@ namespace z89 {
       
       this.ground.setOrigin(0);
       this.ground.setAlpha(0,1);*/
-      
 
       /*  this.add
         .text(100, 100, "Hello ", {
@@ -290,9 +292,7 @@ namespace z89 {
       this.addInventoryItem(this.gameItemsUtils.getItemById(30));
       this.addInventoryItem(this.gameItemsUtils.getItemById(32));
 
-     
-
-      _gamecity=this;
+      _gamecity = this;
     }
 
     stopSound(): void {
@@ -307,7 +307,7 @@ namespace z89 {
     restartGame(): void {
       this.saveGameObj.destroy();
       document.location.reload();
-      console.log("restart game");
+      //console.log("restart game");
     }
 
     update(time, delta) {
@@ -373,7 +373,7 @@ namespace z89 {
     }
 
     doActionSequence(_item?: Items): void {
-      console.log("checkActions");
+      //console.log("checkActions");
       this.createActionObject(); //create the action object based on action/inventory/items selection
       this.createActionText(); //create the action text based on the above selection
 
@@ -432,7 +432,7 @@ namespace z89 {
 
       returnObj.inventory = this.getInventorySelected();
 
-      console.log(returnObj.inventory);
+      //console.log(returnObj.inventory);
 
       let _Item: Items;
 
@@ -601,17 +601,17 @@ namespace z89 {
 
     executeActionLogic(_item?: any): boolean {
       let _actionObj: any = this.getActionObject();
-      console.log(_actionObj);
+      //console.log(_actionObj);
       //console.log(this.checkCombinedItems())
       if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-        console.log("logic 0");
+        // console.log("logic 0");
 
         //console.log(_actionObj.inventory.length, this.getCurrentActionString(), _actionObj.key)
         if (
           _actionObj.inventory.length == 1 &&
           gameData.ingame.logic[_actionObj.key] != undefined
         ) {
-          console.log("logic 1");
+          //console.log("logic 1");
 
           gameData.ingame.logic[_actionObj.key](this);
           return true;
@@ -619,7 +619,7 @@ namespace z89 {
           _actionObj.inventory.length == 2 &&
           this.checkCombinedItems()
         ) {
-          console.log("logic item on item", _actionObj.key);
+          //console.log("logic item on item", _actionObj.key);
 
           gameData.ingame.logic[this.checkCombinedItemsKey()](this);
           return true;
@@ -629,7 +629,7 @@ namespace z89 {
         _actionObj.item != null &&
         gameData.ingame.logic[_actionObj.key] != undefined
       ) {
-        console.log("logic 2", _actionObj.key);
+        //console.log("logic 2", _actionObj.key);
 
         //if (_actionObj.item.itemObj.logic != undefined && _actionObj.item.itemObj.logic[this.getCurrentActionString()] != undefined) { _actionObj.item.itemObj.logic[this.getCurrentActionString()](this); return true; }
 
@@ -640,7 +640,7 @@ namespace z89 {
         _actionObj.item != null &&
         gameData.ingame.logic[_actionObj.key] != undefined
       ) {
-        console.log("logic 3", _actionObj.key);
+        //console.log("logic 3", _actionObj.key);
 
         gameData.ingame.logic[_actionObj.key](this);
         return true;
@@ -807,7 +807,7 @@ namespace z89 {
         return;
       }
 
-      console.log(_item);
+      // console.log(_item);
 
       if (this.player.y >= 660) {
         _item.itemObj.fixedToCamera = true;
@@ -836,25 +836,14 @@ namespace z89 {
     displayChapterTitle(chapterIndex: number): void {
       if (chapterIndex != undefined) this.currentChapter = chapterIndex;
 
-      /*
       this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
-      this.add
-        .tween(this.chapterTitle)
-        .to({ alpha: 1 }, 1000, Phaser.Easing.Quadratic.In, true, 500, 0, false)
-        .onComplete.add(() => {
-          this.game.add
-            .tween(this.chapterTitle)
-            .to(
-              { alpha: 0 },
-              1000,
-              Phaser.Easing.Quadratic.In,
-              true,
-              2000,
-              0,
-              false
-            );
-        }, this);
-        */
+      this.tweens.add({ targets: this.chapterTitle, duration: 1000, alpha: 1, onComplete:()=>{
+
+        this.tweens.add({ targets: this.chapterTitle, delay:2000, duration: 1000, alpha: 0 });
+
+      } });
+
+
     }
 
     removeItem(itemIndex: number): void {

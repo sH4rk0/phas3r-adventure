@@ -32,9 +32,16 @@ namespace z89 {
       z89.getLabel(21)
     ];
 
+    
+
+    private customPipeline:any;
+
     constructor(scene: GameCity) {
       super(scene, 300, 650 - 48, "player");
 
+      //this.setPipeline("testPipeline");
+      //this.pipeline.setFloat2('uResolution', this.width, this.height);
+      
       this.scene = scene;
 
       let config: AnimationConfig = {
@@ -133,24 +140,14 @@ namespace z89 {
       scene.add.existing(this);
     }
 
+    
+
     goTo(_x: number, _y: number, _item?: Items): void {
-      //console.log(_x,_y,_item);
+     
+        console.log(_x, _y, _item, this.scene.currentItem);
+   
+
       this.hideBaloon();
-      this.scene.playerActions.hide();
-
-      /*
-      if (this.scene.currentItem == undefined && _item == undefined)
-        this.scene.playerActions.hide();
-
-      if (
-        this.scene.playerActions.IsOpen() &&
-        this.scene.currentItem != undefined &&
-        _item != undefined &&
-        this.scene.currentItem.itemObj.id != _item.itemObj.id
-      )
-        this.scene.playerActions.hide();
-
-        */
 
       if (
         this.scene.conversationBaloon.isConversationActive() &&
@@ -159,79 +156,119 @@ namespace z89 {
         this.scene.conversationBaloon.stopConversation();
       }
 
-      this.play("player-walk");
-      if (this.playerTween != undefined) this.playerTween.stop();
-      if (_item == undefined) this.scene.currentItem = null;
 
-      if (this.direction == PlayerDirection.NONE) {
-      }
-      if (_x > this.x) {
-        if (this.direction != PlayerDirection.RIGHT) this.changeDirection();
-      } else {
-        if (this.direction != PlayerDirection.LEFT) this.changeDirection();
-      }
+      if(   (_item != undefined || _item != null) 
+      
+          && (this.scene.currentItem != undefined || this.scene.currentItem != null)
+          
+          && ( this.scene.currentItem.itemObj.id == _item.itemObj.id))  return;
 
-      this.intersect = false;
 
-      let _intersect: any = this.checkIntersect({ x1: _x, y1: _y + 1 });
+      // this.scene.playerActions.hide();
 
-      if (_intersect.point != null) {
-        let _offset: number = 0;
-        if (this.y < _intersect.point.y) {
-          _offset = -5;
-        } else {
-          _offset = +5;
+      /*
+      if (this.scene.currentItem == undefined && _item == undefined)
+        this.scene.playerActions.hide();
+ */
+      if (
+        this.scene.playerActions.IsOpen() &&
+       // (this.scene.currentItem == undefined || this.scene.currentItem == null) &&
+        (_item == undefined || _item == null)
+        //&& this.scene.currentItem.itemObj.id != _item.itemObj.id
+      ){ this.scene.playerActions.hide();}
+       
+
+    
+
+       
+
+        if (this.playerTween != null) {
+          
+          this.playerTween.stop();
+
+        }else{
+
+          this.play("player-walk");
         }
-        _x = _intersect.point.x;
-        _y = _intersect.point.y + _offset;
-        _item = null;
-        this.intersect = true;
-      }
 
-      if (_y > this.yMax) _y = this.yMax;
-      if (_y < this.yMin) _y = this.yMin;
+        if (_item == undefined) this.scene.currentItem = null;
 
-      let distance: number;
-      let distanceX: number = Phaser.Math.Distance.Between(this.x, 0, _x, 0);
-      let distanceY: number = Phaser.Math.Distance.Between(0, this.y, 0, _y);
+        if (this.direction == PlayerDirection.NONE) {
+        }
+        if (_x > this.x) {
+          if (this.direction != PlayerDirection.RIGHT) this.changeDirection();
+        } else {
+          if (this.direction != PlayerDirection.LEFT) this.changeDirection();
+        }
 
-      if (distanceX > distanceY) {
-        distance = distanceX;
-      } else {
-        distance = distanceY;
-      }
+        this.intersect = false;
 
-      this.playerTween = this.scene.tweens.add({
-        targets: this,
-        x: _x,
-        y: _y + 1,
-        ease: null,
-        duration: 7.5 * distance,
-        onCompleteParams: [this.intersect],
-        onComplete: (a, b, c) => {
-          this.depth = this.y;
+        let _intersect: any = this.checkIntersect({ x1: _x, y1: _y + 1 });
 
-          this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
-          this.play("player-idle");
+        if (_intersect.point != null) {
+          let _offset: number = 0;
+          if (this.y < _intersect.point.y) {
+            _offset = -5;
+          } else {
+            _offset = +5;
+          }
+          _x = _intersect.point.x;
+          _y = _intersect.point.y + _offset;
+          _item = null;
+          this.intersect = true;
+        }
 
-          if (_item != null) {
-            this.scene.setCurrentItem(_item);
+        if (_y > this.yMax) _y = this.yMax;
+        if (_y < this.yMin) _y = this.yMin;
 
-            if (this.x < _item.x) {
-              if (this.direction == PlayerDirection.LEFT)
-                this.changeDirection();
-            } else {
-              if (this.direction == PlayerDirection.RIGHT)
-                this.changeDirection();
+        let distance: number;
+        let distanceX: number = Phaser.Math.Distance.Between(this.x, 0, _x, 0);
+        let distanceY: number = Phaser.Math.Distance.Between(0, this.y, 0, _y);
+
+        if (distanceX > distanceY) {
+          distance = distanceX;
+        } else {
+          distance = distanceY;
+        }
+
+        this.playerTween = this.scene.tweens.add({
+          targets: this,
+          x: _x,
+          y: _y + 1,
+          ease: null,
+          duration: 7.5 * distance,
+          loop:0,
+          onCompleteParams: [this.intersect],
+          onComplete: () => {
+            this.depth = this.y;
+            this.playerTween.stop();
+            this.playerTween=null;
+            this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
+            this.play("player-idle");
+
+          
+            if (_item != null) {
+              this.scene.setCurrentItem(_item);
+
+              if (this.x < _item.x) {
+                if (this.direction == PlayerDirection.LEFT)
+                  this.changeDirection();
+              } else {
+                if (this.direction == PlayerDirection.RIGHT)
+                  this.changeDirection();
+              }
+
+              this.scene.doActionSequence(_item);
+
+              if (_item.isInteractive()) this.scene.playerActions.show();
             }
 
-            this.scene.doActionSequence(_item);
-
-            if (_item.isInteractive()) this.scene.playerActions.show();
+            if (_intersect[0]) this.showBaloon(z89.getLabel(11));
           }
-          if (_intersect[0]) this.showBaloon(z89.getLabel(11));
-        }
-      });
+        });
+      
+
+
     }
 
     changeDirection(): void {
@@ -323,6 +360,8 @@ namespace z89 {
         .setAlpha(0)
         .setDepth(10000)
         .play("beam");
+
+
 
       let color2 = new Phaser.Display.Color(255, 255, 255);
       let color1 = new Phaser.Display.Color(0, 255, 0);
@@ -435,6 +474,9 @@ namespace z89 {
     }
 
     update(): void {
+
+      //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
+     
       this.setDepth(this.y);
       this.myArea.setDepth(this.y - 1);
       Phaser.Display.Align.In.Center(this.myArea, this);

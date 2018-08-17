@@ -6,14 +6,14 @@ gameData.chapters=[
            
             cs.removeItem(24);
             cs.updateItemObject(23,"name", z89.getLabel(57))
-            cs.gameItemsUtils.getItemById(23).playAnim("fixed");
+            cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
             cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
             cs.gameItemsUtils.getItemById(22).start();
             cs.updateItemObject(2,"working", true);
-            cs.gameItemsUtils.getItemById(2).playAnim("working");
+            cs.gameItemsUtils.getItemById(2).playAnim("2-working");
             cs.updateItemObject(22, "isStarted", true);
             cs.updateItemObject(19,"conversationStatus", 1);
-            //cs.saveGameObj.updateItems();
+            cs.saveGameObj.updateItems();
         
                         }
     },
@@ -24,7 +24,7 @@ gameData.chapters=[
            
             cs.gameItemsUtils.getItemById(50).start();
             cs.updateItemObject(22, "isStarted", true);
-            //cs.saveGameObj.updateItems();
+            cs.saveGameObj.updateItems();
         
                         }
         

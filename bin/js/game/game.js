@@ -78,6 +78,16 @@ var z89;
             graphics.fillRect(0, 0, 640, 400);
             graphics.generateTexture("terminale", 640, 400);
             graphics.clear();
+            graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.fillStyle(0x206000, 1);
+            graphics.fillRect(0, 0, 300, 20);
+            graphics.generateTexture("phone-options", 300, 20);
+            graphics.clear();
+            graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.lineStyle(10, 0x00ff00, 1);
+            graphics.strokeRect(0, 0, 380, 80);
+            graphics.generateTexture("guru-meditation", 380, 80);
+            graphics.clear();
             var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
             graphics2.fillRect(0, 0, 50, 126);
             graphics2.generateTexture("playerHitArea", 50, 126);
@@ -190,7 +200,6 @@ var z89;
                 };
                 this.load.rexWebFont(config);
             }
-            //
             /*this.load.shader("noise", "js/game/fragments/noise.frag");
             this.load.shader("convergence", "js/game/fragments/convergence.frag");
             this.load.shader("gray", "js/game/fragments/gray.frag");
@@ -215,6 +224,7 @@ var z89;
             }) || this;
             // private filters: Array<Phaser.Filter>;
             _this.gameInteracion = true;
+            _this.currentChapter = 0;
             return _this;
         }
         GameCity.prototype.preload = function () {
@@ -366,6 +376,11 @@ var z89;
                 //if (this.playerActions.IsOpen()) this.playerActions.hide();
                 _this.player.goTo(_this.input.x + _this.mainCamera.scrollX, _this.input.y);
             }, this);
+            this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
+            this.chapterTitle
+                .setScrollFactor(0)
+                .setOrigin(0.5)
+                .setAlpha(0).setDepth(3000);
             /*this.ground = this.add.sprite(
               0,
               0,
@@ -426,7 +441,7 @@ var z89;
         GameCity.prototype.restartGame = function () {
             this.saveGameObj.destroy();
             document.location.reload();
-            console.log("restart game");
+            //console.log("restart game");
         };
         GameCity.prototype.update = function (time, delta) {
             if (this.mainCamera.scrollX >= 0 && this.mainCamera.scrollX <= 2590) {
@@ -480,7 +495,7 @@ var z89;
         };
         GameCity.prototype.doActionSequence = function (_item) {
             var _this = this;
-            console.log("checkActions");
+            //console.log("checkActions");
             this.createActionObject(); //create the action object based on action/inventory/items selection
             this.createActionText(); //create the action text based on the above selection
             var _actionObj = this.getActionObject();
@@ -523,7 +538,7 @@ var z89;
             var _inventoryIds = [];
             var _Inventoryitems = "";
             returnObj.inventory = this.getInventorySelected();
-            console.log(returnObj.inventory);
+            //console.log(returnObj.inventory);
             var _Item;
             if (_itemSelected != undefined) {
                 _Item = _itemSelected;
@@ -681,20 +696,20 @@ var z89;
         };
         GameCity.prototype.executeActionLogic = function (_item) {
             var _actionObj = this.getActionObject();
-            console.log(_actionObj);
+            //console.log(_actionObj);
             //console.log(this.checkCombinedItems())
             if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-                console.log("logic 0");
+                // console.log("logic 0");
                 //console.log(_actionObj.inventory.length, this.getCurrentActionString(), _actionObj.key)
                 if (_actionObj.inventory.length == 1 &&
                     gameData.ingame.logic[_actionObj.key] != undefined) {
-                    console.log("logic 1");
+                    //console.log("logic 1");
                     gameData.ingame.logic[_actionObj.key](this);
                     return true;
                 }
                 else if (_actionObj.inventory.length == 2 &&
                     this.checkCombinedItems()) {
-                    console.log("logic item on item", _actionObj.key);
+                    //console.log("logic item on item", _actionObj.key);
                     gameData.ingame.logic[this.checkCombinedItemsKey()](this);
                     return true;
                 }
@@ -702,7 +717,7 @@ var z89;
             else if (_actionObj.inventory.length == 0 &&
                 _actionObj.item != null &&
                 gameData.ingame.logic[_actionObj.key] != undefined) {
-                console.log("logic 2", _actionObj.key);
+                //console.log("logic 2", _actionObj.key);
                 //if (_actionObj.item.itemObj.logic != undefined && _actionObj.item.itemObj.logic[this.getCurrentActionString()] != undefined) { _actionObj.item.itemObj.logic[this.getCurrentActionString()](this); return true; }
                 gameData.ingame.logic[_actionObj.key](this);
                 return true;
@@ -710,7 +725,7 @@ var z89;
             else if (_actionObj.inventory.length > 0 &&
                 _actionObj.item != null &&
                 gameData.ingame.logic[_actionObj.key] != undefined) {
-                console.log("logic 3", _actionObj.key);
+                //console.log("logic 3", _actionObj.key);
                 gameData.ingame.logic[_actionObj.key](this);
                 return true;
             }
@@ -845,7 +860,7 @@ var z89;
             if (!this.playerActions.isInInventory(_item)) {
                 return;
             }
-            console.log(_item);
+            // console.log(_item);
             if (this.player.y >= 660) {
                 _item.itemObj.fixedToCamera = true;
                 var _x = this.player.x * 1.08;
@@ -865,27 +880,13 @@ var z89;
             this.saveGameObj.updateItems();
         };
         GameCity.prototype.displayChapterTitle = function (chapterIndex) {
+            var _this = this;
             if (chapterIndex != undefined)
                 this.currentChapter = chapterIndex;
-            /*
             this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
-            this.add
-              .tween(this.chapterTitle)
-              .to({ alpha: 1 }, 1000, Phaser.Easing.Quadratic.In, true, 500, 0, false)
-              .onComplete.add(() => {
-                this.game.add
-                  .tween(this.chapterTitle)
-                  .to(
-                    { alpha: 0 },
-                    1000,
-                    Phaser.Easing.Quadratic.In,
-                    true,
-                    2000,
-                    0,
-                    false
-                  );
-              }, this);
-              */
+            this.tweens.add({ targets: this.chapterTitle, duration: 1000, alpha: 1, onComplete: function () {
+                    _this.tweens.add({ targets: _this.chapterTitle, delay: 2000, duration: 1000, alpha: 0 });
+                } });
         };
         GameCity.prototype.removeItem = function (itemIndex) {
             this.groupAll.remove(this.gameItemsUtils.getItemById(itemIndex), true);
@@ -1161,7 +1162,12 @@ var z89;
         parent: "my-game",
         width: 1080,
         height: 720,
-        scene: [z89.Boot, z89.Preloader, z89.GameCity]
+        scene: [z89.Boot, z89.Preloader, z89.GameCity],
+        callbacks: {
+            postBoot: function (game) {
+                game.renderer.addPipeline('testPipeline', new z89.testPipeline({ 'game': game, 'renderer': game.renderer }));
+            },
+        },
     };
     var c64ColorsEnum;
     (function (c64ColorsEnum) {
@@ -1484,14 +1490,14 @@ gameData.chapters = [
         complete: function (cs) {
             cs.removeItem(24);
             cs.updateItemObject(23, "name", z89.getLabel(57));
-            cs.gameItemsUtils.getItemById(23).playAnim("fixed");
+            cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
             cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
             cs.gameItemsUtils.getItemById(22).start();
             cs.updateItemObject(2, "working", true);
-            cs.gameItemsUtils.getItemById(2).playAnim("working");
+            cs.gameItemsUtils.getItemById(2).playAnim("2-working");
             cs.updateItemObject(22, "isStarted", true);
             cs.updateItemObject(19, "conversationStatus", 1);
-            //cs.saveGameObj.updateItems();
+            cs.saveGameObj.updateItems();
         }
     },
     {
@@ -1500,7 +1506,7 @@ gameData.chapters = [
         complete: function (cs) {
             cs.gameItemsUtils.getItemById(50).start();
             cs.updateItemObject(22, "isStarted", true);
-            //cs.saveGameObj.updateItems();
+            cs.saveGameObj.updateItems();
         }
     }
 ];
@@ -1518,13 +1524,7 @@ gameData.ingame.conversation = {
             text: z89.getLabel(94),
             isItem: false,
             fork: true,
-            options: [
-                { option: "LEAVE THE GAME", action: function (cs, target) {
-                        gameData.chapters.forEach(function (element) {
-                            if (!element.completed)
-                                element.complete(cs);
-                        });
-                    } },
+            options: [,
                 { option: "YES", action: function (cs, target) {
                         cs.currentChapter++;
                         cs.displayChapterTitle(cs.currentChapter);
@@ -1532,6 +1532,12 @@ gameData.ingame.conversation = {
                         cs.playerActions.hide();
                         cs.playerBaloon.hideBaloon();
                         cs.conversationBaloon.hideBaloon();
+                    } },
+                { option: "LEAVE THE GAME", action: function (cs, target) {
+                        gameData.chapters.forEach(function (element) {
+                            if (!element.completed)
+                                element.complete(cs);
+                        });
                     } }
             ]
         }],
@@ -2087,13 +2093,13 @@ gameData.ingame.logic =
             cs.removeInventoryItems();
             cs.gameUtils.addDelay(1000, function () {
                 cs.updateItemObject(23, "name", z89.getLabel(57));
-                cs.gameItemsUtils.getItemById(23).playAnim("fixed");
+                cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
                 cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
                 cs.gameItemsUtils.getItemById(22).start();
                 cs.updateItemObject(22, "isStarted", true);
                 cs.updateItemObject(19, "conversationStatus", 1);
                 cs.updateItemObject(2, "working", true);
-                cs.gameItemsUtils.getItemById(2).playAnim("working");
+                cs.gameItemsUtils.getItemById(2).playAnim("2-working");
                 cs.saveGameObj.updateItems();
                 gameData.chapters[cs.currentChapter].completed = true;
                 var convObj = {
@@ -2103,6 +2109,7 @@ gameData.ingame.logic =
                     item: null
                 };
                 cs.conversationBaloon.setUpConversation(convObj);
+                cs.disableInteraction();
             });
         },
         //examine gerardo
@@ -2296,19 +2303,19 @@ gameData.ingame.logic =
 
 */ 
 gameData.menuBlink = [
-    { name: "HOME", frame: 0, to: 100, x: 0, y: 0 },
-    { name: "DEVDAY", frame: 4, to: 875, x: 0, y: 110 },
-    { name: "SKILLS", frame: 5, to: 1354, x: 100, y: 110 },
-    { name: "CAKE", frame: 6, to: 1590, x: 200, y: 110 },
-    { name: "ARCADE", frame: 7, to: 2100, x: 0, y: 220 },
-    { name: "AEROSOL", frame: 8, to: 2580, x: 100, y: 220 },
-    { name: "CONTACT", frame: 9, to: 3300, x: 200, y: 220 }
+    { name: "HOME", frame: 0, to: 100, x: 0, y: 30 },
+    { name: "DEVDAY", frame: 4, to: 875, x: 0, y: 140 },
+    { name: "SKILLS", frame: 5, to: 1354, x: 100, y: 140 },
+    { name: "CAKE", frame: 6, to: 1590, x: 200, y: 140 },
+    { name: "ARCADE", frame: 7, to: 2100, x: 0, y: 250 },
+    { name: "AEROSOL", frame: 8, to: 2580, x: 100, y: 250 },
+    { name: "CONTACT", frame: 9, to: 3300, x: 200, y: 250 }
 ];
 gameData.menuBtns = {
-    actions: { name: "ACTIONS", frame: 1, x: 100, y: 0 },
-    restart: { name: "RESTART", frame: 10, x: 200, y: 0 },
-    info: { name: "INFO", frame: 2, x: 0, y: 330 },
-    options: { name: "OPTIONS", frame: 3, x: 100, y: 330 },
+    actions: { name: "ACTIONS", frame: 1, x: 100, y: 30 },
+    restart: { name: "RESTART", frame: 10, x: 200, y: 30 },
+    info: { name: "INFO", frame: 2, x: 0, y: 360 },
+    options: { name: "OPTIONS", frame: 3, x: 100, y: 360 }
 };
 var z89;
 (function (z89) {
@@ -2624,11 +2631,14 @@ var z89;
             //options loop
             _obj.options.forEach(function (element, index) {
                 _btn = _this.scene.add.sprite(0, 0, "forkBtn");
+                _btn.setZ(index);
                 var _option = element;
+                var btn = _btn;
                 _btn
                     .setOrigin(0.5, 1)
                     .setInteractive()
                     .on("pointerdown", function () {
+                    console.log(arguments);
                     if (_option.goto != undefined) {
                         _this.currentStep = _this.goToLabel(_option.goto);
                     }
@@ -2642,7 +2652,14 @@ var z89;
                         return;
                     }
                     _this.displayStep();
-                }, _this);
+                }, _this).on("pointerover", function () {
+                    console.log(btn.z);
+                    _this.scene.gameUtils.btnOverEffect(btn, _this.forkBtnsText[btn.z]);
+                })
+                    .on("pointerout", function () {
+                    console.log(btn.z);
+                    _this.scene.gameUtils.btnOutEffect(btn, _this.forkBtnsText[btn.z]);
+                });
                 _btnText = _this.scene.add.bitmapText(0, 80, "commodore", element.option, 20);
                 _btnText.setOrigin(0.5, 1);
                 if (_obj.isItem) {
@@ -2714,10 +2731,32 @@ var z89;
             // this.scene.time.events.add(delay, callback);
             this.scene.time.addEvent({ delay: delay, callback: callback });
         };
+        GameUtils.prototype.itemOverEffect = function (item) {
+            this.scene.gameUtils.tweenTint(item, new Phaser.Display.Color(255, 255, 255), new Phaser.Display.Color(0, 255, 0), 100);
+        };
+        GameUtils.prototype.itemOutEffect = function (item) {
+            this.scene.gameUtils.tweenTint(item, new Phaser.Display.Color(0, 255, 0), new Phaser.Display.Color(255, 255, 255), 100);
+        };
+        GameUtils.prototype.iconOverEffect = function (item) {
+            this.scene.gameUtils.tweenTint(item, new Phaser.Display.Color(255, 255, 255), new Phaser.Display.Color(0, 255, 0), 100);
+        };
+        GameUtils.prototype.iconOutEffect = function (item) {
+            this.scene.gameUtils.tweenTint(item, new Phaser.Display.Color(0, 255, 0), new Phaser.Display.Color(255, 255, 255), 100);
+        };
+        GameUtils.prototype.btnOverEffect = function (btn, text) {
+            this.scene.gameUtils.tweenTint(btn, new Phaser.Display.Color(42, 118, 0), new Phaser.Display.Color(0, 255, 0), 100);
+            this.scene.gameUtils.tweenTint(text, new Phaser.Display.Color(255, 255, 255), new Phaser.Display.Color(0, 0, 0), 500);
+        };
+        GameUtils.prototype.btnOutEffect = function (btn, text) {
+            this.scene.gameUtils.tweenTint(btn, new Phaser.Display.Color(0, 255, 0), new Phaser.Display.Color(42, 118, 0), 100);
+            this.scene.gameUtils.tweenTint(text, new Phaser.Display.Color(0, 0, 0), new Phaser.Display.Color(255, 255, 255), 500);
+        };
         GameUtils.prototype.tweenTint = function (obj, startColor, endColor, duration, delay, callback) {
             if (duration === void 0) { duration = 250; }
             if (delay === void 0) { delay = 0; }
             if (callback === void 0) { callback = null; }
+            if (obj == undefined)
+                return;
             var color;
             this.tween = this.scene.tweens.addCounter({
                 from: 0,
@@ -2756,6 +2795,7 @@ var z89;
                     };
                     _this.anims.animationManager.create(config);
                 });
+                console.log(itemObj.id + "-" + itemObj.currentAnimation);
                 _this.play(itemObj.id + "-" + itemObj.currentAnimation);
             }
             _this.setDepth(_this.y).setOrigin(0.5, 1).setInteractive();
@@ -2782,7 +2822,11 @@ var z89;
                         _playerDest += _this.itemObj.offsetX;
                     }
                     _this.scene.player.goTo(_playerDest, _this.y, _this);
-                }, _this);
+                }, _this).on("pointerover", function () {
+                    _this.scene.gameUtils.itemOverEffect(_this);
+                }).on("pointerout", function () {
+                    _this.scene.gameUtils.itemOutEffect(_this);
+                });
             }
             _this.scene.add.existing(_this);
             return _this;
@@ -2806,7 +2850,7 @@ var z89;
                 this.name = _value;
         };
         Items.prototype.playAnim = function (_anim) {
-            this.itemObj.currentAnimation = _anim;
+            this.itemObj.currentAnimation = _anim.split("-")[1];
             this.play(_anim);
         };
         Items.prototype.start = function () {
@@ -2859,17 +2903,40 @@ var z89;
             //+++++++++++++++++++++++++
             // content text
             //+++++++++++++++++++++++++
+            _this.guru = _this.scene.add.sprite(0, 0, "guru-meditation");
+            _this.guru.setOrigin(.5).setDepth(_this.y + 1);
+            _this.guruTween = _this.scene.tweens.add({ targets: _this.guru, delay: 1000, duration: 1000, alpha: 0, yoyo: true, loopDelay: 1000, loop: -1 });
+            Phaser.Display.Align.In.TopCenter(_this.guru, _this.contentImage);
             var _style = {
-                fill: "#ffffff",
+                fill: "#00ff00",
+                align: "center"
+                //stroke: "#000000",
+                //strokeThickness: 5
             };
-            _this.contentText = _this.scene.add.text(0, 0, "OFFLINE", _style);
-            _this.contentText
+            _this.contentTextTitle = _this.scene.add.text(0, 0, "   Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
+            _this.contentTextTitle
                 .setFontFamily("Roboto")
-                .setFontSize(20)
+                .setFontSize(16)
                 .setOrigin(0)
                 .setDepth(_this.y + 1)
                 .setWordWrapWidth(380);
-            Phaser.Display.Align.In.TopLeft(_this.contentText, _this.contentImage, -20, -20);
+            Phaser.Display.Align.In.TopCenter(_this.contentTextTitle, _this.contentImage, -20, -20);
+            _this.contentTextDescription = _this.scene.add.text(0, 0, "", _style);
+            _this.contentTextDescription
+                .setFontFamily("Roboto")
+                .setFontSize(16)
+                .setOrigin(0)
+                .setDepth(_this.y + 1)
+                .setWordWrapWidth(380);
+            Phaser.Display.Align.To.BottomCenter(_this.contentTextDescription, _this.contentTextTitle, -20, -20);
+            _this.contentTextDate = _this.scene.add.text(0, 0, "", _style);
+            _this.contentTextDate
+                .setFontFamily("Roboto")
+                .setFontSize(16)
+                .setOrigin(0)
+                .setDepth(_this.y + 1)
+                .setWordWrapWidth(380);
+            Phaser.Display.Align.To.BottomCenter(_this.contentTextDate, _this.contentTextDescription, -20, -20);
             //+++++++++++++++++++++++++
             // spinner
             //+++++++++++++++++++++++++
@@ -2941,12 +3008,14 @@ var z89;
             // this.filtersArr.push(new noiseShader(this.game));
             // this.filtersArr.push(new convergenceShader(this.game));
             // if (this.itemObj.isStarted) this.start();
-            if (_this.isStarted)
+            if (_this.itemObj.isStarted)
                 _this.start();
             return _this;
         }
         ItemsContent.prototype.start = function () {
             var _this = this;
+            this.guruTween.stop();
+            this.guru.destroy();
             this.itemObj.isStarted = true;
             this.scene.tweens.add({
                 targets: this.arrowRight,
@@ -3018,7 +3087,7 @@ var z89;
             var _this = this;
             this.isAnimating = true;
             this.scene.tweens.add({
-                targets: [this.contentText, this.contentImage, this.btnGo, this.btnGoText],
+                targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.contentImage, this.btnGo, this.btnGoText],
                 alpha: 0,
                 duration: 300
             });
@@ -3041,30 +3110,29 @@ var z89;
         };
         ItemsContent.prototype.showContent = function () {
             var _this = this;
-            console.log("show content");
             this.scene.tweens.add({ targets: this.spinner, alpha: 0, duration: 300 });
-            var _text = "";
-            //let colors: Array<number> = [];
-            //colors.push(this.contents[this.currentIndex].t.length);
+            var _title = "", _description = "", _date = "";
             if (this.contents[this.currentIndex].a != undefined) {
                 var _json = JSON.parse(this.contents[this.currentIndex].a);
                 if (_json.link != undefined) {
                     this.contents[this.currentIndex].url = _json.link;
                 }
                 if (_json.dd != undefined) {
-                    _text =
-                        "DEVDAY " + _json.dd + "\n" + this.contents[this.currentIndex].t;
-                    //colors.push(_json.dd.length + 7);
+                    _title = "DEVDAY " + _json.dd + "\n";
+                    _description = this.contents[this.currentIndex].t + "\n\n";
+                }
+                else {
+                    _title = this.contents[this.currentIndex].t + "\n\n";
                 }
                 if (_json.date != undefined)
-                    _text += "\n\n" + _json.date;
+                    _date = _json.date;
             }
-            this.contentText.setText(_text);
-            //this.contentText.addColor('#00ff00', 0);
-            //this.contentText.addColor('#ffffff', colors[1]);
-            //this.contentText.addColor('#aaaaaa', colors[0]);
+            console.log(_title, _description, _date);
+            this.contentTextTitle.setText(_title);
+            this.contentTextDescription.setText(_description);
+            this.contentTextDate.setText(_date);
             this.scene.tweens.add({
-                targets: [this.contentText, this.btnGo, this.btnGoText],
+                targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],
                 alpha: 1,
                 duration: 500,
                 onComplete: function () {
@@ -3167,6 +3235,8 @@ var z89;
                 z89.getLabel(13),
                 z89.getLabel(21)
             ];
+            //this.setPipeline("testPipeline");
+            //this.pipeline.setFloat2('uResolution', this.width, this.height);
             _this.scene = scene;
             var config = {
                 key: "player-idle",
@@ -3249,29 +3319,32 @@ var z89;
         }
         Player.prototype.goTo = function (_x, _y, _item) {
             var _this = this;
-            //console.log(_x,_y,_item);
+            console.log(_x, _y, _item, this.scene.currentItem);
             this.hideBaloon();
-            this.scene.playerActions.hide();
-            /*
-            if (this.scene.currentItem == undefined && _item == undefined)
-              this.scene.playerActions.hide();
-      
-            if (
-              this.scene.playerActions.IsOpen() &&
-              this.scene.currentItem != undefined &&
-              _item != undefined &&
-              this.scene.currentItem.itemObj.id != _item.itemObj.id
-            )
-              this.scene.playerActions.hide();
-      
-              */
             if (this.scene.conversationBaloon.isConversationActive() &&
                 (_x != this.x || _y != this.y - 5)) {
                 this.scene.conversationBaloon.stopConversation();
             }
-            this.play("player-walk");
-            if (this.playerTween != undefined)
+            if ((_item != undefined || _item != null)
+                && (this.scene.currentItem != undefined || this.scene.currentItem != null)
+                && (this.scene.currentItem.itemObj.id == _item.itemObj.id))
+                return;
+            // this.scene.playerActions.hide();
+            /*
+            if (this.scene.currentItem == undefined && _item == undefined)
+              this.scene.playerActions.hide();
+       */
+            if (this.scene.playerActions.IsOpen() &&
+                // (this.scene.currentItem == undefined || this.scene.currentItem == null) &&
+                (_item == undefined || _item == null)) {
+                this.scene.playerActions.hide();
+            }
+            if (this.playerTween != null) {
                 this.playerTween.stop();
+            }
+            else {
+                this.play("player-walk");
+            }
             if (_item == undefined)
                 this.scene.currentItem = null;
             if (this.direction == PlayerDirection.NONE) {
@@ -3318,9 +3391,12 @@ var z89;
                 y: _y + 1,
                 ease: null,
                 duration: 7.5 * distance,
+                loop: 0,
                 onCompleteParams: [this.intersect],
-                onComplete: function (a, b, c) {
+                onComplete: function () {
                     _this.depth = _this.y;
+                    _this.playerTween.stop();
+                    _this.playerTween = null;
                     _this.scene.saveGameObj.updatePlayerPosition(_this.x, _this.y);
                     _this.play("player-idle");
                     if (_item != null) {
@@ -3499,6 +3575,7 @@ var z89;
             this.scene.playerBaloon.hideBaloon();
         };
         Player.prototype.update = function () {
+            //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
             this.setDepth(this.y);
             this.myArea.setDepth(this.y - 1);
             Phaser.Display.Align.In.Center(this.myArea, this);
@@ -3711,8 +3788,8 @@ var z89;
                 _this.inventoryBtns.push(_icon);
                 _this.add(_icon);
             });
-            _this.actionText = _this.scene.add.bitmapText(320, 690, "commodore", "", 20);
-            _this.actionText.setAlpha(0).setScrollFactor(0);
+            _this.actionText = _this.scene.add.bitmapText(200, 690, "commodore", "", 20);
+            _this.actionText.setAlpha(0).setScrollFactor(0).setTint(0x00ff00);
             _this.add(_this.actionText);
             _this.scene.add.existing(_this);
             return _this;
@@ -3735,7 +3812,7 @@ var z89;
         PlayerActions.prototype.getInventorySelected = function () {
             var _this = this;
             var _selectedItems = [];
-            console.log(this.inventorySelected);
+            //console.log(this.inventorySelected);
             if (this.inventorySelected.length > 0) {
                 this.inventorySelected.forEach(function (element) {
                     if (_this.inventory[element] != undefined)
@@ -3759,6 +3836,7 @@ var z89;
                 this.scene.tweens.add({
                     targets: this,
                     x: -30,
+                    alpha: 1,
                     duration: 400,
                     ease: "Quad.easeInOut",
                     onComplete: function () {
@@ -3766,6 +3844,10 @@ var z89;
                         _this.scene.enableInteraction();
                     }
                 });
+                this.actionText.setAlpha(0).setX(280);
+                this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: 320, duration: 500, delay: 400, ease: "Quad.easeInOut",
+                    onComplete: function () {
+                    } });
             }
         };
         PlayerActions.prototype.cleanAction = function () {
@@ -3787,6 +3869,7 @@ var z89;
             this.scene.tweens.add({
                 targets: this,
                 x: -300,
+                alpha: 0,
                 duration: 400,
                 ease: "Quad.easeInOut",
                 onComplete: function () {
@@ -3812,11 +3895,11 @@ var z89;
         PlayerActions.prototype.hideText = function () {
             if (this.actionTextTween != undefined)
                 this.actionTextTween.stop();
-            this.actionText.setAlpha(0).setX(200);
-            /* this.actionTextTween = this.game.add.tween(this.actionText).to({ alpha: 0, x: 500 }, 200, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
-      
-                  this.actionTextTween.onComplete.add(() => { this.actionText.x = 200; }, this);
-                  */
+            //this.actionText.setAlpha(0).setX(200);
+            this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 0, duration: 500, delay: 200, ease: "Quad.easeInOut",
+                onComplete: function () {
+                } });
+            // this.actionTextTween.onComplete.add(() => { this.actionText.x = 200; }, this);
         };
         PlayerActions.prototype.IsOpen = function () {
             return this.isOpen;
@@ -3837,10 +3920,9 @@ var z89;
                        this.actionText.tint = 0x00ffff
                    } else { this.actionText.tint = 0x00ff00 }
                    */
-            this.actionText.tint = 0x00ff00;
-            this.actionText.setAlpha(1).setX(320);
-            if (this.actionTextTween != undefined)
-                this.actionTextTween.stop();
+            // this.actionText.tint = 0x00ff00;
+            // this.actionText.setAlpha(1).setX(320);
+            //if (this.actionTextTween != undefined) this.actionTextTween.stop();
             //this.actionTextTween = this.game.add.tween(this.actionText).to({ alpha: 1, x: 320 }, 500, Phaser.Easing.Quadratic.InOut, true, 0, 0, false);
         };
         PlayerActions.prototype.removeItems = function (items) {
@@ -3850,7 +3932,7 @@ var z89;
             });
         };
         PlayerActions.prototype.removeItem = function (item) {
-            console.log(item);
+            //console.log(item);
             this.cleanInventoryIcons();
             this.cleanInventoryFromItem(item);
             this.remapInventoryItemsIndex();
@@ -3895,7 +3977,7 @@ var z89;
                 _this.inventoryBtnsItems.push(_inv);
                 _this.add(_inv);
             });
-            console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
+            //console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
         };
         PlayerActions.prototype.addItem = function (item) {
             item.inventoryIndex = this.inventory.length;
@@ -3918,6 +4000,7 @@ var z89;
             return match;
         };
         PlayerActions.prototype.dropItem = function () { };
+        PlayerActions.prototype.update = function () { console.log("update"); };
         return PlayerActions;
     }(Phaser.GameObjects.Container));
     z89.PlayerActions = PlayerActions;
@@ -4063,7 +4146,6 @@ var z89;
                 .image(0, 0, "menu-phone-bg")
                 .setOrigin(0)
                 .setInteractive()
-                .setDepth(999)
                 .setAlpha(1)
                 .setScrollFactor(0)
                 .setName("bg");
@@ -4071,57 +4153,73 @@ var z89;
                 if (!_this.isOpenOnStart)
                     _this.hide();
             }, _this);
-            _this.add(_this.menuBg);
             _this.menuBgPhone = _this.scene.add
                 .sprite(540, 450, "menu-phone")
                 .setOrigin(0.5)
                 .setScale(1)
-                .setDepth(1000)
                 .setScrollFactor(0)
                 .setName("bg-phone");
-            _this.add(_this.menuBgPhone);
+            _this.menuBgOptions = _this.scene.add
+                .sprite(0, 0, "phone-options")
+                .setOrigin(0)
+                .setScale(1)
+                .setScrollFactor(0)
+                .setName("bg-phone");
+            Phaser.Display.Align.In.TopCenter(_this.menuBgOptions, _this.menuBg, 0, -100);
+            _this.add([_this.menuBgPhone, _this.menuBg, _this.menuBgOptions]);
             //blinks btns
             //+++++++++++++++++++++++++++++++++
             var blinkBtn;
             var blinkText;
-            gameData.menuBlink.forEach(function (element) {
+            gameData.menuBlink.forEach(function (element, index) {
                 blinkBtn = _this.scene.add.sprite(element.x + _this.btnOffsetX, element.y + _this.btnOffsetY, "icons", element.frame);
+                element.sprite = blinkBtn;
+                element.index = index;
                 blinkBtn
                     .setInteractive()
-                    .setDepth(1001)
                     .setScrollFactor(0)
                     .setName("iconsBtn")
-                    .on("pointerdown", function (pointer) {
+                    .on("pointerdown", function () {
                     _this.hide();
                     _this.scene.player.blinkTo(element.to);
-                }, _this);
+                }, _this)
+                    .on("pointerover", function () {
+                    _this.scene.gameUtils.iconOverEffect(element.sprite);
+                })
+                    .on("pointerout", function () {
+                    _this.scene.gameUtils.iconOutEffect(element.sprite);
+                });
                 blinkText = _this.scene.add.bitmapText(0, 80, _this.fontFamily, element.name, _this.fontSize);
                 blinkText.setName("iconsBtn").setScrollFactor(0);
                 Phaser.Display.Align.In.Center(blinkText, blinkBtn, null, _this.textOffsetY);
-                _this.add(blinkBtn);
-                _this.add(blinkText);
+                _this.add([blinkBtn, blinkText]);
             });
             //action btn
             //+++++++++++++++++++++++++++++++++
-            var actionBtn = _this.scene.add.sprite(gameData.menuBtns.actions.x + _this.btnOffsetX, gameData.menuBtns.actions.y + _this.btnOffsetY, "icons", gameData.menuBtns.actions.frame);
-            actionBtn
+            _this.actionBtn = _this.scene.add.sprite(gameData.menuBtns.actions.x + _this.btnOffsetX, gameData.menuBtns.actions.y + _this.btnOffsetY, "icons", gameData.menuBtns.actions.frame);
+            _this.actionBtn
                 .setInteractive()
                 .setScrollFactor(0)
                 .setName("iconsBtn")
                 .on("pointerdown", function (pointer) {
                 _this.scene.playerActions.toogle();
                 _this.hide();
-            }, _this);
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.iconOverEffect(_this.actionBtn);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.iconOutEffect(_this.actionBtn);
+            });
             var actionText = _this.scene.add
                 .bitmapText(0, 0, _this.fontFamily, gameData.menuBtns.actions.name, _this.fontSize)
                 .setName("iconsBtn");
-            Phaser.Display.Align.In.Center(actionText, actionBtn, null, _this.textOffsetY);
-            _this.add(actionBtn);
-            _this.add(actionText);
+            Phaser.Display.Align.In.Center(actionText, _this.actionBtn, null, _this.textOffsetY);
+            _this.add([_this.actionBtn, actionText]);
             //RESTART btn
             //+++++++++++++++++++++++++++++++++
-            var restartBtn = _this.scene.add.sprite(gameData.menuBtns.restart.x + _this.btnOffsetX, gameData.menuBtns.restart.y + _this.btnOffsetY, "icons", gameData.menuBtns.restart.frame);
-            restartBtn
+            _this.restartBtn = _this.scene.add.sprite(gameData.menuBtns.restart.x + _this.btnOffsetX, gameData.menuBtns.restart.y + _this.btnOffsetY, "icons", gameData.menuBtns.restart.frame);
+            _this.restartBtn
                 .setInteractive()
                 .setScrollFactor(0)
                 .setName("iconsBtn")
@@ -4133,21 +4231,27 @@ var z89;
                     item: null
                 });
                 _this.hide();
-            }, _this);
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.iconOverEffect(_this.restartBtn);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.iconOutEffect(_this.restartBtn);
+            });
             var restartText = _this.scene.add
                 .bitmapText(0, 0, _this.fontFamily, gameData.menuBtns.restart.name, _this.fontSize)
                 .setName("iconsBtn");
-            Phaser.Display.Align.In.Center(restartText, restartBtn, null, _this.textOffsetY);
-            _this.add(restartBtn);
-            _this.add(restartText);
+            Phaser.Display.Align.In.Center(restartText, _this.restartBtn, null, _this.textOffsetY);
+            _this.add([_this.restartBtn, restartText]);
             //info btn
             //+++++++++++++++++++++++++++++++++
-            var infoBtn = _this.scene.add.sprite(gameData.menuBtns.info.x + _this.btnOffsetX, gameData.menuBtns.info.y + _this.btnOffsetY, "icons", gameData.menuBtns.info.frame);
-            infoBtn
+            _this.infoBtn = _this.scene.add.sprite(gameData.menuBtns.info.x + _this.btnOffsetX, gameData.menuBtns.info.y + _this.btnOffsetY, "icons", gameData.menuBtns.info.frame);
+            _this.infoBtn
                 .setInteractive()
                 .setScrollFactor(0)
                 .setName("iconsBtn")
                 .on("pointerdown", function (pointer) {
+                console.log("info");
                 _this.scene.conversationBaloon.setUpConversation({
                     key: "INFO",
                     action: null,
@@ -4155,78 +4259,118 @@ var z89;
                     item: null
                 });
                 _this.hide();
-            }, _this);
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.iconOverEffect(_this.infoBtn);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.iconOutEffect(_this.infoBtn);
+            });
             var infoText = _this.scene.add
                 .bitmapText(0, 0, _this.fontFamily, gameData.menuBtns.info.name, _this.fontSize)
                 .setName("iconsBtn");
-            Phaser.Display.Align.In.Center(infoText, infoBtn, null, _this.textOffsetY);
-            _this.add(infoBtn);
-            _this.add(infoText);
+            Phaser.Display.Align.In.Center(infoText, _this.infoBtn, null, _this.textOffsetY);
+            _this.add([_this.infoBtn, infoText]);
             //options btn
             //+++++++++++++++++++++++++++++++++
-            var optionBtn = _this.scene.add.sprite(gameData.menuBtns.options.x + _this.btnOffsetX, gameData.menuBtns.options.y + _this.btnOffsetY, "icons", 3);
-            optionBtn
+            _this.optionBtn = _this.scene.add.sprite(gameData.menuBtns.options.x + _this.btnOffsetX, gameData.menuBtns.options.y + _this.btnOffsetY, "icons", 3);
+            _this.optionBtn
                 .setInteractive()
                 .setScrollFactor(0)
                 .setName("iconsBtn")
-                .on("pointerDown", function (pointer) {
-                _this.scene.conversationBaloon.setUpConversation({
-                    key: "OPTIONS",
-                    action: null,
-                    inventory: null,
-                    item: null
+                .on("pointerdown", function (pointer) {
+                console.log("option");
+                /*
+                this.scene.conversationBaloon.setUpConversation({
+                  key: "OPTIONS",
+                  action: null,
+                  inventory: null,
+                  item: null
                 });
-                _this.hide();
-            }, _this);
+    
+                this.hide();*/
+                _this.showMenu();
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.iconOverEffect(_this.optionBtn);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.iconOutEffect(_this.optionBtn);
+            });
             var optionText = _this.scene.add
                 .bitmapText(0, 0, _this.fontFamily, gameData.menuBtns.options.name, _this.fontSize)
                 .setName("iconsBtn");
-            Phaser.Display.Align.In.Center(optionText, optionBtn, null, _this.textOffsetY);
-            _this.add(optionBtn);
-            _this.add(optionText);
+            Phaser.Display.Align.In.Center(optionText, _this.optionBtn, null, _this.textOffsetY);
+            _this.add([_this.optionBtn, optionText]);
             //+++++++++++++++++++++++++++++++++
-            //intro Text
+            //Start buttons
             //+++++++++++++++++++++++++++++++++
             var introText = _this.scene.add
                 .text(0, 0, "Welcome to my adventure website experiment.\nComplete the quests to access the website sections... or explore the website without playing!", {
                 fontFamily: "Roboto",
                 fontSize: 20
-            }).setWordWrapWidth(280)
+            })
+                .setWordWrapWidth(280)
                 .setTint(0xffffff)
                 .setOrigin(0.5)
                 .setName("start");
-            Phaser.Display.Align.In.TopCenter(introText, _this.menuBgPhone, 0, -30);
+            Phaser.Display.Align.In.TopCenter(introText, _this.menuBgPhone, 0, -80);
             //+++++++++++++++++++++++++++++++++
             //new game btn
             //+++++++++++++++++++++++++++++++++
-            var newGame = _this.scene.add.sprite(0, 0, "roundedBtn");
-            newGame
+            _this.newGameBtn = _this.scene.add.sprite(0, 0, "roundedBtn");
+            _this.newGameBtn
                 .setName("start")
                 .setInteractive()
                 .setScrollFactor(0)
                 .setTint(0x2a7600)
                 .on("pointerdown", function (pointer) {
                 _this.newGame();
-            }, _this);
-            Phaser.Display.Align.In.TopCenter(newGame, _this.menuBgPhone, 0, -200);
-            var newGameText = _this.scene.add.bitmapText(0, 0, _this.fontFamily, "NEW GAME", _this.fontSize + 10);
-            newGameText.setName("start").setOrigin(0.5, 0).setScrollFactor(0);
-            Phaser.Display.Align.In.Center(newGameText, newGame);
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.btnOverEffect(_this.newGameBtn, _this.newGameTxt);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.btnOutEffect(_this.newGameBtn, _this.newGameTxt);
+            });
+            Phaser.Display.Align.To.BottomCenter(_this.newGameBtn, introText, 0, 50);
+            _this.newGameTxt = _this.scene.add.bitmapText(0, 0, _this.fontFamily, "NEW GAME", _this.fontSize + 10);
+            _this.newGameTxt
+                .setName("start")
+                .setOrigin(0.5, 0)
+                .setScrollFactor(0);
+            Phaser.Display.Align.In.Center(_this.newGameTxt, _this.newGameBtn);
             //no game btn
             //+++++++++++++++++++++++++++++++++
-            var noGame = _this.scene.add.sprite(0, 0, "roundedBtn");
-            noGame
+            _this.noGameBtn = _this.scene.add.sprite(0, 0, "roundedBtn");
+            _this.noGameBtn
                 .setName("start")
                 .setInteractive()
                 .setScrollFactor(0)
                 .setTint(0x2a7600)
                 .on("pointerdown", function () {
                 _this.noGame();
-            }, _this);
-            Phaser.Display.Align.In.TopCenter(noGame, _this.menuBgPhone, 0, -300);
-            var noGameText = _this.scene.add.bitmapText(0, 0, _this.fontFamily, "NO GAME", _this.fontSize + 10).setName("start").setOrigin(0.5, 0).setScrollFactor(0);
-            Phaser.Display.Align.In.Center(noGameText, noGame);
-            _this.add([noGame, newGame, noGameText, newGameText, introText]);
+            }, _this)
+                .on("pointerover", function () {
+                _this.scene.gameUtils.btnOverEffect(_this.noGameBtn, _this.noGameTxt);
+            })
+                .on("pointerout", function () {
+                _this.scene.gameUtils.btnOutEffect(_this.noGameBtn, _this.noGameTxt);
+            });
+            Phaser.Display.Align.To.BottomCenter(_this.noGameBtn, _this.newGameBtn, 0, 50);
+            _this.noGameTxt = _this.scene.add
+                .bitmapText(0, 0, _this.fontFamily, "NO GAME", _this.fontSize + 10)
+                .setName("start")
+                .setOrigin(0.5, 0)
+                .setScrollFactor(0);
+            Phaser.Display.Align.In.Center(_this.noGameTxt, _this.noGameBtn);
+            _this.add([
+                _this.noGameBtn,
+                _this.newGameBtn,
+                _this.noGameTxt,
+                _this.newGameTxt,
+                introText
+            ]);
             _this.setVisible(false);
             _this.scene.add.existing(_this);
             return _this;
@@ -4304,6 +4448,17 @@ var z89;
                 }
             });
         };
+        PlayerMenu.prototype.showMenu = function () {
+            var _this = this;
+            this.getAll().forEach(function (element, index) {
+                if (element.name == "iconsBtn") {
+                    _this.scene.tweens.add({ targets: element, duration: 100, y: element.y + 20, alpha: 0, onComplete: function () {
+                            element.setY(element.y - 20);
+                        } });
+                }
+            }, this);
+            this.scene.tweens.add({ targets: this.menuBgOptions, scaleY: 22, duration: 1000, ease: "Bounce.easeOut" });
+        };
         PlayerMenu.prototype.hide = function () {
             var _this = this;
             this.scene.tweens.add({
@@ -4317,6 +4472,7 @@ var z89;
                 onComplete: function () {
                     _this.isOpen = false;
                     _this.setVisible(false);
+                    _this.menuBgOptions.setScale(1);
                     _this.scene.enableInteraction();
                 }
             });
@@ -5326,4 +5482,77 @@ var z89;
         return TerminalLogic;
     }());
     z89.TerminalLogic = TerminalLogic;
+})(z89 || (z89 = {}));
+var z89;
+(function (z89) {
+    var testPipeline = (function (_super) {
+        __extends(testPipeline, _super);
+        function testPipeline(config) {
+            var _this = this;
+            config['fragShader'] = "\n\n            precision mediump float;\n            uniform float rand;\n            uniform vec4 uResolution;\n            uniform sampler2D uMainSampler;\n            varying vec2 outTexCoord;\n\nvoid main (void)\n{\n   vec4 col = texture2D(uMainSampler, outTexCoord);\n   vec4 col_r = texture2D(uMainSampler, outTexCoord + vec2((+25.5 / uResolution.x) * rand, 0));\n   vec4 col_l = texture2D(uMainSampler, outTexCoord + vec2((.0 / uResolution.x) * rand, 0));\n   vec4 col_g = texture2D(uMainSampler, outTexCoord + vec2((-25.5 / uResolution.x) * rand, 0));\n   col.g = col.g + col_l.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;\n   col.g = col.g + col_r.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;\n   col.g = col.g + col_g.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;\n   gl_FragColor.rgba = col.rgba;\n}\n\n\n\n\n\n            ";
+            /*`
+
+
+
+            precision mediump float;
+            uniform float rand;
+            uniform vec4 uResolution;
+            uniform sampler2D uMainSampler;
+            varying vec2 outTexCoord;
+
+void main (void)
+{
+   vec4 col = texture2D(uMainSampler, outTexCoord);
+   vec4 col_r = texture2D(uMainSampler, outTexCoord + vec2((+25.5 / uResolution.x) * rand, 0));
+   vec4 col_l = texture2D(uMainSampler, outTexCoord + vec2((.0 / uResolution.x) * rand, 0));
+   vec4 col_g = texture2D(uMainSampler, outTexCoord + vec2((-25.5 / uResolution.x) * rand, 0));
+   col.g = col.g + col_l.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;
+   col.g = col.g + col_r.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;
+   col.g = col.g + col_g.g * max(1.0, sin(outTexCoord.y * uResolution.y * 1.2) * 2.5) * rand;
+   gl_FragColor.rgba = col.rgba;
+}
+
+
+
+            precision mediump float;
+
+            uniform sampler2D uMainSampler;
+            uniform vec2 uResolution;
+            uniform float uTime;
+
+            varying vec2 outTexCoord;
+            varying vec4 outTint;
+
+            vec4 plasma()
+            {
+                vec2 pixelPos = gl_FragCoord.xy / uResolution * 20.0;
+                float freq = 0.8;
+                float value =
+                    sin(uTime + pixelPos.x * freq) +
+                    sin(uTime + pixelPos.y * freq) +
+                    sin(uTime + (pixelPos.x + pixelPos.y) * freq) +
+                    cos(uTime + sqrt(length(pixelPos - 0.5)) * freq * 2.0);
+
+                return vec4(
+                    cos(value),
+                    sin(value),
+                    sin(value * 3.14 * 2.0),
+                    cos(value)
+                );
+            }
+
+            void main()
+            {
+                vec4 texel = texture2D(uMainSampler, outTexCoord);
+                texel *= vec4(outTint.rgb * outTint.a, outTint.a);
+                gl_FragColor = texel * plasma();
+            }
+
+            `;*/
+            _this = _super.call(this, config) || this;
+            return _this;
+        }
+        return testPipeline;
+    }(Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline));
+    z89.testPipeline = testPipeline;
 })(z89 || (z89 = {}));

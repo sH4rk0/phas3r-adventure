@@ -14,14 +14,105 @@ namespace z89 {
       this.scene.time.addEvent({ delay:delay, callback:callback})
     }
 
+    itemOverEffect(item:Items):void{
+
+      this.scene.gameUtils.tweenTint(
+        item,
+        new Phaser.Display.Color(255, 255, 255),
+        new Phaser.Display.Color(0, 255, 0),
+       
+        100
+      );
+
+    }
+
+    itemOutEffect(item:Items):void{
+
+      this.scene.gameUtils.tweenTint(
+        item,
+     
+        new Phaser.Display.Color(0, 255, 0),
+        new Phaser.Display.Color(255, 255, 255),
+        100
+      );
+
+    }
+
+    iconOverEffect(item:any):void{
+
+      this.scene.gameUtils.tweenTint(
+        item,
+        new Phaser.Display.Color(255, 255, 255),
+        new Phaser.Display.Color(0, 255, 0),
+       
+        100
+      );
+
+    }
+
+    iconOutEffect(item:any):void{
+
+      this.scene.gameUtils.tweenTint(
+        item,
+     
+        new Phaser.Display.Color(0, 255, 0),
+        new Phaser.Display.Color(255, 255, 255),
+        100
+      );
+
+    }
+
+
+
+
+    btnOverEffect(btn:any,text:any):void{
+
+      this.scene.gameUtils.tweenTint(
+        btn,
+        new Phaser.Display.Color(42, 118, 0),
+        new Phaser.Display.Color(0, 255, 0),
+        100
+      );
+      this.scene.gameUtils.tweenTint(
+        text,
+        new Phaser.Display.Color(255, 255, 255),
+        new Phaser.Display.Color(0, 0, 0),
+        500
+      );
+
+    }
+
+
+    btnOutEffect(btn:any,text:any):void{
+
+      this.scene.gameUtils.tweenTint(
+        btn,
+        new Phaser.Display.Color(0, 255, 0),
+        new Phaser.Display.Color(42, 118, 0),
+        100
+      );
+      this.scene.gameUtils.tweenTint(
+        text,
+        new Phaser.Display.Color(0, 0, 0),
+        new Phaser.Display.Color(255, 255, 255),
+        500
+      );
+
+
+
+    }
+
+
     tweenTint(
-      obj: Phaser.GameObjects.Sprite,
+      obj: any,
       startColor: Phaser.Display.Color,
       endColor: Phaser.Display.Color,
       duration: number = 250,
       delay: number = 0,
       callback: any = null
-    ) {
+    ):void {
+
+      if (obj==undefined) return;
         let color:any;
       this.tween = this.scene.tweens.addCounter({
         from: 0,

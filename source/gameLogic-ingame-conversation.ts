@@ -20,17 +20,7 @@ gameData.ingame.conversation = {
         text: z89.getLabel(94),
         isItem: false,
         fork: true,
-        options: [
-            
-            { option: "LEAVE THE GAME", action: (cs: z89.GameCity, target: z89.Items) => { 
-
-                gameData.chapters.forEach(element => {
-
-                   if(!element.completed) element.complete(cs);
-                    
-                });
-
-            } },
+        options: [,
             { option: "YES", action: (cs: z89.GameCity, target: z89.Items) => { 
                 cs.currentChapter++; 
                 cs.displayChapterTitle(cs.currentChapter);
@@ -40,6 +30,16 @@ gameData.ingame.conversation = {
                 cs.conversationBaloon.hideBaloon();
             
             
+            } },
+            
+            { option: "LEAVE THE GAME", action: (cs: z89.GameCity, target: z89.Items) => { 
+
+                gameData.chapters.forEach(element => {
+
+                   if(!element.completed) element.complete(cs);
+                    
+                });
+
             } }
         ]
 

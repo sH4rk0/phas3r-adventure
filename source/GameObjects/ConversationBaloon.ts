@@ -265,20 +265,27 @@ namespace z89 {
       //options loop
       _obj.options.forEach((element, index) => {
         _btn = this.scene.add.sprite(0, 0, "forkBtn");
+        _btn.setZ(index);
         var _option = element;
+        var btn=_btn;
         _btn
           .setOrigin(0.5, 1)
           .setInteractive()
           .on(
             "pointerdown",
             () => {
+
+              console.log(arguments)
+             
               if (_option.goto != undefined) {
                 this.currentStep = this.goToLabel(_option.goto);
               }
+
               if (_option.link != undefined) {
                 this.currentStep++;
                 window.open(_option.link, "_blank");
               }
+
               if (_option.action != undefined) {
                 _option.action(this.scene, this.baloonTarget);
                 this.hideBaloon();
@@ -288,7 +295,19 @@ namespace z89 {
               this.displayStep();
             },
             this
-          );
+          ).on("pointerover", () => {
+
+            console.log(btn.z);
+            
+            this.scene.gameUtils.btnOverEffect( btn, this.forkBtnsText[btn.z]);
+            
+          })
+          .on("pointerout", () => {
+            console.log(btn.z);
+            this.scene.gameUtils.btnOutEffect( btn,  this.forkBtnsText[btn.z]);
+  
+           
+          });
 
         _btnText = this.scene.add.bitmapText(
           0,

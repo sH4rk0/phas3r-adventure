@@ -80,10 +80,26 @@ namespace z89 {
       graphics.generateTexture("terminale", 640, 400);
       graphics.clear();
 
+      graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.fillStyle(0x206000, 1);
+      graphics.fillRect(0, 0, 300, 20);
+      graphics.generateTexture("phone-options", 300, 20);
+      graphics.clear();
+
+      graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.lineStyle(10, 0x00ff00, 1);
+      graphics.strokeRect(0, 0, 380, 80);
+      graphics.generateTexture("guru-meditation", 380, 80);
+      graphics.clear();
+
       var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
       graphics2.fillRect(0, 0, 50, 126);
       graphics2.generateTexture("playerHitArea", 50, 126);
       graphics2.clear();
+
+     
+  
+      
 
       this.load.bitmapFont("commodore", "assets/fonts/64_0.png", "assets/fonts/64.xml");
 			this.load.bitmapFont("commodore2", "assets/fonts/64x32_0.png", "assets/fonts/64x32.xml");

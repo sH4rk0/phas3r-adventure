@@ -43,7 +43,14 @@ export function setDevice(isMobile: boolean): void {
     parent: "my-game",
     width: 1080,
     height: 720,
-    scene: [Boot, Preloader, GameCity]
+    scene: [Boot, Preloader, GameCity],
+    callbacks: {
+      postBoot: (game) => {
+          game.renderer.addPipeline(
+              'testPipeline',
+              new testPipeline({ 'game': game, 'renderer': game.renderer }));
+      },
+  },
   };
 
   export enum c64ColorsEnum {

@@ -37,6 +37,7 @@ module z89 {
 
                 });
                 
+                console.log(itemObj.id+"-"+itemObj.currentAnimation)
                 this.play(itemObj.id+"-"+itemObj.currentAnimation);
               
             }
@@ -79,7 +80,17 @@ module z89 {
 
                 this.scene.player.goTo(_playerDest, this.y, this);
 
-            }, this);
+            }, this).on("pointerover",()=>{
+
+
+                this.scene.gameUtils.itemOverEffect(this);
+
+            }).on("pointerout",()=>{
+
+
+                this.scene.gameUtils.itemOutEffect(this);
+
+            });
         }
 
             this.scene.add.existing(this);
@@ -88,6 +99,7 @@ module z89 {
 
         update() {
 
+           
             
            if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
 
@@ -121,7 +133,7 @@ module z89 {
 
         playAnim(_anim:string):void{
 
-            this.itemObj.currentAnimation=_anim;
+            this.itemObj.currentAnimation=_anim.split("-")[1];
             this.play(_anim);
            
             
