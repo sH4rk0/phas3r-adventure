@@ -101,7 +101,7 @@ module z89 {
 
         addChar(key): void {
 
-            console.log(key);
+           // console.log(key);
            // console.log(key.keyCode);
 
             //return;

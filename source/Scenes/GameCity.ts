@@ -35,9 +35,10 @@ namespace z89 {
     public gameItemsUtils: GameItemsUtils;
 
     public chapterTitle: Phaser.GameObjects.BitmapText;
-    public currentChapter: number=0;
+    public currentChapter: number = 0;
 
     private half: Phaser.GameObjects.TileSprite;
+    private actionTimer: Phaser.Time.TimerEvent;
 
     constructor(test) {
       super({
@@ -149,9 +150,11 @@ namespace z89 {
       this.groupBaloon = this.add.group();
 
       this.playerBaloon = new PlayerBaloon(this);
+      this.playerBaloon.setDepth(900);
       this.groupBaloon.add(this.playerBaloon);
 
       this.conversationBaloon = new conversationBaloon(this, 0, 0);
+      this.conversationBaloon.setDepth(900);
       this.groupBaloon.add(this.conversationBaloon);
 
       // +++++++++++++++++++++++++++++++++++++++
@@ -159,7 +162,7 @@ namespace z89 {
       // +++++++++++++++++++++++++++++++++++++++
 
       this.playerActions = new PlayerActions(this);
-      this.playerActions.setDepth(999);
+      this.playerActions.setDepth(950);
 
       // +++++++++++++++++++++++++++++++++++++++
       // group Menu
@@ -174,10 +177,6 @@ namespace z89 {
 
       this.Terminal = new Terminal(this);
       this.Terminal.setDepth(2000);
-      ///this.Terminal.fixedToCamera = true;
-      ///this.Terminal.cameraOffset.x = 0; //(1080 - 640) / 2;
-      ///this.Terminal.cameraOffset.y = 0; //(720 - 500) / 2;
-      ///this.Terminal.inputEnableChildren = false;
 
       // +++++++++++++++++++++++++++++++++++++++
       // saved game
@@ -238,71 +237,48 @@ namespace z89 {
       this.chapterTitle
         .setScrollFactor(0)
         .setOrigin(0.5)
-        .setAlpha(0).setDepth(3000);
+        .setAlpha(0)
+        .setDepth(910);
 
-      /*this.ground = this.add.sprite(
-        0,
-        0,
-        this.cache.getBitmapData("ground")
-      );
-      this.ground.input.enabled = true;
-      this.ground.setDepth(0).setScrollFactor(0);
-*/
+      playSound(gameSound.intro);
 
-      /* var graphics = this.make.graphics({x: 0, y: 0, add: false});
-      graphics.fillStyle(0xffff00, 1);
-      graphics.fillRect(0, 0, 1080, 720);
-      graphics.generateTexture('ground',1080,720);
-     
 
-      this.ground = this.add.sprite(
-        0,
-        0,
-        'ground'
-      ).setInteractive();
-      
-      this.ground.setOrigin(0);
-      this.ground.setAlpha(0,1);*/
+   
 
-      /*  this.add
-        .text(100, 100, "Hello ", {
-          fontFamily: "Ranga",
-          fontSize: 50
-        })
-        .setScrollFactor(0)
-        .setDepth(5000);
+   
 
-        this.input.on(
-        "pointerdown",
-        function(pointer) {
-          if (!this.gameInteracion) return;
-          console.log("pointerdown");
-          //if (this.playerActions.IsOpen()) this.playerActions.hide();
-          this.player.goTo(
-            this.input.x + this.mainCamera.scrollX,
-            this.input.y
-          );
-        },
-        this
-      );
-*/
+      //get an item and add directly to the inventory
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
+      // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
+      // this.addInventoryItem(this.gameItemsUtils.getItemById(30));
+      // this.addInventoryItem(this.gameItemsUtils.getItemById(32));
 
-      this.addInventoryItem(this.gameItemsUtils.getItemById(24));
-      this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-      this.addInventoryItem(this.gameItemsUtils.getItemById(30));
-      this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+      //beam out existing Items
+      //+++++++++++++++++++++++++++++++++
+      // this.gameItemsUtils.beamOut(27);
 
+      //add an Item and beam In
+      //+++++++++++++++++++++++++++++++++++
+      //this.gameItemsUtils.addItem(27);
+      //this.gameItemsUtils.beamIn(27);
+
+      //shoot Items from high
+      //++++++++++++++++++++++++++++++++++
+      //this.shootFromHigh([27]);
       _gamecity = this;
+
+      
     }
 
     stopSound(): void {
-      //stopSoundAll();
+      stopSoundAll();
     }
 
-    // playSound(sound: gameSound): void {
-    //stopSoundAll();
-    //playSound(sound);
-    // }
+    playSound(sound: gameSound): void {
+      stopSoundAll();
+      playSound(sound);
+    }
 
     restartGame(): void {
       this.saveGameObj.destroy();
@@ -321,8 +297,23 @@ namespace z89 {
       // console.log([ 'x: ' + this.mainCamera.scrollX, 'y: ' + this.mainCamera.scrollY ]);
     }
 
+    leaveGame(): void {
+      this.saveGameObj.setChoiceChapter(true);
+      gameData.chapters.forEach(element => {
+        if (!element.completed) element.complete(this);
+      });
+      this.enableInteraction();
+    }
+
     processSavedGame(): void {
       let _saved = this.saveGameObj.getSaved();
+
+      console.log(_saved);
+
+      if (_saved.chapter.choice == null) {
+        this.displayChapterOptions();
+      }
+
       this.player.x = _saved.position.x;
       this.player.y = _saved.position.y;
 
@@ -373,25 +364,25 @@ namespace z89 {
     }
 
     doActionSequence(_item?: Items): void {
-      //console.log("checkActions");
       this.createActionObject(); //create the action object based on action/inventory/items selection
       this.createActionText(); //create the action text based on the above selection
-
       let _actionObj = this.getActionObject();
+
+      if (this.actionTimer != null) this.actionTimer.remove(false);
+
+      console.log(_actionObj);
 
       if (
         _actionObj.action != -1 &&
-        (_actionObj.inventory.length > 0 || _actionObj.item != null)
+        (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
+        this.executeActionLogic(_item)
       ) {
-        if (this.executeActionLogic(_item)) {
-          //this.playerBaloon.hideBaloon();
-          this.playerActions.hide();
-          //this.playerMenu.hide();
-          this.saveGame();
-          this.resetActions();
-          this.setActionObject(null);
+        console.log("doActionSequence");
+        //this.playerBaloon.hideBaloon();
+        //this.playerActions.hide();
+        //this.playerMenu.hide();
 
-          this.time.delayedCall(
+        /* this.time.delayedCall(
             3000,
             () => {
               this.playerActions.setText("");
@@ -399,16 +390,40 @@ namespace z89 {
             null,
             this
           );
-        }
+          */
+      } else {
+        console.log("doillogic");
+
+        console.log(
+          _actionObj.key,
+          _actionObj.key.indexOf("_"),
+          _actionObj.inventory.length,
+          _actionObj.item
+        );
+
+        if (
+          _actionObj.key != "noAction" &&
+          _actionObj.key.indexOf("_") != -1 &&
+          ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
+            (_actionObj.inventory.length == 0 && _actionObj.item != undefined))
+        )
+          this.player.illogicAction();
       }
+
+      this.actionTimer = this.time.delayedCall(
+        3000,
+        () => {
+          this.resetActions();
+          this.setActionObject(null);
+          this.playerActions.setText("");
+          this.playerBaloon.hideBaloon();
+        },
+        null,
+        this
+      );
     }
 
-    saveGame(): void {
-      console.log("game saved");
-    }
-
-    createActionObject(_itemSelected?: Items): any {
-      // console.log("createActionObject");
+    createActionObject(_itemSelected?: Items): void {
       let returnObj: any = {
         key: null,
         action: null,
@@ -480,9 +495,10 @@ namespace z89 {
         returnObj.key = "noAction";
       }
 
+      console.log(returnObj);
       this.logicCombination = returnObj;
 
-      return this.logicCombination;
+      //return this.logicCombination;
     }
 
     createActionText(): void {
@@ -644,8 +660,6 @@ namespace z89 {
 
         gameData.ingame.logic[_actionObj.key](this);
         return true;
-      } else {
-        this.player.illogicAction();
       }
 
       return false;
@@ -748,8 +762,11 @@ namespace z89 {
     }
 
     addInventory(itemIndex: number, noAnimation?: boolean) {
-      this.gameItemsUtils.addItem(31);
-      this.addInventoryItem(this.gameItemsUtils.getItemById(31), noAnimation);
+      this.gameItemsUtils.addItem(itemIndex);
+      this.addInventoryItem(
+        this.gameItemsUtils.getItemById(itemIndex),
+        noAnimation
+      );
     }
 
     addInventoryItem(item?: Items, noAnimation?: boolean): void {
@@ -773,6 +790,7 @@ namespace z89 {
 
           if (this.playerActions.isInInventory(_item)) {
             this.player.showBaloon(z89.getLabel(28));
+            this.playerActions.resetActions();
           } else {
             this.player.play("player-pickdrop");
             this.playerActions.addItem(_item);
@@ -833,17 +851,56 @@ namespace z89 {
       this.saveGameObj.updateItems();
     }
 
+    chapterCompleted(): void {
+      console.log("chapter completed");
+      this.currentChapter++;
+
+      //this.currentChapter=this.saveGameObj.getSaved().chapter.current;
+
+      gameData.chapters[this.currentChapter].completed = true;
+
+      this.saveGameObj.setChoiceChapter(null);
+      this.saveGameObj.setCurrentChapter(this.currentChapter);
+
+      this.displayChapterOptions();
+    }
+
+    displayChapterOptions(): void {
+      this.conversationBaloon.setUpConversation({
+        key: "CHAPTER_COMPLETED",
+        action: null,
+        inventory: null,
+        item: null
+      });
+      this.disableInteraction();
+    }
+
+    nextChapter(): void {
+      this.saveGameObj.setChoiceChapter(true);
+      console.log(this.saveGameObj.getSaved());
+
+      this.currentChapter = this.saveGameObj.getSaved().chapter.current;
+
+      this.displayChapterTitle(this.currentChapter);
+      this.playerMenu.hide();
+      this.playerActions.hide();
+      this.playerBaloon.hideBaloon();
+      this.conversationBaloon.hideBaloon();
+      this.enableInteraction();
+    }
+
     displayChapterTitle(chapterIndex: number): void {
       if (chapterIndex != undefined) this.currentChapter = chapterIndex;
 
       this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
-      this.tweens.add({ targets: this.chapterTitle, duration: 1000, alpha: 1, onComplete:()=>{
-
-        this.tweens.add({ targets: this.chapterTitle, delay:2000, duration: 1000, alpha: 0 });
-
-      } });
-
-
+      this.tweens.add({
+        targets: this.chapterTitle,
+        duration: 1000,
+        alpha: 1,
+        yoyo: true,
+        loop: 0,
+        hold: 2000
+      });
     }
 
     removeItem(itemIndex: number): void {
@@ -879,10 +936,33 @@ namespace z89 {
       return _result;
     }
 
-    shootFromHigh(targets: Array<number>, shot?: any, callback?: any) {
-      //console.log(target);
-      // obj example
-      /*
+    explosion(x: number, y: number, config: any): void {
+      let _explosion: Phaser.GameObjects.Sprite = this.add.sprite(
+        x,
+        y,
+        config.name
+      );
+      _explosion
+        .setOrigin(0.5, 1)
+        .setScale(2)
+        .setDepth(1000);
+      _explosion.anims.animationManager.create({
+        key: "explode",
+        frames: this.anims.generateFrameNumbers(config.name, {
+          frames: config.animation.frames
+        }),
+        frameRate: config.animation.rate,
+        repeat: 0
+      });
+
+      _explosion.play("explode");
+
+      _explosion.on("animationcomplete", () => {
+        _explosion.destroy();
+      });
+    }
+
+    shootFromHigh(targets: Array<number>, shot?: any, callback?: any): void {
       shot = {
         delay: 1000,
         missile: {
@@ -924,7 +1004,8 @@ namespace z89 {
               24,
               25,
               26,
-              27
+              27,
+              28
             ],
             rate: 25,
             loop: false
@@ -933,7 +1014,6 @@ namespace z89 {
       };
 
       let _shot: Phaser.GameObjects.Sprite;
-      let _explosion: Phaser.GameObjects.Sprite;
 
       targets.forEach((element, index) => {
         this.groupAll.children.each((sprite: any) => {
@@ -941,169 +1021,42 @@ namespace z89 {
             //console.log(sprite);
 
             _shot = this.add.sprite(sprite.x, -100, shot.missile.name);
-            _shot.anchor.set(0.5, 1);
-            _shot.animations
-              .add(
-                "run",
-                shot.missile.animation.frames,
-                shot.missile.animation.rate,
-                shot.missile.animation.loop
-              )
-              .play();
+            _shot.setOrigin(0.5, 1).setDepth(1000);
 
-            this.game.add
-              .tween(_shot)
-              .to(
-                { y: sprite.y },
-                1000,
-                Phaser.Easing.Quadratic.In,
-                true,
-                shot.delay * index,
-                0,
-                false
-              )
-              .onComplete.add((shoot: Phaser.Sprite) => {
-                this.game.camera.flash(0xffffff, 2000);
-                _explosion = this.game.add.sprite(
-                  sprite.x,
-                  sprite.y,
-                  "explosion"
-                );
-                _explosion.setOrigin(0.5, 1);
-                _explosion.setScale(2);
+            _shot.anims.animationManager.create({
+              key: "run",
+              frames: this.anims.generateFrameNumbers("meteor", {
+                frames: shot.missile.animation.frames
+              }),
+              frameRate: shot.missile.animation.rate,
+              repeat: -1
+            });
+
+            _shot.play("run");
+
+            this.tweens.add({
+              targets: _shot,
+              y: sprite.y,
+              duration: 1000,
+              delay: shot.delay * index,
+              ease: "Quad.easeIn",
+
+              onComplete: () => {
+                this.mainCamera.flash(500, 255, 255, 255);
+                this.mainCamera.shake(700, 0.01);
+                this.explosion(sprite.x, sprite.y, shot.explosion);
                 this.groupAll.remove(
-                  this.gameItemsUtils.getItemById(sprite.id)
+                  this.gameItemsUtils.getItemById(sprite.id),
+                  true
                 );
-                _explosion.animations
-                  .add(
-                    "run",
-                    shot.explosion.animation.frames,
-                    shot.explosion.animation.rate,
-                    shot.explosion.animation.loop
-                  )
-                  .play()
-                  .onComplete.add((explosion: Phaser.GameObjects.Sprite) => {
-                    explosion.destroy();
+                _shot.destroy();
 
-                    if (index == targets.length - 1) {
-                      console.log("callaback");
-                    }
-                  }, _explosion);
-
-                shoot.kill();
-              }, this);
+                this.saveGameObj.updateItems();
+              }
+            });
           }
         }, this);
       });
-
-      /*
-      _meteor.anchor.set(.5);
-      _meteor.animations.add("run", [0, 1, 2, 3, 4, 5, 6, 7, 8], 5, true).play();
-      this.game.add.tween(_meteor).to({ y: 600 }, 1000, Phaser.Easing.Quadratic.In, true, 0, 0, false).onComplete.add((a, b, c: Phaser.Sprite) => {
-
-              this.game.camera.flash();
-              this.groupAll.remove(this.getItemSpriteId(16));
-              let exp = this.game.add.sprite(600, 600, "explosion");
-              exp.anchor.set(.5);
-              exp.scale.set(2);
-              exp.animations.add("run", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], 25, false).play().onComplete.add((a, b, c) => {
-
-                      a.kill();
-                      this.playerBaloon.showBaloon("Noooooooooo!!!! :D");
-
-              }, exp);
-
-
-              c.kill()
-
-
-      }, this, null, _meteor);
-
-      */
     }
-
-    /*
-    meteor2(target: Items) {
-      //console.log(target);
-
-      let _meteor = this.add.sprite(this.player.x, -100, "meteor");
-
-      _meteor.setOrigin(0.5);
-      _meteor.animations
-        .add("run", [0, 1, 2, 3, 4, 5, 6, 7, 8], 5, true)
-        .play();
-      this.game.add
-        .tween(_meteor)
-        .to({ y: 600 }, 1000, Phaser.Easing.Quadratic.In, true, 0, 0, false)
-        .onComplete.add(
-          (a, b, c: Phaser.GameObjects.Sprite) => {
-            this.game.camera.flash();
-            this.player.destroy();
-
-            let exp = this.add.sprite(
-              this.player.x,
-              this.player.y - 50,
-              "explosion"
-            );
-            exp.setOrigin(0.5);
-            exp.setScale(2);
-            exp.animations
-              .add(
-                "run",
-                [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4,
-                  5,
-                  6,
-                  7,
-                  8,
-                  9,
-                  10,
-                  11,
-                  12,
-                  13,
-                  14,
-                  15,
-                  16,
-                  17,
-                  18,
-                  19,
-                  20,
-                  21,
-                  22,
-                  23,
-                  24,
-                  25,
-                  26,
-                  27
-                ],
-                25,
-                false
-              )
-              .play()
-              .onComplete.add(sprite => {
-                sprite.kill();
-                // this.playerBaloon.showBaloon("Noooooooooo!!!! :D");
-
-                this.conversationBaloon.setUpConversation({
-                  key: "TALKTO_custom",
-                  action: null,
-                  inventory: null,
-                  item: target
-                });
-              }, exp);
-
-            c.destroy();
-          },
-          this,
-          null,
-          _meteor
-        );
-    }
-
-    */
   }
 }

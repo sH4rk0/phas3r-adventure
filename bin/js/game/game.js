@@ -161,6 +161,10 @@ var z89;
             });
             this.load.on("complete", function () {
                 //progress.destroy();
+                gameData.assets.sounds.forEach(function (element) {
+                    var _sound = _this.sound.add(element.name);
+                    z89.pushSound(_sound);
+                });
                 _this.body.className = "";
                 _this.scene.start('GameCity');
                 console.log("load assetts complete");
@@ -311,14 +315,16 @@ var z89;
             // +++++++++++++++++++++++++++++++++++++++
             this.groupBaloon = this.add.group();
             this.playerBaloon = new z89.PlayerBaloon(this);
+            this.playerBaloon.setDepth(900);
             this.groupBaloon.add(this.playerBaloon);
             this.conversationBaloon = new z89.conversationBaloon(this, 0, 0);
+            this.conversationBaloon.setDepth(900);
             this.groupBaloon.add(this.conversationBaloon);
             // +++++++++++++++++++++++++++++++++++++++
             // group Action
             // +++++++++++++++++++++++++++++++++++++++
             this.playerActions = new z89.PlayerActions(this);
-            this.playerActions.setDepth(999);
+            this.playerActions.setDepth(950);
             // +++++++++++++++++++++++++++++++++++++++
             // group Menu
             // +++++++++++++++++++++++++++++++++++++++
@@ -329,10 +335,6 @@ var z89;
             // +++++++++++++++++++++++++++++++++++++++
             this.Terminal = new z89.Terminal(this);
             this.Terminal.setDepth(2000);
-            ///this.Terminal.fixedToCamera = true;
-            ///this.Terminal.cameraOffset.x = 0; //(1080 - 640) / 2;
-            ///this.Terminal.cameraOffset.y = 0; //(720 - 500) / 2;
-            ///this.Terminal.inputEnableChildren = false;
             // +++++++++++++++++++++++++++++++++++++++
             // saved game
             // +++++++++++++++++++++++++++++++++++++++
@@ -380,64 +382,34 @@ var z89;
             this.chapterTitle
                 .setScrollFactor(0)
                 .setOrigin(0.5)
-                .setAlpha(0).setDepth(3000);
-            /*this.ground = this.add.sprite(
-              0,
-              0,
-              this.cache.getBitmapData("ground")
-            );
-            this.ground.input.enabled = true;
-            this.ground.setDepth(0).setScrollFactor(0);
-      */
-            /* var graphics = this.make.graphics({x: 0, y: 0, add: false});
-            graphics.fillStyle(0xffff00, 1);
-            graphics.fillRect(0, 0, 1080, 720);
-            graphics.generateTexture('ground',1080,720);
-           
-      
-            this.ground = this.add.sprite(
-              0,
-              0,
-              'ground'
-            ).setInteractive();
-            
-            this.ground.setOrigin(0);
-            this.ground.setAlpha(0,1);*/
-            /*  this.add
-              .text(100, 100, "Hello ", {
-                fontFamily: "Ranga",
-                fontSize: 50
-              })
-              .setScrollFactor(0)
-              .setDepth(5000);
-      
-              this.input.on(
-              "pointerdown",
-              function(pointer) {
-                if (!this.gameInteracion) return;
-                console.log("pointerdown");
-                //if (this.playerActions.IsOpen()) this.playerActions.hide();
-                this.player.goTo(
-                  this.input.x + this.mainCamera.scrollX,
-                  this.input.y
-                );
-              },
-              this
-            );
-      */
-            this.addInventoryItem(this.gameItemsUtils.getItemById(24));
-            this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-            this.addInventoryItem(this.gameItemsUtils.getItemById(30));
-            this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+                .setAlpha(0)
+                .setDepth(910);
+            z89.playSound(z89.gameSound.intro);
+            //get an item and add directly to the inventory
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
+            // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
+            // this.addInventoryItem(this.gameItemsUtils.getItemById(30));
+            // this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+            //beam out existing Items
+            //+++++++++++++++++++++++++++++++++
+            // this.gameItemsUtils.beamOut(27);
+            //add an Item and beam In
+            //+++++++++++++++++++++++++++++++++++
+            //this.gameItemsUtils.addItem(27);
+            //this.gameItemsUtils.beamIn(27);
+            //shoot Items from high
+            //++++++++++++++++++++++++++++++++++
+            //this.shootFromHigh([27]);
             _gamecity = this;
         };
         GameCity.prototype.stopSound = function () {
-            //stopSoundAll();
+            z89.stopSoundAll();
         };
-        // playSound(sound: gameSound): void {
-        //stopSoundAll();
-        //playSound(sound);
-        // }
+        GameCity.prototype.playSound = function (sound) {
+            z89.stopSoundAll();
+            z89.playSound(sound);
+        };
         GameCity.prototype.restartGame = function () {
             this.saveGameObj.destroy();
             document.location.reload();
@@ -452,9 +424,22 @@ var z89;
             }
             // console.log([ 'x: ' + this.mainCamera.scrollX, 'y: ' + this.mainCamera.scrollY ]);
         };
+        GameCity.prototype.leaveGame = function () {
+            var _this = this;
+            this.saveGameObj.setChoiceChapter(true);
+            gameData.chapters.forEach(function (element) {
+                if (!element.completed)
+                    element.complete(_this);
+            });
+            this.enableInteraction();
+        };
         GameCity.prototype.processSavedGame = function () {
             var _this = this;
             var _saved = this.saveGameObj.getSaved();
+            console.log(_saved);
+            if (_saved.chapter.choice == null) {
+                this.displayChapterOptions();
+            }
             this.player.x = _saved.position.x;
             this.player.y = _saved.position.y;
             if (_saved.items != undefined) {
@@ -495,30 +480,46 @@ var z89;
         };
         GameCity.prototype.doActionSequence = function (_item) {
             var _this = this;
-            //console.log("checkActions");
             this.createActionObject(); //create the action object based on action/inventory/items selection
             this.createActionText(); //create the action text based on the above selection
             var _actionObj = this.getActionObject();
+            if (this.actionTimer != null)
+                this.actionTimer.remove(false);
+            console.log(_actionObj);
             if (_actionObj.action != -1 &&
-                (_actionObj.inventory.length > 0 || _actionObj.item != null)) {
-                if (this.executeActionLogic(_item)) {
-                    //this.playerBaloon.hideBaloon();
-                    this.playerActions.hide();
-                    //this.playerMenu.hide();
-                    this.saveGame();
-                    this.resetActions();
-                    this.setActionObject(null);
-                    this.time.delayedCall(3000, function () {
-                        _this.playerActions.setText("");
-                    }, null, this);
-                }
+                (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
+                this.executeActionLogic(_item)) {
+                console.log("doActionSequence");
+                //this.playerBaloon.hideBaloon();
+                //this.playerActions.hide();
+                //this.playerMenu.hide();
+                /* this.time.delayedCall(
+                    3000,
+                    () => {
+                      this.playerActions.setText("");
+                    },
+                    null,
+                    this
+                  );
+                  */
             }
-        };
-        GameCity.prototype.saveGame = function () {
-            console.log("game saved");
+            else {
+                console.log("doillogic");
+                console.log(_actionObj.key, _actionObj.key.indexOf("_"), _actionObj.inventory.length, _actionObj.item);
+                if (_actionObj.key != "noAction" &&
+                    _actionObj.key.indexOf("_") != -1 &&
+                    ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
+                        (_actionObj.inventory.length == 0 && _actionObj.item != undefined)))
+                    this.player.illogicAction();
+            }
+            this.actionTimer = this.time.delayedCall(3000, function () {
+                _this.resetActions();
+                _this.setActionObject(null);
+                _this.playerActions.setText("");
+                _this.playerBaloon.hideBaloon();
+            }, null, this);
         };
         GameCity.prototype.createActionObject = function (_itemSelected) {
-            // console.log("createActionObject");
             var returnObj = {
                 key: null,
                 action: null,
@@ -580,8 +581,9 @@ var z89;
             else if (_currentAction == "") {
                 returnObj.key = "noAction";
             }
+            console.log(returnObj);
             this.logicCombination = returnObj;
-            return this.logicCombination;
+            //return this.logicCombination;
         };
         GameCity.prototype.createActionText = function () {
             //console.log("createActionText")
@@ -729,9 +731,6 @@ var z89;
                 gameData.ingame.logic[_actionObj.key](this);
                 return true;
             }
-            else {
-                this.player.illogicAction();
-            }
             return false;
         };
         GameCity.prototype.resetActions = function () {
@@ -808,8 +807,8 @@ var z89;
             return !this.gameInteracion;
         };
         GameCity.prototype.addInventory = function (itemIndex, noAnimation) {
-            this.gameItemsUtils.addItem(31);
-            this.addInventoryItem(this.gameItemsUtils.getItemById(31), noAnimation);
+            this.gameItemsUtils.addItem(itemIndex);
+            this.addInventoryItem(this.gameItemsUtils.getItemById(itemIndex), noAnimation);
         };
         GameCity.prototype.addInventoryItem = function (item, noAnimation) {
             if (item != undefined) {
@@ -831,6 +830,7 @@ var z89;
                     }
                     if (this.playerActions.isInInventory(_item)) {
                         this.player.showBaloon(z89.getLabel(28));
+                        this.playerActions.resetActions();
                     }
                     else {
                         this.player.play("player-pickdrop");
@@ -879,14 +879,47 @@ var z89;
             this.player.play("player-pickdrop");
             this.saveGameObj.updateItems();
         };
+        GameCity.prototype.chapterCompleted = function () {
+            console.log("chapter completed");
+            this.currentChapter++;
+            //this.currentChapter=this.saveGameObj.getSaved().chapter.current;
+            gameData.chapters[this.currentChapter].completed = true;
+            this.saveGameObj.setChoiceChapter(null);
+            this.saveGameObj.setCurrentChapter(this.currentChapter);
+            this.displayChapterOptions();
+        };
+        GameCity.prototype.displayChapterOptions = function () {
+            this.conversationBaloon.setUpConversation({
+                key: "CHAPTER_COMPLETED",
+                action: null,
+                inventory: null,
+                item: null
+            });
+            this.disableInteraction();
+        };
+        GameCity.prototype.nextChapter = function () {
+            this.saveGameObj.setChoiceChapter(true);
+            console.log(this.saveGameObj.getSaved());
+            this.currentChapter = this.saveGameObj.getSaved().chapter.current;
+            this.displayChapterTitle(this.currentChapter);
+            this.playerMenu.hide();
+            this.playerActions.hide();
+            this.playerBaloon.hideBaloon();
+            this.conversationBaloon.hideBaloon();
+            this.enableInteraction();
+        };
         GameCity.prototype.displayChapterTitle = function (chapterIndex) {
-            var _this = this;
             if (chapterIndex != undefined)
                 this.currentChapter = chapterIndex;
             this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
-            this.tweens.add({ targets: this.chapterTitle, duration: 1000, alpha: 1, onComplete: function () {
-                    _this.tweens.add({ targets: _this.chapterTitle, delay: 2000, duration: 1000, alpha: 0 });
-                } });
+            this.tweens.add({
+                targets: this.chapterTitle,
+                duration: 1000,
+                alpha: 1,
+                yoyo: true,
+                loop: 0,
+                hold: 2000
+            });
         };
         GameCity.prototype.removeItem = function (itemIndex) {
             this.groupAll.remove(this.gameItemsUtils.getItemById(itemIndex), true);
@@ -917,147 +950,110 @@ var z89;
             });
             return _result;
         };
-        GameCity.prototype.shootFromHigh = function (targets, shot, callback) {
-            //console.log(target);
-            // obj example
-            /*
-            shot = {
-              delay: 1000,
-              missile: {
-                name: "meteor",
-                animation: {
-                  frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-                  rate: 5,
-                  loop: true
-                }
-              },
-              explosion: {
-                name: "explosion",
-                animation: {
-                  frames: [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7,
-                    8,
-                    9,
-                    10,
-                    11,
-                    12,
-                    13,
-                    14,
-                    15,
-                    16,
-                    17,
-                    18,
-                    19,
-                    20,
-                    21,
-                    22,
-                    23,
-                    24,
-                    25,
-                    26,
-                    27
-                  ],
-                  rate: 25,
-                  loop: false
-                }
-              }
-            };
-      
-            let _shot: Phaser.GameObjects.Sprite;
-            let _explosion: Phaser.GameObjects.Sprite;
-      
-            targets.forEach((element, index) => {
-              this.groupAll.children.each((sprite: any) => {
-                if (sprite.id == element) {
-                  //console.log(sprite);
-      
-                  _shot = this.add.sprite(sprite.x, -100, shot.missile.name);
-                  _shot.anchor.set(0.5, 1);
-                  _shot.animations
-                    .add(
-                      "run",
-                      shot.missile.animation.frames,
-                      shot.missile.animation.rate,
-                      shot.missile.animation.loop
-                    )
-                    .play();
-      
-                  this.game.add
-                    .tween(_shot)
-                    .to(
-                      { y: sprite.y },
-                      1000,
-                      Phaser.Easing.Quadratic.In,
-                      true,
-                      shot.delay * index,
-                      0,
-                      false
-                    )
-                    .onComplete.add((shoot: Phaser.Sprite) => {
-                      this.game.camera.flash(0xffffff, 2000);
-                      _explosion = this.game.add.sprite(
-                        sprite.x,
-                        sprite.y,
-                        "explosion"
-                      );
-                      _explosion.setOrigin(0.5, 1);
-                      _explosion.setScale(2);
-                      this.groupAll.remove(
-                        this.gameItemsUtils.getItemById(sprite.id)
-                      );
-                      _explosion.animations
-                        .add(
-                          "run",
-                          shot.explosion.animation.frames,
-                          shot.explosion.animation.rate,
-                          shot.explosion.animation.loop
-                        )
-                        .play()
-                        .onComplete.add((explosion: Phaser.GameObjects.Sprite) => {
-                          explosion.destroy();
-      
-                          if (index == targets.length - 1) {
-                            console.log("callaback");
-                          }
-                        }, _explosion);
-      
-                      shoot.kill();
-                    }, this);
-                }
-              }, this);
+        GameCity.prototype.explosion = function (x, y, config) {
+            var _explosion = this.add.sprite(x, y, config.name);
+            _explosion
+                .setOrigin(0.5, 1)
+                .setScale(2)
+                .setDepth(1000);
+            _explosion.anims.animationManager.create({
+                key: "explode",
+                frames: this.anims.generateFrameNumbers(config.name, {
+                    frames: config.animation.frames
+                }),
+                frameRate: config.animation.rate,
+                repeat: 0
             });
-      
-            /*
-            _meteor.anchor.set(.5);
-            _meteor.animations.add("run", [0, 1, 2, 3, 4, 5, 6, 7, 8], 5, true).play();
-            this.game.add.tween(_meteor).to({ y: 600 }, 1000, Phaser.Easing.Quadratic.In, true, 0, 0, false).onComplete.add((a, b, c: Phaser.Sprite) => {
-      
-                    this.game.camera.flash();
-                    this.groupAll.remove(this.getItemSpriteId(16));
-                    let exp = this.game.add.sprite(600, 600, "explosion");
-                    exp.anchor.set(.5);
-                    exp.scale.set(2);
-                    exp.animations.add("run", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], 25, false).play().onComplete.add((a, b, c) => {
-      
-                            a.kill();
-                            this.playerBaloon.showBaloon("Noooooooooo!!!! :D");
-      
-                    }, exp);
-      
-      
-                    c.kill()
-      
-      
-            }, this, null, _meteor);
-      
-            */
+            _explosion.play("explode");
+            _explosion.on("animationcomplete", function () {
+                _explosion.destroy();
+            });
+        };
+        GameCity.prototype.shootFromHigh = function (targets, shot, callback) {
+            var _this = this;
+            shot = {
+                delay: 1000,
+                missile: {
+                    name: "meteor",
+                    animation: {
+                        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        rate: 5,
+                        loop: true
+                    }
+                },
+                explosion: {
+                    name: "explosion",
+                    animation: {
+                        frames: [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26,
+                            27,
+                            28
+                        ],
+                        rate: 25,
+                        loop: false
+                    }
+                }
+            };
+            var _shot;
+            targets.forEach(function (element, index) {
+                _this.groupAll.children.each(function (sprite) {
+                    if (sprite.id == element) {
+                        //console.log(sprite);
+                        _shot = _this.add.sprite(sprite.x, -100, shot.missile.name);
+                        _shot.setOrigin(0.5, 1).setDepth(1000);
+                        _shot.anims.animationManager.create({
+                            key: "run",
+                            frames: _this.anims.generateFrameNumbers("meteor", {
+                                frames: shot.missile.animation.frames
+                            }),
+                            frameRate: shot.missile.animation.rate,
+                            repeat: -1
+                        });
+                        _shot.play("run");
+                        _this.tweens.add({
+                            targets: _shot,
+                            y: sprite.y,
+                            duration: 1000,
+                            delay: shot.delay * index,
+                            ease: "Quad.easeIn",
+                            onComplete: function () {
+                                _this.mainCamera.flash(500, 255, 255, 255);
+                                _this.mainCamera.shake(700, 0.01);
+                                _this.explosion(sprite.x, sprite.y, shot.explosion);
+                                _this.groupAll.remove(_this.gameItemsUtils.getItemById(sprite.id), true);
+                                _shot.destroy();
+                                _this.saveGameObj.updateItems();
+                            }
+                        });
+                    }
+                }, _this);
+            });
         };
         return GameCity;
     }(Phaser.Scene));
@@ -1083,7 +1079,7 @@ var z89;
             if (_itemObj != undefined) {
                 switch (_itemObj.type) {
                     case 2:
-                        //    this.currentState.groupAll.add(new ItemsTruck(this.game, _itemObj));
+                        //    this.scene.groupAll.add(new ItemsTruck(this.scene, _itemObj));
                         break;
                     case 3:
                         this.scene.groupAll.add(new z89.ItemsContent(this.scene, _itemObj));
@@ -1093,6 +1089,9 @@ var z89;
                         break;
                     case 5:
                         this.scene.groupCity.add(new z89.Items(this.scene, _itemObj));
+                        break;
+                    case 6:
+                        this.scene.groupAll.add(new z89.ItemsWalking(this.scene, _itemObj));
                         break;
                     default:
                         this.scene.groupAll.add(new z89.Items(this.scene, _itemObj));
@@ -1116,6 +1115,117 @@ var z89;
             }, this);
             return _itemObj;
         };
+        GameItemsUtils.prototype.beamIn = function (item, callback) {
+            var _this = this;
+            item.setAlpha(0);
+            var beam = this.scene.add.sprite(item.x, 0, "beam");
+            beam
+                .setScale(0.5, (item.y / 200))
+                .setOrigin(0.5, 0)
+                .setAlpha(0)
+                .setDepth(item.y)
+                .play("beam");
+            /*
+                  let color2 = new Phaser.Display.Color(255, 255, 255);
+                  let color1 = new Phaser.Display.Color(0, 255, 0);
+                  this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
+            */
+            var tweenBeam = this.scene.tweens.add({
+                targets: beam,
+                scaleX: 1,
+                alpha: 0.5,
+                ease: "Power1",
+                duration: 300,
+                delay: 1000,
+                repeat: 0,
+                onComplete: function () {
+                    _this.scene.tweens.add({
+                        targets: item,
+                        alpha: 1,
+                        duration: 300,
+                        repeat: 0,
+                        onComplete: function () {
+                            if (callback != undefined)
+                                callback();
+                        }
+                    });
+                    _this.scene.tweens.add({
+                        targets: beam,
+                        alpha: 0,
+                        duration: 300,
+                        repeat: 0
+                    });
+                }
+            });
+        };
+        GameItemsUtils.prototype.beamOut = function (item, callback) {
+            var _this = this;
+            if (item != undefined) {
+                var beam_1 = this.scene.add.sprite(item.x, 0, "beam");
+                beam_1
+                    .setScale(0.5, (item.y / 200))
+                    .setOrigin(0.5, 0)
+                    .setAlpha(0)
+                    .setDepth(item.y)
+                    .play("beam");
+                var tweenBeam = this.scene.tweens.add({
+                    targets: beam_1,
+                    scaleX: 1,
+                    alpha: 0.3,
+                    ease: "Power1",
+                    duration: 300,
+                    delay: 500,
+                    repeat: 0,
+                    onComplete: function () {
+                        _this.scene.tweens.add({
+                            targets: beam_1,
+                            alpha: 0,
+                            ease: "Power1",
+                            duration: 100,
+                            repeat: 0,
+                            onComplete: function () {
+                                beam_1.destroy();
+                            }
+                        });
+                    }
+                });
+                /*
+                let color1 = new Phaser.Display.Color(255, 255, 255);
+                let color2 = new Phaser.Display.Color(0, 255, 0);
+                this.scene.gameUtils.tweenTint(item, color1, color2, 300, 400, null);
+                */
+                var test = this.scene.tweens.add({
+                    targets: item,
+                    scaleX: 1.5,
+                    scaleY: 0.5,
+                    ease: "Power1",
+                    alpha: 0.5,
+                    duration: 300,
+                    repeat: 0,
+                    delay: 500,
+                    onComplete: function () {
+                        _this.scene.tweens.add({
+                            targets: item,
+                            y: item.y - 100,
+                            scaleX: 0.25,
+                            scaleY: 10,
+                            alpha: 0,
+                            duration: 300,
+                            ease: "Power1",
+                            repeat: 0,
+                            onComplete: function () {
+                                item.setScale(1).setY(item.itemObj.y);
+                                if (callback != undefined)
+                                    callback();
+                                //to remove an item definitly
+                                //this.scene.removeItem(itemId);
+                                _this.scene.saveGameObj.updateItems();
+                            }
+                        });
+                    }
+                });
+            }
+        };
         return GameItemsUtils;
     }());
     z89.GameItemsUtils = GameItemsUtils;
@@ -1130,6 +1240,7 @@ var z89;
 (function (z89) {
     var _089Data;
     var _ismobile;
+    var _gameSounds = [];
     function getLabel(_index) {
         return languages[currentLang][_index];
     }
@@ -1202,6 +1313,40 @@ var z89;
         }
     }
     z89.getUrlParameter = getUrlParameter;
+    var gameSound;
+    (function (gameSound) {
+        gameSound[gameSound["intro"] = 0] = "intro";
+    })(gameSound = z89.gameSound || (z89.gameSound = {}));
+    function pushSound(_sound) {
+        _gameSounds.push(_sound);
+    }
+    z89.pushSound = pushSound;
+    function getSound(_sound) {
+        return _gameSounds[_sound];
+    }
+    z89.getSound = getSound;
+    function playSound(_sound) {
+        _gameSounds[_sound].play();
+    }
+    z89.playSound = playSound;
+    function stopSound(_sound) {
+        _gameSounds[_sound].stop();
+    }
+    z89.stopSound = stopSound;
+    function stopSoundAll() {
+        _gameSounds.forEach(function (sound) {
+            sound.stop();
+        });
+    }
+    z89.stopSoundAll = stopSoundAll;
+    function pauseSound(_sound) {
+        _gameSounds[_sound].stop();
+    }
+    z89.pauseSound = pauseSound;
+    function setSoundVolume(_sound, _volume) {
+        _gameSounds[_sound].volume = _volume;
+    }
+    z89.setSoundVolume = setSoundVolume;
     var initGame = (function () {
         function initGame(config) {
             this.config = config;
@@ -1296,8 +1441,8 @@ var languages = {
         "coins",
         "Quattrocchi, non mi far alterare o ti SCUMM a sangue!!",
         "4eyes",
-        "A coke can, what else!",
-        "Some coins...",
+        "A can of coke, what else!",
+        "Some coins... just for a coke.",
         "I already have this!",
         "Select an ACTION first!",
         "I'm not stupid!",
@@ -1474,10 +1619,9 @@ gameData.assets = {
         { name: "bg-cake", path: "assets/images/game/buildings/cake.png" },
         { name: "bg-arcade", path: "assets/images/game/buildings/arcade.png" },
         { name: "bg-aerosol", path: "assets/images/game/buildings/aerosol.png" },
-        { name: "bg-contact", path: "assets/images/game/buildings/contact.png" },
+        { name: "bg-contact", path: "assets/images/game/buildings/contact.png" }
     ],
-    sounds: [
-        { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false },
+    sounds: [{ name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false }
     ],
     bitmapfont: [
         { name: "commodore", imgpath: "assets/fonts/carrier_command.png", xmlpath: "assets/fonts/carrier_command.xml" }
@@ -1487,6 +1631,7 @@ gameData.chapters = [
     {
         title: "CHAPTER ONE:\nTHE DEVDAY TROUBLE!",
         completed: false,
+        choice: null,
         complete: function (cs) {
             cs.removeItem(24);
             cs.updateItemObject(23, "name", z89.getLabel(57));
@@ -1503,10 +1648,18 @@ gameData.chapters = [
     {
         title: "CHAPTER TWO:\nBACK TO HOME!",
         completed: false,
+        choice: null,
         complete: function (cs) {
             cs.gameItemsUtils.getItemById(50).start();
             cs.updateItemObject(22, "isStarted", true);
             cs.saveGameObj.updateItems();
+        }
+    },
+    {
+        title: "CHAPTER THREE:\nPIECE OF CAKE!",
+        completed: false,
+        choice: null,
+        complete: function (cs) {
         }
     }
 ];
@@ -1524,20 +1677,12 @@ gameData.ingame.conversation = {
             text: z89.getLabel(94),
             isItem: false,
             fork: true,
-            options: [,
+            options: [
                 { option: "YES", action: function (cs, target) {
-                        cs.currentChapter++;
-                        cs.displayChapterTitle(cs.currentChapter);
-                        cs.playerMenu.hide();
-                        cs.playerActions.hide();
-                        cs.playerBaloon.hideBaloon();
-                        cs.conversationBaloon.hideBaloon();
+                        cs.nextChapter();
                     } },
                 { option: "LEAVE THE GAME", action: function (cs, target) {
-                        gameData.chapters.forEach(function (element) {
-                            if (!element.completed)
-                                element.complete(cs);
-                        });
+                        cs.leaveGame();
                     } }
             ]
         }],
@@ -1581,26 +1726,26 @@ gameData.ingame.conversation = {
                     option: "Nothing", action: function (cs, target) {
                         cs.gameUtils.addDelay(500, function () {
                             var _jukebox = cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("idle");
+                            _jukebox.play("11-idle");
                             cs.stopSound();
-                            var _woofer = cs.gameItemsUtils.getItemById(12);
-                            _woofer.tween.pause();
+                            // let _woofer=cs.gameItemsUtils.getItemById(12);
+                            // _woofer.tween.pause();
                         });
                         cs.conversationBaloon.hideBaloon();
-                        cs.player.play("use");
+                        cs.player.play("player-use");
                     }
                 },
                 {
                     option: "Some 8bit Tune", action: function (cs, target) {
-                        //cs.playSound(0);
+                        cs.playSound(0);
                         cs.gameUtils.addDelay(500, function () {
                             var _jukebox = cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("play");
-                            var _woofer = cs.gameItemsUtils.getItemById(12);
-                            _woofer.tween.resume();
+                            _jukebox.play("11-play");
+                            // let _woofer=cs.gameItemsUtils.getItemById(12);
+                            // _woofer.tween.resume();
                         });
                         cs.conversationBaloon.hideBaloon();
-                        cs.player.play("use");
+                        cs.player.play("player-use");
                     }
                 }
             ]
@@ -1694,7 +1839,7 @@ gameData.ingame.items = [
         name: z89.getLabel(79),
         x: 1161 + 174,
         y: 4 + 215 - 48,
-        interactive: true,
+        interactive: false,
         offsetX: 0,
         isStarted: false,
         fixedToCamera: false,
@@ -1760,7 +1905,24 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false
-    }, {
+    },
+    {
+        id: 100,
+        type: 6,
+        onStart: true,
+        sprite: "player",
+        animations: [{ name: "idle", frames: [8, 9, 10, 11], rate: 5, loop: true }, { name: "walking", frames: [0, 1, 2, 3, 4, 5, 6, 7], rate: 5, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: z89.getLabel(31),
+        x: 500,
+        y: 700,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
         id: 17,
         type: 1,
         onStart: true,
@@ -1778,12 +1940,12 @@ gameData.ingame.items = [
     }, {
         id: 27,
         type: 1,
-        onStart: true,
+        onStart: false,
         sprite: "daniele",
         animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
         name: z89.getLabel(96),
         currentAnimation: "idle",
-        x: 1440,
+        x: 600,
         y: 650 - 48,
         turnLeft: true,
         interactive: true,
@@ -1844,7 +2006,7 @@ gameData.ingame.items = [
         sprite: "scotch",
         onStart: true,
         name: z89.getLabel(55),
-        x: 400,
+        x: 450,
         y: 648 - 48,
         interactive: true,
         offsetX: 30,
@@ -1855,7 +2017,7 @@ gameData.ingame.items = [
         id: 30,
         type: 1,
         sprite: "bitcoin",
-        onStart: true,
+        onStart: false,
         name: "bitcoin",
         x: 400,
         y: 700 - 48,
@@ -1868,7 +2030,7 @@ gameData.ingame.items = [
         id: 32,
         type: 1,
         sprite: "blockchain",
-        onStart: true,
+        onStart: false,
         name: "blockchain",
         x: 500,
         y: 700 - 48,
@@ -1910,7 +2072,7 @@ gameData.ingame.items = [
         sprite: "terminal",
         animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
         currentAnimation: "notWorking",
-        working: true,
+        working: false,
         name: z89.getLabel(12),
         x: 1214,
         y: 644 - 48,
@@ -1949,7 +2111,19 @@ gameData.ingame.items = [
         fixedToCamera: true,
         checkIntersect: true
     },
-    ,
+    {
+        id: 3,
+        type: 1,
+        sprite: "coke",
+        onStart: false,
+        name: z89.getLabel(10),
+        x: 800,
+        y: 724 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
     {
         id: 11,
         type: 1,
@@ -1980,200 +2154,282 @@ gameData.ingame.items = [
         checkIntersect: false
     }
 ];
-gameData.ingame.logic =
-    {
-        // examine terminal 
-        EXAMINE_2: function (cs) {
-            if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
-                cs.player.showBaloon(z89.getLabel(82));
-            }
-            else {
-                cs.player.showBaloon(z89.getLabel(81));
-            }
-        },
-        // use terminal
-        USE_2: function (cs) {
-            if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
-                cs.Terminal.show(0);
-                cs.playerActions.hide();
-            }
-            else {
-                cs.player.showBaloon(z89.getLabel(83));
-            }
-        },
-        // examine drink machine
-        EXAMINE_50: function (cs) {
-            cs.player.showBaloon(z89.getLabel(78));
-        },
-        // examine drink machine
-        EXAMINE_1: function (cs) {
-            cs.player.showBaloon(z89.getLabel(6));
-        },
-        // devday palace
-        EXAMINE_21: function (cs) {
-            cs.player.showBaloon(z89.getLabel(38));
-        },
-        // devday screen
-        EXAMINE_22: function (cs) {
-            cs.player.showBaloon(z89.getLabel(75));
-        },
-        //use devday
-        USE_21: function (cs) {
-            var convObj = {
-                key: "TALKTO_devday",
-                action: null,
-                inventory: null,
-                item: null
-            };
-            cs.conversationBaloon.setUpConversation(convObj);
-        },
-        //use jukoxeb
-        USE_11: function (cs) {
-            var convObj = {
-                key: "USE_jukebox",
-                action: null,
-                inventory: null,
-                item: null
-            };
-            cs.conversationBaloon.setUpConversation(convObj);
-        },
-        //examine garbage 
-        EXAMINE_4: function (cs) {
-            cs.player.showBaloon(z89.getLabel(62));
-        },
-        //push garbage 
-        PUSH_4: function (cs) {
-            var item = cs.gameItemsUtils.getItemById(4);
-            if (!item.itemObj.moved) {
-                cs.player.play("player-use");
-                item.itemObj.moved = true;
-                if (cs.player.x < 450) {
-                    cs.tweens.add({ targets: item, x: 500, duration: 500, ease: "Quad.easeOut", delay: 400 });
-                    item.updateItemObj("x", 500);
-                }
-                else {
-                    cs.tweens.add({ targets: item, x: 400, duration: 500, ease: "Quad.easeOut", delay: 400 });
-                    item.updateItemObj("x", 400);
-                }
-            }
-            else {
-                cs.player.showBaloon(z89.getLabel(93));
-            }
-        },
-        //examine scotch tape
-        EXAMINE_24: function (cs) { cs.player.showBaloon(z89.getLabel(58)); },
-        //examine energy box
-        EXAMINE_23: function (cs) {
-            if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
-                cs.player.showBaloon(z89.getLabel(60));
-            }
-            else {
-                cs.player.showBaloon(z89.getLabel(59));
-            }
-        },
-        //pickup scotch
-        PICKUP_24: function (cs) { cs.addInventoryItem(cs.gameItemsUtils.getItemById(24)); },
-        //pickup scotch
-        PICKUP_25: function (cs) { cs.addInventoryItem(cs.gameItemsUtils.getItemById(25)); },
-        //pickup scotch
-        PICKUP_30: function (cs) { cs.addInventoryItem(cs.gameItemsUtils.getItemById(30)); },
-        //pickup scotch
-        PICKUP_32: function (cs) { cs.addInventoryItem(cs.gameItemsUtils.getItemById(32)); },
-        //drop scotch
-        DROP_24: function (cs) { cs.dropInventoryItem(); },
-        //drop scotch
-        DROP_25: function (cs) { cs.dropInventoryItem(); },
-        //drop scotch
-        DROP_30: function (cs) { cs.dropInventoryItem(); },
-        //drop scotch
-        DROP_32: function (cs) { cs.dropInventoryItem(); },
-        //use scotch on broken 
-        USE_24_23: function (cs) {
+gameData.ingame.logic = {
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    EMAMINE
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    // examine terminal
+    EXAMINE_2: function (cs) {
+        if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+            cs.player.showBaloon(z89.getLabel(82));
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(81));
+        }
+    },
+    //examine gerardo
+    EXAMINE_16: function (cs) {
+        cs.player.showBaloon(z89.getLabel(43));
+    },
+    // examine coins
+    EXAMINE_3: function (cs) {
+        cs.player.showBaloon(z89.getLabel(26));
+    },
+    // examine coins
+    EXAMINE_25: function (cs) {
+        cs.player.showBaloon(z89.getLabel(27));
+    },
+    // examine drink machine
+    EXAMINE_1: function (cs) {
+        cs.player.showBaloon(z89.getLabel(6));
+    },
+    // devday palace
+    EXAMINE_21: function (cs) {
+        cs.player.showBaloon(z89.getLabel(38));
+    },
+    // devday screen
+    EXAMINE_22: function (cs) {
+        cs.player.showBaloon(z89.getLabel(75));
+    },
+    //examine garbage
+    EXAMINE_4: function (cs) {
+        cs.player.showBaloon(z89.getLabel(62));
+    },
+    //examine scotch tape
+    EXAMINE_24: function (cs) {
+        cs.player.showBaloon(z89.getLabel(58));
+    },
+    //examine energy box
+    EXAMINE_23: function (cs) {
+        if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
+            cs.player.showBaloon(z89.getLabel(60));
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(59));
+        }
+    },
+    //examine daniele
+    EXAMINE_17: function (cs) {
+        cs.player.showBaloon(z89.getLabel(63));
+    },
+    //examine davide
+    EXAMINE_18: function (cs) {
+        cs.player.showBaloon(z89.getLabel(64));
+    },
+    //examine michele
+    EXAMINE_19: function (cs) {
+        cs.player.showBaloon(z89.getLabel(32));
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    USE
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    // use terminal
+    USE_2: function (cs) {
+        if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+            cs.Terminal.show(0);
+            cs.playerActions.hide();
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(83));
+        }
+    },
+    // use coins on drink machine
+    USE_25_1: function (cs) {
+        console.log("coins on drink");
+        cs.player.play("player-use");
+        cs.removeInventoryItems();
+        cs.gameUtils.addDelay(1000, function () {
+            cs.gameItemsUtils.addItem(3);
+            cs.gameItemsUtils.getItemById(3).itemObj.onStart = true;
+            cs.saveGameObj.updateItems();
+        });
+    },
+    //use devday
+    USE_21: function (cs) {
+        var convObj = {
+            key: "TALKTO_devday",
+            action: null,
+            inventory: null,
+            item: null
+        };
+        cs.conversationBaloon.setUpConversation(convObj);
+    },
+    //use jukoxeb
+    USE_11: function (cs) {
+        var convObj = {
+            key: "USE_jukebox",
+            action: null,
+            inventory: null,
+            item: null
+        };
+        cs.conversationBaloon.setUpConversation(convObj);
+    },
+    //use scotch on broken cable
+    USE_24_23: function (cs) {
+        cs.player.play("player-use");
+        cs.removeInventoryItems();
+        cs.gameUtils.addDelay(1000, function () {
+            cs.updateItemObject(23, "name", z89.getLabel(57));
+            cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
+            cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
+            cs.gameItemsUtils.getItemById(22).start();
+            cs.updateItemObject(22, "isStarted", true);
+            cs.updateItemObject(19, "conversationStatus", 1);
+            cs.updateItemObject(2, "working", true);
+            cs.gameItemsUtils.getItemById(2).playAnim("2-working");
+            cs.saveGameObj.updateItems();
+            cs.chapterCompleted();
+        });
+    },
+    USE_30_32: function (cs) {
+        console.log("bitcoin on blockchain");
+        cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
+        cs.removeInventoryItems();
+        cs.addInventory(31, true);
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    PUSH
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    //push garbage
+    PUSH_4: function (cs) {
+        var item = cs.gameItemsUtils.getItemById(4);
+        if (!item.itemObj.moved) {
             cs.player.play("player-use");
-            cs.removeInventoryItems();
-            cs.gameUtils.addDelay(1000, function () {
-                cs.updateItemObject(23, "name", z89.getLabel(57));
-                cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-                cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
-                cs.gameItemsUtils.getItemById(22).start();
-                cs.updateItemObject(22, "isStarted", true);
-                cs.updateItemObject(19, "conversationStatus", 1);
-                cs.updateItemObject(2, "working", true);
-                cs.gameItemsUtils.getItemById(2).playAnim("2-working");
-                cs.saveGameObj.updateItems();
-                gameData.chapters[cs.currentChapter].completed = true;
-                var convObj = {
-                    key: "CHAPTER_COMPLETED",
-                    action: null,
-                    inventory: null,
-                    item: null
-                };
-                cs.conversationBaloon.setUpConversation(convObj);
-                cs.disableInteraction();
-            });
-        },
-        //examine gerardo
-        EXAMINE_16: function (cs) {
-            cs.player.showBaloon(z89.getLabel(43));
-        },
-        TALKTO_16: function (cs) {
-            cs.conversationBaloon.setUpConversation({
-                key: "TALKTO_16",
-                action: null,
-                inventory: null,
-                item: cs.currentItem
-            });
-        },
-        TALKTO_27: function (cs) {
-            cs.conversationBaloon.setUpConversation({
-                key: "TALKTO_27",
-                action: null,
-                inventory: null,
-                item: cs.currentItem
-            });
-        },
-        //examine daniele
-        EXAMINE_17: function (cs) {
-            cs.player.showBaloon(z89.getLabel(63));
-        },
-        //examine davide
-        EXAMINE_18: function (cs) {
-            cs.player.showBaloon(z89.getLabel(64));
-        },
-        //examine michele
-        EXAMINE_19: function (cs) {
-            cs.player.showBaloon(z89.getLabel(32));
-        },
-        //talkto michele
-        TALKTO_19: function (cs) {
-            var item = cs.gameItemsUtils.getItemById(19);
-            var convObj = {
-                key: "",
-                action: null,
-                inventory: null,
-                item: cs.currentItem
-            };
-            //console.log(item.itemObj.conversationStatus)
-            switch (item.itemObj.conversationStatus) {
-                case null:
-                    convObj.key = "TALKTO_19_null";
-                    break;
-                case 0:
-                    convObj.key = "TALKTO_19_0";
-                    break;
-                case 1:
-                    convObj.key = "TALKTO_19_1";
-                    break;
+            item.itemObj.moved = true;
+            if (cs.player.x < 450) {
+                cs.tweens.add({
+                    targets: item,
+                    x: 500,
+                    duration: 500,
+                    ease: "Quad.easeOut",
+                    delay: 400
+                });
+                item.updateItemObj("x", 500);
             }
-            cs.conversationBaloon.setUpConversation(convObj);
-        },
-        USE_30_32: function (cs) {
-            console.log("bitcoin on blockchain");
-            cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
-            cs.removeInventoryItems();
-            cs.addInventory(31, true);
-        },
-    };
+            else {
+                cs.tweens.add({
+                    targets: item,
+                    x: 400,
+                    duration: 500,
+                    ease: "Quad.easeOut",
+                    delay: 400
+                });
+                item.updateItemObj("x", 400);
+            }
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(93));
+        }
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    PICK UP
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    //pickup scotch
+    PICKUP_24: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(24), false);
+    },
+    //pickup coke
+    PICKUP_3: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(3), false);
+    },
+    //pickup coins
+    PICKUP_25: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(25), false);
+    },
+    //pickup bitcoin
+    PICKUP_30: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(30), false);
+    },
+    //pickup blockchain
+    PICKUP_32: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(32), false);
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    DROP
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    //drop scotch
+    DROP_24: function (cs) {
+        cs.dropInventoryItem();
+    },
+    //drop scotch
+    DROP_25: function (cs) {
+        cs.dropInventoryItem();
+    },
+    //drop scotch
+    DROP_30: function (cs) {
+        cs.dropInventoryItem();
+    },
+    //drop scotch
+    DROP_32: function (cs) {
+        cs.dropInventoryItem();
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    TALK TO
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    TALKTO_16: function (cs) {
+        cs.conversationBaloon.setUpConversation({
+            key: "TALKTO_16",
+            action: null,
+            inventory: null,
+            item: cs.currentItem
+        });
+    },
+    TALKTO_27: function (cs) {
+        cs.conversationBaloon.setUpConversation({
+            key: "TALKTO_27",
+            action: null,
+            inventory: null,
+            item: cs.currentItem
+        });
+    },
+    //talkto michele
+    TALKTO_19: function (cs) {
+        var item = cs.gameItemsUtils.getItemById(19);
+        var convObj = {
+            key: "",
+            action: null,
+            inventory: null,
+            item: cs.currentItem
+        };
+        //console.log(item.itemObj.conversationStatus)
+        switch (item.itemObj.conversationStatus) {
+            case null:
+                convObj.key = "TALKTO_19_null";
+                break;
+            case 0:
+                convObj.key = "TALKTO_19_0";
+                break;
+            case 1:
+                convObj.key = "TALKTO_19_1";
+                break;
+        }
+        cs.conversationBaloon.setUpConversation(convObj);
+    },
+};
 /*
 
 gameData.ingame.logic =
@@ -2301,7 +2557,7 @@ gameData.ingame.logic =
 
     }
 
-*/ 
+*/
 gameData.menuBlink = [
     { name: "HOME", frame: 0, to: 100, x: 0, y: 30 },
     { name: "DEVDAY", frame: 4, to: 875, x: 0, y: 140 },
@@ -2325,6 +2581,8 @@ var z89;
             this.playerY = 0;
             this.isSaved = false;
             this.firstChoice = null;
+            this.current = 0;
+            this.choice = null;
             this.scene = scene;
             this.checkSaved();
             // this.game.time.events.repeat(5000, 10, this.updateItems, this);
@@ -2363,6 +2621,15 @@ var z89;
         saveGame.prototype.getFirstChoice = function () {
             return this.firstChoice;
         };
+        saveGame.prototype.setCurrentChapter = function (current) {
+            console.log("setCurrentChapter");
+            this.current = current;
+            this.updateSaveObj();
+        };
+        saveGame.prototype.setChoiceChapter = function (choice) {
+            this.choice = choice;
+            this.updateSaveObj();
+        };
         saveGame.prototype.gameIsSaved = function () {
             if (this.isSaved && this.firstChoice)
                 return true;
@@ -2388,6 +2655,8 @@ var z89;
                 this.playerY = this.savedObj.position.y;
                 this.isSaved = true;
                 this.firstChoice = this.savedObj.firstChoice;
+                this.current = this.savedObj.chapter.current;
+                this.choice = this.savedObj.chapter.choice;
             }
             else {
                 this.savedObj = null;
@@ -2400,7 +2669,8 @@ var z89;
                 position: { x: this.playerX, y: this.playerY },
                 inventory: this.inventory,
                 items: this.items,
-                firstChoice: this.firstChoice
+                firstChoice: this.firstChoice,
+                chapter: { current: this.current, choice: this.choice }
             };
             //console.log(obj);
             this.setSaved(obj);
@@ -2417,7 +2687,7 @@ var z89;
             var _this = _super.call(this, scene) || this;
             _this.forkBtns = [];
             _this.forkBtnsText = [];
-            _this.setDepth(1000).setAlpha(0);
+            _this.setAlpha(0);
             _this.isSkippable = true;
             _this.isPlaying = false;
             _this.baloonBg = _this.scene.add.image(0, 20, "baloonBg");
@@ -2628,8 +2898,10 @@ var z89;
             this.y = this.baloonY;
             var _btn;
             var _btnText;
-            //options loop
+            this.removeForks();
+            //console.log(_obj.options)
             _obj.options.forEach(function (element, index) {
+                //console.log(index);
                 _btn = _this.scene.add.sprite(0, 0, "forkBtn");
                 _btn.setZ(index);
                 var _option = element;
@@ -2638,7 +2910,6 @@ var z89;
                     .setOrigin(0.5, 1)
                     .setInteractive()
                     .on("pointerdown", function () {
-                    console.log(arguments);
                     if (_option.goto != undefined) {
                         _this.currentStep = _this.goToLabel(_option.goto);
                     }
@@ -2653,11 +2924,11 @@ var z89;
                     }
                     _this.displayStep();
                 }, _this).on("pointerover", function () {
-                    console.log(btn.z);
+                    // console.log(btn.z);
                     _this.scene.gameUtils.btnOverEffect(btn, _this.forkBtnsText[btn.z]);
                 })
                     .on("pointerout", function () {
-                    console.log(btn.z);
+                    // console.log(btn.z);
                     _this.scene.gameUtils.btnOutEffect(btn, _this.forkBtnsText[btn.z]);
                 });
                 _btnText = _this.scene.add.bitmapText(0, 80, "commodore", element.option, 20);
@@ -2698,7 +2969,9 @@ var z89;
         };
         conversationBaloon.prototype.removeForks = function () {
             var _this = this;
+            // console.log(this.forkBtns, this.forkBtnsText);
             this.forkBtns.forEach(function (element, index) {
+                // console.log("destroy "+index);
                 element.destroy();
                 _this.forkBtnsText[index].destroy();
             });
@@ -2780,13 +3053,20 @@ var z89;
         __extends(Items, _super);
         function Items(scene, itemObj) {
             var _this = _super.call(this, scene, itemObj.x, itemObj.y, itemObj.sprite) || this;
+            _this._isIdle = true;
             _this.scene = scene;
             var config;
             var repeat = -1;
+            //console.log(itemObj.sprite)
             if (itemObj.animations != undefined) {
                 itemObj.animations.forEach(function (element) {
-                    if (!element.loop)
+                    if (!element.loop) {
                         repeat = 0;
+                    }
+                    else {
+                        repeat = -1;
+                    }
+                    // console.log(element,repeat);
                     config = {
                         key: itemObj.id + "-" + element.name,
                         frames: scene.anims.generateFrameNumbers(itemObj.sprite, { frames: element.frames }),
@@ -2795,10 +3075,10 @@ var z89;
                     };
                     _this.anims.animationManager.create(config);
                 });
-                console.log(itemObj.id + "-" + itemObj.currentAnimation);
                 _this.play(itemObj.id + "-" + itemObj.currentAnimation);
             }
-            _this.setDepth(_this.y).setOrigin(0.5, 1).setInteractive();
+            _this.setDepth(_this.y).setOrigin(0.5, 1).setX(itemObj.x);
+            ;
             if (itemObj.scale != undefined)
                 _this.setScale(itemObj.scale);
             _this.id = itemObj.id;
@@ -2807,7 +3087,8 @@ var z89;
             _this._isInteractive = itemObj.interactive;
             if (itemObj.turnLeft != undefined)
                 _this.turnLeft();
-            if (_this.isInteractive) {
+            if (_this.isInteractive()) {
+                _this.setInteractive();
                 _this.on("pointerdown", function () {
                     if (_this.scene.isInteractionDisabled())
                         return;
@@ -2822,7 +3103,8 @@ var z89;
                         _playerDest += _this.itemObj.offsetX;
                     }
                     _this.scene.player.goTo(_playerDest, _this.y, _this);
-                }, _this).on("pointerover", function () {
+                }, _this)
+                    .on("pointerover", function () {
                     _this.scene.gameUtils.itemOverEffect(_this);
                 }).on("pointerout", function () {
                     _this.scene.gameUtils.itemOutEffect(_this);
@@ -2832,11 +3114,19 @@ var z89;
             return _this;
         }
         Items.prototype.update = function () {
-            if (this.itemObj.fixedToCamera)
+            ///if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
+            if (this.y > 660 && this.isIdle()) {
                 this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x);
+            }
         };
         Items.prototype.isInteractive = function () {
             return this._isInteractive;
+        };
+        Items.prototype.setIdle = function (value) {
+            this._isIdle = value;
+        };
+        Items.prototype.isIdle = function () {
+            return this._isIdle;
         };
         Items.prototype.turnLeft = function () {
             this.setFlipX(true);
@@ -2853,8 +3143,7 @@ var z89;
             this.itemObj.currentAnimation = _anim.split("-")[1];
             this.play(_anim);
         };
-        Items.prototype.start = function () {
-        };
+        Items.prototype.start = function () { };
         return Items;
     }(Phaser.GameObjects.Sprite));
     z89.Items = Items;
@@ -2906,21 +3195,21 @@ var z89;
             _this.guru = _this.scene.add.sprite(0, 0, "guru-meditation");
             _this.guru.setOrigin(.5).setDepth(_this.y + 1);
             _this.guruTween = _this.scene.tweens.add({ targets: _this.guru, delay: 1000, duration: 1000, alpha: 0, yoyo: true, loopDelay: 1000, loop: -1 });
-            Phaser.Display.Align.In.TopCenter(_this.guru, _this.contentImage);
+            Phaser.Display.Align.In.TopCenter(_this.guru, _this.contentImage, 0, -20);
             var _style = {
                 fill: "#00ff00",
                 align: "center"
                 //stroke: "#000000",
                 //strokeThickness: 5
             };
-            _this.contentTextTitle = _this.scene.add.text(0, 0, "   Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
+            _this.contentTextTitle = _this.scene.add.text(0, 0, "        Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
             _this.contentTextTitle
                 .setFontFamily("Roboto")
                 .setFontSize(16)
                 .setOrigin(0)
                 .setDepth(_this.y + 1)
                 .setWordWrapWidth(380);
-            Phaser.Display.Align.In.TopCenter(_this.contentTextTitle, _this.contentImage, -20, -20);
+            Phaser.Display.Align.In.TopCenter(_this.contentTextTitle, _this.contentImage, -20, -40);
             _this.contentTextDescription = _this.scene.add.text(0, 0, "", _style);
             _this.contentTextDescription
                 .setFontFamily("Roboto")
@@ -2952,6 +3241,7 @@ var z89;
             _this.arrowLeft = _this.scene.add.sprite(0, 0, "triangleBtn");
             _this.arrowLeft
                 .setOrigin(0.5)
+                .setAlpha(0)
                 .setScale(2)
                 .setDepth(_this.y + 1)
                 .setAngle(-90)
@@ -2971,6 +3261,7 @@ var z89;
             _this.arrowRight
                 .setOrigin(0.5)
                 .setScale(2)
+                .setAlpha(0)
                 .setAngle(90)
                 .setDepth(_this.y + 1)
                 .setTint(0x222222);
@@ -3023,7 +3314,7 @@ var z89;
                 x: this.arrowRight.x + 40
             });
             this.scene.tweens.add({
-                targets: [this.btnGo, this.btnGoText],
+                targets: [this.btnGo, this.arrowLeft, this.arrowRight, this.btnGoText],
                 alpha: 1,
                 onComplete: function () { }
             });
@@ -3118,19 +3409,22 @@ var z89;
                     this.contents[this.currentIndex].url = _json.link;
                 }
                 if (_json.dd != undefined) {
-                    _title = "DEVDAY " + _json.dd + "\n";
-                    _description = this.contents[this.currentIndex].t + "\n\n";
+                    _title = "DEVDAY " + _json.dd;
+                    _description = this.contents[this.currentIndex].t;
                 }
                 else {
-                    _title = this.contents[this.currentIndex].t + "\n\n";
+                    _title = this.contents[this.currentIndex].t;
                 }
                 if (_json.date != undefined)
                     _date = _json.date;
             }
-            console.log(_title, _description, _date);
+            //console.log(_title,_description,_date)
             this.contentTextTitle.setText(_title);
+            Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this, null, -20);
             this.contentTextDescription.setText(_description);
+            Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle, null, 10);
             this.contentTextDate.setText(_date);
+            Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription, null, 20);
             this.scene.tweens.add({
                 targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],
                 alpha: 1,
@@ -3159,13 +3453,11 @@ var z89;
             _this.skills = [];
             _this.skillsBarObj = [];
             _this.skillsTextObj = [];
-            _this.setOrigin(0.5);
             _this.skills = gameData.skills;
             var _text;
             var _bar;
             var _y = [-66, -164, -260, -355];
-            _this.setDepth(_this.y);
-            _this.setAlpha(1);
+            _this.setOrigin(0.5).setDepth(_this.y).setAlpha(1);
             [0, 1, 2, 3].forEach(function (element) {
                 _bar = _this.scene.add.sprite(0, 0, "skill");
                 _bar.setOrigin(0).setScale(0, 1).setAlpha(.4).setDepth(_this.y + 1);
@@ -3201,6 +3493,78 @@ var z89;
         return ItemsSkill;
     }(z89.Items));
     z89.ItemsSkill = ItemsSkill;
+})(z89 || (z89 = {}));
+var z89;
+(function (z89) {
+    var ItemsWalking = (function (_super) {
+        __extends(ItemsWalking, _super);
+        function ItemsWalking(scene, itemObj) {
+            var _this = _super.call(this, scene, itemObj) || this;
+            _this.setAlpha(0);
+            _this.playAnim(_this.itemObj.id + "-idle");
+            _this.scene.time.delayedCall(1000, function (scene) {
+                _this.beamIn();
+            }, null, _this);
+            return _this;
+        }
+        ItemsWalking.prototype.beamIn = function () {
+            var _this = this;
+            this.scene.gameItemsUtils.beamIn(this, function () {
+                _this.playAnim(_this.itemObj.id + "-idle");
+                _this.scene.time.delayedCall(1000, function () { _this.startPath(Phaser.Math.RND.integerInRange(1, 1)); }, null, _this);
+            });
+        };
+        ItemsWalking.prototype.startPath = function (direction) {
+            var _this = this;
+            var _walk = Phaser.Math.RND.integerInRange(100, 100);
+            var _walkSpeed = _walk * 10;
+            if (direction == 0) {
+                this.turnLeft();
+                _walk = _walk * -1;
+            }
+            else {
+                this.turnRight();
+            }
+            this.setIdle(false);
+            this.playAnim(this.itemObj.id + "-walking");
+            this.scene.tweens.add({
+                targets: this,
+                x: this.x + _walk,
+                duration: _walkSpeed,
+                onComplete: function () {
+                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + _this.x);
+                    _this.setIdle(true);
+                    _this.playAnim(_this.itemObj.id + "-idle");
+                    _this.scene.time.delayedCall(500, function (scene) {
+                        _this.nextDirection();
+                    }, null, _this);
+                }
+            });
+        };
+        ItemsWalking.prototype.nextDirection = function () {
+            var _this = this;
+            var _action = Phaser.Math.RND.integerInRange(0, 100);
+            var _direction = Phaser.Math.RND.integerInRange(0, 1);
+            if (_action > 2) {
+                this.scene.gameItemsUtils.beamOut(this, function () {
+                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + (_this.x + 100));
+                    //this.setX((this.scene.mainCamera.scrollX * 0.095) + (this.x));
+                    _this.beamIn();
+                });
+            }
+            else {
+                if (this.x > 3670) {
+                    _direction = 0;
+                }
+                else if (this.x < 0) {
+                    _direction = 1;
+                }
+                this.startPath(_direction);
+            }
+        };
+        return ItemsWalking;
+    }(z89.Items));
+    z89.ItemsWalking = ItemsWalking;
 })(z89 || (z89 = {}));
 var z89;
 (function (z89) {
@@ -3318,8 +3682,8 @@ var z89;
             return _this;
         }
         Player.prototype.goTo = function (_x, _y, _item) {
+            // console.log(_x, _y, _item, this.scene.currentItem);
             var _this = this;
-            console.log(_x, _y, _item, this.scene.currentItem);
             this.hideBaloon();
             if (this.scene.conversationBaloon.isConversationActive() &&
                 (_x != this.x || _y != this.y - 5)) {
@@ -3449,7 +3813,7 @@ var z89;
                     line2 = new Phaser.Geom.Line(sprite.x - sprite.width / 2 - 10, sprite.y, sprite.x + sprite.width / 2 + 10, sprite.y);
                     intersectPoint.setTo(0, 0);
                     if (Phaser.Geom.Intersects.LineToLine(line1, line2, intersectPoint)) {
-                        console.log(intersectPoint);
+                        // console.log(intersectPoint);
                         _obj.point = intersectPoint;
                     }
                 }
@@ -3475,7 +3839,7 @@ var z89;
                 .setScale(0.5, this.beamH())
                 .setOrigin(0.5, 0)
                 .setAlpha(0)
-                .setDepth(10000)
+                .setDepth(this.y)
                 .play("beam");
             var color2 = new Phaser.Display.Color(255, 255, 255);
             var color1 = new Phaser.Display.Color(0, 255, 0);
@@ -3514,7 +3878,7 @@ var z89;
                 .setScale(0.5, this.beamH())
                 .setOrigin(0.5, 0)
                 .setAlpha(0)
-                .setDepth(10000)
+                .setDepth(this.y)
                 .play("beam");
             var tweenBeam = this.scene.tweens.add({
                 targets: beam,
@@ -3804,6 +4168,7 @@ var z89;
         };
         PlayerActions.prototype.deselectItems = function () {
             this.inventorySelected = [];
+            this.unselectInventoryIcons();
             //this.iconGroup.setAll("frame", 0);
         };
         PlayerActions.prototype.getInventory = function () {
@@ -3856,11 +4221,10 @@ var z89;
             });
         };
         PlayerActions.prototype.resetActions = function () {
-            //console.log("reset action")
             this.cleanAction();
             this.currentAction = -1;
             this.inventorySelected = [];
-            //this.iconGroup.setAll("frame", 0);
+            this.unselectInventoryIcons();
         };
         PlayerActions.prototype.hide = function () {
             var _this = this;
@@ -3944,6 +4308,11 @@ var z89;
                 element.setFrame(0);
             });
         };
+        PlayerActions.prototype.unselectInventoryIcons = function () {
+            this.inventoryBtns.forEach(function (element, index) {
+                element.setFrame(0);
+            });
+        };
         //remove child items from the inventory icons
         PlayerActions.prototype.cleanInventoryIcons = function () {
             var _this = this;
@@ -4011,7 +4380,7 @@ var z89;
         __extends(PlayerBaloon, _super);
         function PlayerBaloon(scene) {
             var _this = _super.call(this, scene, 0, 0) || this;
-            _this.setDepth(1000).setAlpha(0);
+            _this.setAlpha(0);
             _this.baloonBg = _this.scene.add.image(0, 20, "baloonBg");
             _this.baloonBg
                 .setOrigin(0.5, 1)
@@ -4033,72 +4402,6 @@ var z89;
             _this.scene.add.existing(_this);
             return _this;
         }
-        /*
-      
-          public showBaloonExtra(_obj: any) {
-      
-            
-      
-            if (_obj == undefined) return;
-      
-            let _btn: Phaser.GameObjects.Sprite;
-            let _btnText: Phaser.GameObjects.Text;
-            let _nextPos: number = 0;
-            let _totHeight: number = 0;
-            _obj.options.forEach((element, index) => {
-              _btn = this.scene.add.sprite(0, _nextPos, "forkBtn");
-      
-              _btn.setOrigin(0.5, 1);
-              _btn.tint = 0x0d3700;
-      
-              _btn.on(
-                "pointerdown",
-                (a, b, c) => {
-                  if (c.link != undefined) {
-                    window.open(c.link, "_blank");
-                  }
-                },
-                this
-              );
-      
-              _btnText = this.scene.add.text(0, _nextPos, element.option, {
-                fontFamily: "Arial",
-                fontSize: 16
-              });
-             
-      
-              _btnText.setOrigin(0.5, 1).setTint(0x00ff00);
-              _btn.height = _btnText.height + 20;
-              _nextPos = _nextPos - (_btnText.height + 20) - 20;
-              _totHeight = _totHeight + _btnText.height + 40;
-              this.add(_btn);
-              this.add(_btnText);
-            });
-      
-            if (_obj.answer != undefined && _obj.answer.length > 0) {
-              this.baloonText.text =
-                _obj.answer[
-                  Phaser.Math.RND.integerInRange(0, _obj.answer.length - 1)
-                ];
-              this.baloonText.y = _nextPos + 10;
-              _totHeight += this.baloonText.height + 15;
-            }
-      
-            this.baloonBg.height = _totHeight + 15;
-            this.x = this.scene.player.x;
-            this.y = this.scene.player.y - this.scene.player.height - 50;
-      
-            this.scene.tweens.add({
-              target: this,
-              y: this.y + 10,
-              alpha: 1,
-              duration: 500,
-              repeat: -1
-            });
-      
-            
-      
-          }*/
         PlayerBaloon.prototype.showBaloon = function (_text) {
             if (_text == undefined)
                 return;
@@ -4112,8 +4415,12 @@ var z89;
             });
         };
         PlayerBaloon.prototype.hideBaloon = function () {
-            this.baloonText.y = 0;
-            this.alpha = 0;
+            this.scene.tweens.add({
+                targets: this,
+                y: this.y - 10,
+                alpha: 0,
+                duration: 200
+            });
         };
         PlayerBaloon.prototype.fixSize = function () {
             this.setX(this.scene.player.x);
@@ -4251,7 +4558,7 @@ var z89;
                 .setScrollFactor(0)
                 .setName("iconsBtn")
                 .on("pointerdown", function (pointer) {
-                console.log("info");
+                //console.log("info")
                 _this.scene.conversationBaloon.setUpConversation({
                     key: "INFO",
                     action: null,
@@ -4279,7 +4586,7 @@ var z89;
                 .setScrollFactor(0)
                 .setName("iconsBtn")
                 .on("pointerdown", function (pointer) {
-                console.log("option");
+                //console.log("option")
                 /*
                 this.scene.conversationBaloon.setUpConversation({
                   key: "OPTIONS",
@@ -4376,20 +4683,22 @@ var z89;
             return _this;
         }
         PlayerMenu.prototype.newGame = function () {
-            console.log("new game");
+            //console.log("new game");
             this.scene.displayChapterTitle(0);
             this.scene.playerBaloon.showBaloon(z89.getLabel(95));
             this.isOpenOnStart = false;
             this.scene.saveGameObj.setFirstChoice(true);
+            this.scene.saveGameObj.setChoiceChapter(true);
             this.hide();
         };
         PlayerMenu.prototype.noGame = function () {
             var _this = this;
-            console.log("no game");
+            //console.log("no game");
             gameData.chapters.forEach(function (element) {
                 element.complete(_this.scene);
             });
             this.scene.saveGameObj.setFirstChoice(false);
+            this.scene.saveGameObj.setChoiceChapter(false);
             this.isOpenOnStart = false;
             this.hide();
         };
@@ -4444,6 +4753,7 @@ var z89;
                 ease: null,
                 duration: 200,
                 onComplete: function () {
+                    _this.scene.playerBaloon.hideBaloon();
                     _this.isOpen = true;
                 }
             });
@@ -4547,7 +4857,7 @@ var z89;
             return _this;
         }
         Terminal.prototype.addChar = function (key) {
-            console.log(key);
+            // console.log(key);
             // console.log(key.keyCode);
             //return;
             if (key == "Enter") {
@@ -4686,7 +4996,7 @@ var z89;
             });
         }
         TerminalKeyboard.prototype.pressKey = function (_key) {
-            console.log("press:", _key);
+            // console.log("press:", _key);
             switch (_key) {
                 case "enter":
                     this.terminal.TerminalLogic.submitCommand();
@@ -4747,7 +5057,7 @@ var z89;
         };
         TerminalKeyboard.prototype.destroy = function () {
             this.keyboard.destroy();
-            console.log("destroy keyboard");
+            //console.log("destroy keyboard");
         };
         return TerminalKeyboard;
     }());
@@ -4982,7 +5292,7 @@ var z89;
         };
         ;
         TerminalLogic.prototype.reset = function () {
-            console.log("reset");
+            // console.log("reset")
             this.clear();
             this.writeMultiple(this.returnStaticString(msgs.reset, 0));
         };
@@ -5323,7 +5633,7 @@ var z89;
                         this.gameLoaded = "the wrong direction";
                         break;
                     case "load \"gtw\"":
-                    case "load":
+                        //case "load":
                         if (!this.logged) {
                             this.shellType = shell.login;
                             this.returnShellError(">:");
@@ -5358,6 +5668,7 @@ var z89;
             }
         };
         TerminalLogic.prototype.ajaxCall = function (data) {
+            console.log(data);
             this.disableInput();
             this.writeMultiple(this.returnProcessing());
             var _this = this;
@@ -5367,7 +5678,7 @@ var z89;
                 type: "GET",
                 data: data
             }).done(function (data) { _this.enableInput(); }).fail(function (xhr) {
-                console.log(xhr);
+                //console.log(xhr)
             });
         };
         TerminalLogic.prototype.clearShell = function () {

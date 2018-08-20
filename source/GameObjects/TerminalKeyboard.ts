@@ -114,7 +114,7 @@ namespace z89 {
     }
 
     pressKey(_key: string): void {
-      console.log("press:", _key);
+     // console.log("press:", _key);
       switch (_key) {
         case "enter":
           this.terminal.TerminalLogic.submitCommand();
@@ -180,7 +180,7 @@ namespace z89 {
 
     destroy(): void {
       this.keyboard.destroy();
-      console.log("destroy keyboard");
+      //console.log("destroy keyboard");
     }
   }
 }

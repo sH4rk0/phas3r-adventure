@@ -2,6 +2,7 @@ gameData.chapters=[
     {
         title:"CHAPTER ONE:\nTHE DEVDAY TROUBLE!",
         completed:false,
+        choice:null,
         complete: (cs: z89.GameCity) => {
            
             cs.removeItem(24);
@@ -20,12 +21,25 @@ gameData.chapters=[
     {
         title:"CHAPTER TWO:\nBACK TO HOME!",
         completed:false,
+        choice:null,
         complete: (cs: z89.GameCity) => {
            
             cs.gameItemsUtils.getItemById(50).start();
             cs.updateItemObject(22, "isStarted", true);
             cs.saveGameObj.updateItems();
         
+                        }
+        
+
+    },
+    
+    {
+        title:"CHAPTER THREE:\nPIECE OF CAKE!",
+        completed:false,
+        choice:null,
+        complete: (cs: z89.GameCity) => {
+           
+          
                         }
         
 

@@ -10,7 +10,7 @@ namespace z89 {
     constructor(scene: GameCity) {
       super(scene, 0, 0);
 
-      this.setDepth(1000).setAlpha(0);
+      this.setAlpha(0);
 
       this.baloonBg = this.scene.add.image(0, 20, "baloonBg");
       this.baloonBg
@@ -42,76 +42,6 @@ namespace z89 {
       this.scene.add.existing(this);
     }
 
-
-
-
-  /*
-
-    public showBaloonExtra(_obj: any) {
-
-      
-
-      if (_obj == undefined) return;
-
-      let _btn: Phaser.GameObjects.Sprite;
-      let _btnText: Phaser.GameObjects.Text;
-      let _nextPos: number = 0;
-      let _totHeight: number = 0;
-      _obj.options.forEach((element, index) => {
-        _btn = this.scene.add.sprite(0, _nextPos, "forkBtn");
-
-        _btn.setOrigin(0.5, 1);
-        _btn.tint = 0x0d3700;
-
-        _btn.on(
-          "pointerdown",
-          (a, b, c) => {
-            if (c.link != undefined) {
-              window.open(c.link, "_blank");
-            }
-          },
-          this
-        );
-
-        _btnText = this.scene.add.text(0, _nextPos, element.option, {
-          fontFamily: "Arial",
-          fontSize: 16
-        });
-       
-
-        _btnText.setOrigin(0.5, 1).setTint(0x00ff00);
-        _btn.height = _btnText.height + 20;
-        _nextPos = _nextPos - (_btnText.height + 20) - 20;
-        _totHeight = _totHeight + _btnText.height + 40;
-        this.add(_btn);
-        this.add(_btnText);
-      });
-
-      if (_obj.answer != undefined && _obj.answer.length > 0) {
-        this.baloonText.text =
-          _obj.answer[
-            Phaser.Math.RND.integerInRange(0, _obj.answer.length - 1)
-          ];
-        this.baloonText.y = _nextPos + 10;
-        _totHeight += this.baloonText.height + 15;
-      }
-
-      this.baloonBg.height = _totHeight + 15;
-      this.x = this.scene.player.x;
-      this.y = this.scene.player.y - this.scene.player.height - 50;
-
-      this.scene.tweens.add({
-        target: this,
-        y: this.y + 10,
-        alpha: 1,
-        duration: 500,
-        repeat: -1
-      });
-
-      
-
-    }*/
-
     public showBaloon(_text: string) {
 
         
@@ -128,8 +58,14 @@ namespace z89 {
     }
 
     public hideBaloon() {
-      this.baloonText.y = 0;
-      this.alpha = 0;
+
+      this.scene.tweens.add({
+        targets: this,
+        y: this.y - 10,
+        alpha: 0,
+        duration: 200
+      });
+
     }
 
     fixSize() {

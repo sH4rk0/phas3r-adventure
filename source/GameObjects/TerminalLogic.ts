@@ -276,7 +276,7 @@ module z89 {
 
         reset(): void {
 
-            console.log("reset")
+           // console.log("reset")
             this.clear();
             this.writeMultiple(this.returnStaticString(msgs.reset, 0));
 
@@ -579,9 +579,7 @@ module z89 {
 
             for (let i = 0; i < 6; i++) {
 
-
                 this.scene.time.addEvent({ delay: 1000 * i, callback: ()=>{
-
 
                     this.writeMultiple(this.returnStaticString(8 + i, 0));
                     
@@ -739,7 +737,7 @@ module z89 {
                         break;
 
                     case "load \"gtw\"":
-                    case "load":
+                    //case "load":
 
                         if (!this.logged) {
                             this.shellType = shell.login;
@@ -786,6 +784,7 @@ module z89 {
 
         ajaxCall(data): void {
 
+            console.log(data);
             this.disableInput();
             this.writeMultiple(this.returnProcessing());
             let _this = this;
@@ -797,7 +796,7 @@ module z89 {
 
             }).done(function (data) { _this.enableInput(); }).fail(function (xhr) {
 
-console.log(xhr)
+//console.log(xhr)
 
              });
 

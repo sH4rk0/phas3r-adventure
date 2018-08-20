@@ -21,7 +21,7 @@ namespace z89 {
     constructor(scene: GameCity, x: number, y: number) {
       super(scene);
 
-      this.setDepth(1000).setAlpha(0);
+      this.setAlpha(0);
       this.isSkippable = true;
       this.isPlaying = false;
 
@@ -262,8 +262,11 @@ namespace z89 {
       let _btn: Phaser.GameObjects.Sprite;
       let _btnText: Phaser.GameObjects.BitmapText;
 
-      //options loop
+      this.removeForks();
+      //console.log(_obj.options)
       _obj.options.forEach((element, index) => {
+
+        //console.log(index);
         _btn = this.scene.add.sprite(0, 0, "forkBtn");
         _btn.setZ(index);
         var _option = element;
@@ -275,8 +278,6 @@ namespace z89 {
             "pointerdown",
             () => {
 
-              console.log(arguments)
-             
               if (_option.goto != undefined) {
                 this.currentStep = this.goToLabel(_option.goto);
               }
@@ -297,16 +298,15 @@ namespace z89 {
             this
           ).on("pointerover", () => {
 
-            console.log(btn.z);
+           // console.log(btn.z);
             
             this.scene.gameUtils.btnOverEffect( btn, this.forkBtnsText[btn.z]);
             
           })
           .on("pointerout", () => {
-            console.log(btn.z);
+           // console.log(btn.z);
             this.scene.gameUtils.btnOutEffect( btn,  this.forkBtnsText[btn.z]);
   
-           
           });
 
         _btnText = this.scene.add.bitmapText(
@@ -365,7 +365,10 @@ namespace z89 {
     }
 
     removeForks(): void {
+     // console.log(this.forkBtns, this.forkBtnsText);
       this.forkBtns.forEach((element: Phaser.GameObjects.Sprite, index) => {
+
+       // console.log("destroy "+index);
         element.destroy();
         this.forkBtnsText[index].destroy();
       });

@@ -12,8 +12,6 @@ module z89 {
         constructor(scene: GameCity, itemObj: any) {
 
             super(scene, itemObj);
-
-            this.setOrigin(0.5);
             this.skills = gameData.skills;
 
             let _text: Phaser.GameObjects.BitmapText;
@@ -21,8 +19,7 @@ module z89 {
 
             let _y: Array<number> = [-66, -164, -260, -355];
 
-            this.setDepth(this.y);
-            this.setAlpha(1);
+            this.setOrigin(0.5).setDepth(this.y).setAlpha(1);
 
            [0,1,2,3].forEach((element)=>{
 

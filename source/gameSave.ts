@@ -10,6 +10,10 @@ module z89 {
         private inventory: Array<any>;
         private items: Array<any>;
         private firstChoice:boolean=null;
+        private current:number=0;
+     
+        private choice:boolean=null;
+
         constructor(scene: GameCity) {
 
             this.scene = scene;
@@ -81,6 +85,20 @@ module z89 {
 
         }
 
+
+        setCurrentChapter(current:number){
+console.log("setCurrentChapter")
+            this.current=current;
+            this.updateSaveObj();
+        }
+
+        setChoiceChapter(choice:boolean){
+
+            this.choice=choice;
+            this.updateSaveObj();
+        }
+
+
         gameIsSaved(): boolean {
 
          if(this.isSaved && this.firstChoice) return true;
@@ -115,6 +133,8 @@ module z89 {
                 this.playerY = this.savedObj.position.y;
                 this.isSaved = true;
                 this.firstChoice= this.savedObj.firstChoice;
+                this.current = this.savedObj.chapter.current;
+                this.choice = this.savedObj.chapter.choice;
             } else {
                 this.savedObj = null;
                 this.isSaved = false;
@@ -132,7 +152,8 @@ module z89 {
                 position: { x: this.playerX, y: this.playerY },
                 inventory: this.inventory,
                 items: this.items,
-                firstChoice: this.firstChoice
+                firstChoice: this.firstChoice,
+                chapter: {current:this.current,choice:this.choice}
 
             }
 

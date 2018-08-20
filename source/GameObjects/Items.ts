@@ -10,6 +10,8 @@ module z89 {
         public inventoryIndex: number;
         public tween: Phaser.Tweens.Tween;
         private _isInteractive:boolean;
+        private _isIdle:boolean=true;
+      
 
         constructor(scene: GameCity, itemObj: any) {
 
@@ -19,12 +21,18 @@ module z89 {
 
             let config:AnimationConfig;
             let repeat:number=-1;
+
           
+          
+            //console.log(itemObj.sprite)
             if (itemObj.animations != undefined) {
              
                 itemObj.animations.forEach(element => {
+                    
+                   
+                    if(!element.loop){ repeat=0} else { repeat=-1;}
 
-                    if(!element.loop) repeat=0;
+                   // console.log(element,repeat);
                     config={
                         key: itemObj.id+"-"+element.name,
                         
@@ -37,29 +45,24 @@ module z89 {
 
                 });
                 
-                console.log(itemObj.id+"-"+itemObj.currentAnimation)
                 this.play(itemObj.id+"-"+itemObj.currentAnimation);
               
             }
 
-        
-
-            this.setDepth(this.y).setOrigin(0.5, 1).setInteractive();
+            
+            this.setDepth(this.y).setOrigin(0.5, 1).setX(itemObj.x);;
 
             if (itemObj.scale != undefined) this.setScale(itemObj.scale);
             
             this.id = itemObj.id;
             this.itemObj = itemObj;
-           
             this.name = itemObj.name;
             this._isInteractive = itemObj.interactive;
 
             if(itemObj.turnLeft!=undefined) this.turnLeft();
 
-            if(this.isInteractive){
-
-              
-
+            if(this.isInteractive()){
+            this.setInteractive();
             this.on("pointerdown",() => {
             
                 if(this.scene.isInteractionDisabled()) return;
@@ -80,7 +83,10 @@ module z89 {
 
                 this.scene.player.goTo(_playerDest, this.y, this);
 
-            }, this).on("pointerover",()=>{
+            }, this)
+            
+            
+            .on("pointerover",()=>{
 
 
                 this.scene.gameUtils.itemOverEffect(this);
@@ -100,8 +106,22 @@ module z89 {
         update() {
 
            
-            
-           if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
+          ///if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
+
+
+
+           if (this.y>660 && this.isIdle()) 
+           
+         {
+             
+            this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x);
+      
+
+
+         }  
+        
+        
+       
 
         }
 
@@ -110,6 +130,22 @@ module z89 {
             return this._isInteractive;
 
         }
+
+        setIdle(value:boolean):void{
+
+            this._isIdle=value;
+          
+
+        }
+
+        
+        isIdle():boolean{
+
+            return this._isIdle;
+
+        }
+
+     
 
         turnLeft(): void {
 
@@ -136,17 +172,9 @@ module z89 {
             this.itemObj.currentAnimation=_anim.split("-")[1];
             this.play(_anim);
            
-            
-
         }
 
-        start():void{
-
-            
-        }
-
-
-
+        start():void{ }
 
 
     }

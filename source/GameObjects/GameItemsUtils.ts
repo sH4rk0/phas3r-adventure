@@ -23,7 +23,7 @@ namespace z89 {
       if (_itemObj != undefined) {
         switch (_itemObj.type) {
           case 2:
-            //    this.currentState.groupAll.add(new ItemsTruck(this.game, _itemObj));
+            //    this.scene.groupAll.add(new ItemsTruck(this.scene, _itemObj));
             break;
 
           case 3:
@@ -36,6 +36,10 @@ namespace z89 {
 
           case 5:
             this.scene.groupCity.add(new Items(this.scene, _itemObj));
+            break;
+
+          case 6:
+            this.scene.groupAll.add(new ItemsWalking(this.scene, _itemObj));
             break;
 
           default:
@@ -63,5 +67,152 @@ namespace z89 {
 
       return _itemObj;
     }
+
+
+  
+
+
+    beamIn(item:Items,callback?:any){
+
+    
+      item.setAlpha(0);
+
+      let beam: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        item.x,
+        0,
+        "beam"
+      );
+      beam
+        .setScale(0.5,(item.y / 200))
+        .setOrigin(0.5, 0)
+        .setAlpha(0)
+        .setDepth(item.y)
+        .play("beam");
+
+
+/*
+      let color2 = new Phaser.Display.Color(255, 255, 255);
+      let color1 = new Phaser.Display.Color(0, 255, 0);
+      this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
+*/
+      let tweenBeam: Phaser.Tweens.Tween = this.scene.tweens.add({
+        targets: beam,
+        scaleX: 1,
+        alpha: 0.5,
+        ease: "Power1",
+        duration: 300,
+        delay: 1000,
+        repeat: 0,
+        onComplete: () => {
+          this.scene.tweens.add({
+            targets: item,
+            alpha: 1,
+            duration: 300,
+            repeat: 0,
+            onComplete:()=>{
+              if(callback!=undefined) callback();
+            }
+          });
+          this.scene.tweens.add({
+            targets: beam,
+            alpha: 0,
+            duration: 300,
+            repeat: 0
+          });
+        }
+      });
+
+
+
+
+
+    }
+
+
+    beamOut(item:Items,callback?:any){
+
+    
+   
+      if(item!=undefined){
+      let beam: Phaser.GameObjects.Sprite = this.scene.add.sprite(
+        item.x,
+        0,
+        "beam"
+      );
+      beam
+        .setScale(0.5, (item.y / 200))
+        .setOrigin(0.5, 0)
+        .setAlpha(0)
+        .setDepth(item.y)
+        .play("beam");
+
+      let tweenBeam: Phaser.Tweens.Tween = this.scene.tweens.add({
+        targets: beam,
+        scaleX: 1,
+        alpha: 0.3,
+        ease: "Power1",
+        duration: 300,
+        delay: 500,
+        repeat: 0,
+
+        onComplete: () => {
+          this.scene.tweens.add({
+            targets: beam,
+            alpha: 0,
+            ease: "Power1",
+            duration: 100,
+            repeat: 0,
+            onComplete: () => {
+              beam.destroy();
+            }
+          });
+        }
+      });
+
+      /*
+      let color1 = new Phaser.Display.Color(255, 255, 255);
+      let color2 = new Phaser.Display.Color(0, 255, 0);
+      this.scene.gameUtils.tweenTint(item, color1, color2, 300, 400, null);
+      */
+
+      let test: Phaser.Tweens.Tween = this.scene.tweens.add({
+        targets: item,
+        scaleX: 1.5,
+        scaleY: 0.5,
+
+        ease: "Power1",
+        alpha: 0.5,
+        duration: 300,
+        repeat: 0,
+        delay: 500,
+        onComplete: () => {
+          this.scene.tweens.add({
+            targets: item,
+            y: item.y - 100,
+            scaleX: 0.25,
+            scaleY: 10,
+            alpha: 0,
+            duration: 300,
+            ease: "Power1",
+            repeat: 0,
+            onComplete: () => {
+
+              item.setScale(1).setY(item.itemObj.y);
+              
+              if(callback!=undefined) callback();
+              //to remove an item definitly
+              //this.scene.removeItem(itemId);
+              this.scene.saveGameObj.updateItems();
+              
+            }
+          });
+        }
+      });
+
+
+    }
+    }
+
+
   }
 }

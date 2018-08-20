@@ -234,7 +234,7 @@ namespace z89 {
           "pointerdown",
           pointer => {
 
-            console.log("info")
+            //console.log("info")
             this.scene.conversationBaloon.setUpConversation({
               key: "INFO",
               action: null,
@@ -288,7 +288,7 @@ namespace z89 {
           "pointerdown",
           pointer => {
 
-            console.log("option")
+            //console.log("option")
 
             /*
             this.scene.conversationBaloon.setUpConversation({
@@ -435,20 +435,22 @@ namespace z89 {
     }
 
     newGame(): void {
-      console.log("new game");
+      //console.log("new game");
       this.scene.displayChapterTitle(0);
       this.scene.playerBaloon.showBaloon(getLabel(95));
       this.isOpenOnStart = false;
       this.scene.saveGameObj.setFirstChoice(true);
+      this.scene.saveGameObj.setChoiceChapter(true);
       this.hide();
     }
 
     noGame(): void {
-      console.log("no game");
+      //console.log("no game");
       gameData.chapters.forEach(element => {
         element.complete(this.scene);
       });
       this.scene.saveGameObj.setFirstChoice(false);
+      this.scene.saveGameObj.setChoiceChapter(false);
       this.isOpenOnStart = false;
       this.hide();
     }
@@ -485,6 +487,7 @@ namespace z89 {
     }
 
     show() {
+      
       if (this.isOpenOnStart) {
         this.showState("start");
       } else {
@@ -502,6 +505,7 @@ namespace z89 {
         ease: null,
         duration: 200,
         onComplete: () => {
+          this.scene.playerBaloon.hideBaloon();
           this.isOpen = true;
         }
       });
@@ -516,7 +520,6 @@ namespace z89 {
         if (element.name == "iconsBtn") {
 
           this.scene.tweens.add({targets:element,duration:100, y:element.y+20, alpha:0, onComplete:()=>{
-
 
             element.setY(element.y-20);
 

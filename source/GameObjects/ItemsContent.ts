@@ -72,7 +72,7 @@ namespace z89 {
       this.guru.setOrigin(.5).setDepth(this.y + 1);
 
       this.guruTween=this.scene.tweens.add({targets:this.guru,delay:1000, duration:1000, alpha:0, yoyo:true,  loopDelay: 1000, loop:-1})
-      Phaser.Display.Align.In.TopCenter(this.guru, this.contentImage);
+      Phaser.Display.Align.In.TopCenter(this.guru, this.contentImage,0,-20);
 
       let _style = {
         fill: "#00ff00",
@@ -80,7 +80,7 @@ namespace z89 {
         //stroke: "#000000",
         //strokeThickness: 5
       };
-      this.contentTextTitle = this.scene.add.text(0, 0, "   Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
+      this.contentTextTitle = this.scene.add.text(0, 0, "        Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
       this.contentTextTitle
         .setFontFamily("Roboto")
         .setFontSize(16)
@@ -88,7 +88,7 @@ namespace z89 {
         .setDepth(this.y + 1)
         .setWordWrapWidth(380);
 
-      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this.contentImage,-20,-20);
+      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this.contentImage,-20,-40);
 
 
       this.contentTextDescription = this.scene.add.text(0, 0, "", _style);
@@ -128,6 +128,7 @@ namespace z89 {
       this.arrowLeft = this.scene.add.sprite(0, 0, "triangleBtn");
       this.arrowLeft
         .setOrigin(0.5)
+        .setAlpha(0)
         .setScale(2)
         .setDepth(this.y + 1)
         .setAngle(-90)
@@ -157,6 +158,7 @@ namespace z89 {
       this.arrowRight
         .setOrigin(0.5)
         .setScale(2)
+        .setAlpha(0)
         .setAngle(90)
         .setDepth(this.y + 1)
         .setTint(0x222222);
@@ -235,7 +237,7 @@ namespace z89 {
       });
 
       this.scene.tweens.add({
-        targets: [this.btnGo, this.btnGoText],
+        targets: [this.btnGo,this.arrowLeft, this.arrowRight, this.btnGoText],
         alpha: 1,
         onComplete: () => {}
       });
@@ -363,23 +365,28 @@ namespace z89 {
         }
 
         if (_json.dd != undefined) {
-          _title = "DEVDAY " + _json.dd + "\n" 
-          _description = this.contents[this.currentIndex].t+ "\n\n";
+          _title = "DEVDAY " + _json.dd
+          _description = this.contents[this.currentIndex].t;
 
         }else{
 
-          _title = this.contents[this.currentIndex].t+ "\n\n";
+          _title = this.contents[this.currentIndex].t;
 
         }
 
         if (_json.date != undefined)  _date =  _json.date;
       }
 
-      console.log(_title,_description,_date)
+      //console.log(_title,_description,_date)
 
       this.contentTextTitle.setText(_title);
+      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this,null, -20);
+
       this.contentTextDescription.setText(_description);
+      Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle,null,10);
+
       this.contentTextDate.setText(_date);
+      Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription,null,20);
 
       this.scene.tweens.add({
         targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],

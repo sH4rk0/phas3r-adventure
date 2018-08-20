@@ -11,7 +11,7 @@
             name: z89.getLabel(79),
             x:1161+174,
             y: 4+215-48,
-            interactive: true,
+            interactive: false,
             offsetX: 0,
             isStarted:false,
             fixedToCamera: false,
@@ -88,7 +88,29 @@
            
          
 
-        }, {
+        },
+        
+        {
+            id: 100,
+            type: 6,
+            onStart: true,
+            sprite: "player",
+            animations: [{ name: "idle", frames: [8, 9, 10, 11], rate: 5, loop: true },{ name: "walking", frames: [0, 1, 2, 3,4,5,6,7], rate: 5, loop: true }],
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: z89.getLabel(31),
+            x: 500,
+            y: 700,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false
+           
+         
+
+        }, 
+        
+        {
             id: 17,
             type: 1,
             onStart: true,
@@ -107,12 +129,12 @@
         },{
             id: 27,
             type: 1,
-            onStart: true,
+            onStart: false,
             sprite: "daniele",
             animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
             name: z89.getLabel(96),
             currentAnimation:"idle",
-            x: 1440,
+            x: 600,//1440,
             y: 650-48,
             turnLeft: true,
             interactive: true,
@@ -181,7 +203,7 @@
             sprite: "scotch",
             onStart: true,
             name: z89.getLabel(55),
-            x: 400,
+            x: 450,
             y: 648-48,
             interactive: true,
             offsetX: 30,
@@ -194,7 +216,7 @@
             id: 30,
             type: 1,
             sprite: "bitcoin",
-            onStart: true,
+            onStart: false,
             name: "bitcoin",//z89.getLabel(55),
             x: 400,
             y: 700-48,
@@ -208,7 +230,7 @@
             id: 32,
             type: 1,
             sprite: "blockchain",
-            onStart: true,
+            onStart: false,
             name: "blockchain",//z89.getLabel(55),
             x: 500,
             y: 700-48,
@@ -234,6 +256,7 @@
 
         }, 
 
+       
         
         
         
@@ -259,7 +282,7 @@
             sprite: "terminal",
             animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true },{ name: "working", frames: [5, 6], rate: 1, loop: true }],
             currentAnimation:"notWorking",
-            working:true,
+            working:false,
             name: z89.getLabel(12),
             x: 1214,
             y: 644-48,
@@ -305,7 +328,24 @@
 
         },
 
-       ,
+
+
+        {
+            id: 3,
+            type: 1,
+            sprite: "coke",
+            onStart: false,
+            name: z89.getLabel(10),
+            x: 800,
+            y: 724-48,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+
+
         {
             id: 11,
             type: 1,

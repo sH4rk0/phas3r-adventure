@@ -78,16 +78,12 @@
             { name: "bg-cake", path: "assets/images/game/buildings/cake.png" },
             { name: "bg-arcade", path: "assets/images/game/buildings/arcade.png" },
             { name: "bg-aerosol", path: "assets/images/game/buildings/aerosol.png" },
-            { name: "bg-contact", path: "assets/images/game/buildings/contact.png" },
-            ///{ name: "keyboardKey", path: "assets/images/game/terminal/key.png" },
-            
+            { name: "bg-contact", path: "assets/images/game/buildings/contact.png" }
             
 
         ],
 
-        sounds: [
-            
-                        { name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false },
+        sounds: [{ name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false }
                         
             
         ],

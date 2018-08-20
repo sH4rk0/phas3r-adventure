@@ -16,30 +16,20 @@ gameData.ingame.conversation = {
 
     CHAPTER_COMPLETED: [{
 
-
         text: z89.getLabel(94),
         isItem: false,
         fork: true,
-        options: [,
+        options: [
             { option: "YES", action: (cs: z89.GameCity, target: z89.Items) => { 
-                cs.currentChapter++; 
-                cs.displayChapterTitle(cs.currentChapter);
-                cs.playerMenu.hide();
-                cs.playerActions.hide();
-                cs.playerBaloon.hideBaloon();
-                cs.conversationBaloon.hideBaloon();
-            
+
+               cs.nextChapter();
             
             } },
             
             { option: "LEAVE THE GAME", action: (cs: z89.GameCity, target: z89.Items) => { 
 
-                gameData.chapters.forEach(element => {
-
-                   if(!element.completed) element.complete(cs);
-                    
-                });
-
+                cs.leaveGame();
+               
             } }
         ]
 
@@ -98,29 +88,30 @@ gameData.ingame.conversation = {
                 {
                     option: "Nothing", action: (cs: z89.GameCity, target: z89.Items) => {
                         cs.gameUtils.addDelay(500, () => { 
+                            
                             let _jukebox=cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("idle");
+                            _jukebox.play("11-idle");
                             cs.stopSound();
-                            let _woofer=cs.gameItemsUtils.getItemById(12);
-                            _woofer.tween.pause();
+                           // let _woofer=cs.gameItemsUtils.getItemById(12);
+                           // _woofer.tween.pause();
                         });
                         cs.conversationBaloon.hideBaloon();
-                        cs.player.play("use");
+                        cs.player.play("player-use");
                        
                     }
                 },
                 {
                     option: "Some 8bit Tune", action: (cs: z89.GameCity, target: z89.Items) => {
-                        //cs.playSound(0);
+                        cs.playSound(0);
                         cs.gameUtils.addDelay(500, () => { 
                             let _jukebox=cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("play");
-                            let _woofer=cs.gameItemsUtils.getItemById(12);
-                            _woofer.tween.resume();
+                            _jukebox.play("11-play");
+                           // let _woofer=cs.gameItemsUtils.getItemById(12);
+                           // _woofer.tween.resume();
                         });
                        
                         cs.conversationBaloon.hideBaloon();
-                        cs.player.play("use");
+                        cs.player.play("player-use");
                        
 
 

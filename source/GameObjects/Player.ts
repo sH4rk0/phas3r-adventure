@@ -144,7 +144,7 @@ namespace z89 {
 
     goTo(_x: number, _y: number, _item?: Items): void {
      
-        console.log(_x, _y, _item, this.scene.currentItem);
+       // console.log(_x, _y, _item, this.scene.currentItem);
    
 
       this.hideBaloon();
@@ -324,7 +324,7 @@ namespace z89 {
           intersectPoint.setTo(0, 0);
 
           if (Phaser.Geom.Intersects.LineToLine(line1, line2, intersectPoint)) {
-            console.log(intersectPoint);
+           // console.log(intersectPoint);
             _obj.point = intersectPoint;
           }
         }
@@ -358,7 +358,7 @@ namespace z89 {
         .setScale(0.5, this.beamH())
         .setOrigin(0.5, 0)
         .setAlpha(0)
-        .setDepth(10000)
+        .setDepth(this.y)
         .play("beam");
 
 
@@ -406,7 +406,7 @@ namespace z89 {
         .setScale(0.5, this.beamH())
         .setOrigin(0.5, 0)
         .setAlpha(0)
-        .setDepth(10000)
+        .setDepth(this.y)
         .play("beam");
 
       let tweenBeam: Phaser.Tweens.Tween = this.scene.tweens.add({

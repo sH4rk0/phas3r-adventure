@@ -8,6 +8,7 @@ var _initGame;
 namespace z89 {
   let _089Data: any;
   let _ismobile: boolean;
+  let _gameSounds: Array<Phaser.Sound.BaseSound> = [];
 
   export function getLabel(_index: number): string {
     return languages[currentLang][_index];
@@ -90,6 +91,58 @@ export function setDevice(isMobile: boolean): void {
       }
     }
   }
+
+  export enum gameSound {
+    intro
+  }
+
+  export function pushSound(_sound: Phaser.Sound.BaseSound): void {
+
+     _gameSounds.push(_sound)
+
+}
+
+  export function getSound(_sound: gameSound): Phaser.Sound.BaseSound {
+
+    return _gameSounds[_sound];
+
+}
+
+export function playSound(_sound: gameSound): void {
+
+    _gameSounds[_sound].play();
+
+}
+
+export function stopSound(_sound: gameSound): void {
+
+    _gameSounds[_sound].stop();
+
+}
+
+export function stopSoundAll(): void {
+
+    _gameSounds.forEach((sound)=>{
+        sound.stop();
+
+    })
+  
+
+}
+
+
+
+export function pauseSound(_sound: gameSound): void {
+
+    _gameSounds[_sound].stop();
+
+}
+
+export function setSoundVolume(_sound: gameSound, _volume: number): void {
+
+    _gameSounds[_sound].volume = _volume;
+
+}
 
   export class initGame {
     private config: GameConfig;

@@ -193,7 +193,7 @@ namespace z89 {
 
     private deselectItems(): void {
       this.inventorySelected = [];
-
+      this.unselectInventoryIcons();
       //this.iconGroup.setAll("frame", 0);
     }
 
@@ -254,11 +254,12 @@ namespace z89 {
     }
 
     resetActions(): void {
-      //console.log("reset action")
+      
       this.cleanAction();
       this.currentAction = -1;
       this.inventorySelected = [];
-      //this.iconGroup.setAll("frame", 0);
+      this.unselectInventoryIcons()
+    
     }
 
     hide() {
@@ -361,6 +362,18 @@ namespace z89 {
         }
       );
     }
+
+
+    private unselectInventoryIcons(): void {
+      this.inventoryBtns.forEach(
+        (element: Phaser.GameObjects.Sprite, index: number) => {
+          element.setFrame(0);
+         
+        }
+      );
+     
+    }
+
     //remove child items from the inventory icons
     private cleanInventoryIcons(): void {
       this.inventoryBtns.forEach(

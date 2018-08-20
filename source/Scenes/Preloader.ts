@@ -57,6 +57,14 @@ namespace z89 {
 
       this.load.on("complete", () => {
         //progress.destroy();
+
+        
+        gameData.assets.sounds.forEach(element => {
+              var _sound:Phaser.Sound.BaseSound= this.sound.add(element.name);
+              pushSound(_sound);
+        });
+        
+
 		this.body.className = "";
 		this.scene.start('GameCity');
         console.log("load assetts complete");
@@ -88,8 +96,12 @@ namespace z89 {
 
       // SOUNDS
       gameData.assets.sounds.forEach(element => {
-        this.load.audio(element.name, element.paths);
+       this.load.audio(element.name, element.paths);
+
+       
       });
+
+  
 
 
       if(isOnline()){
