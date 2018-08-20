@@ -150,7 +150,7 @@ export function setSoundVolume(_sound: gameSound, _volume: number): void {
     constructor(config: GameConfig) {
       this.config = config;
       
-      console.log(navigator.onLine);
+     // console.log(navigator.onLine);
       if(isOnline()){this.getContents()}else{ this.startLoading()}
     
     }

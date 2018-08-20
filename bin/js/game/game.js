@@ -1350,7 +1350,7 @@ var z89;
     var initGame = (function () {
         function initGame(config) {
             this.config = config;
-            console.log(navigator.onLine);
+            // console.log(navigator.onLine);
             if (isOnline()) {
                 this.getContents();
             }
@@ -3502,7 +3502,7 @@ var z89;
             var _this = _super.call(this, scene, itemObj) || this;
             _this.setAlpha(0);
             _this.playAnim(_this.itemObj.id + "-idle");
-            _this.scene.time.delayedCall(1000, function (scene) {
+            _this.scene.time.delayedCall(500, function (scene) {
                 _this.beamIn();
             }, null, _this);
             return _this;
@@ -3516,7 +3516,7 @@ var z89;
         };
         ItemsWalking.prototype.startPath = function (direction) {
             var _this = this;
-            var _walk = Phaser.Math.RND.integerInRange(100, 100);
+            var _walk = Phaser.Math.RND.integerInRange(200, 500);
             var _walkSpeed = _walk * 10;
             if (direction == 0) {
                 this.turnLeft();
@@ -3535,7 +3535,7 @@ var z89;
                     _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + _this.x);
                     _this.setIdle(true);
                     _this.playAnim(_this.itemObj.id + "-idle");
-                    _this.scene.time.delayedCall(500, function (scene) {
+                    _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(500, 1500), function (scene) {
                         _this.nextDirection();
                     }, null, _this);
                 }
@@ -3545,10 +3545,11 @@ var z89;
             var _this = this;
             var _action = Phaser.Math.RND.integerInRange(0, 100);
             var _direction = Phaser.Math.RND.integerInRange(0, 1);
-            if (_action > 2) {
+            if (_action > 80) {
                 this.scene.gameItemsUtils.beamOut(this, function () {
-                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + (_this.x + 100));
-                    //this.setX((this.scene.mainCamera.scrollX * 0.095) + (this.x));
+                    var _jump = Phaser.Math.RND.integerInRange(-500, 500);
+                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + (_this.x + (_jump)));
+                    _this.x = _this.x + (_jump);
                     _this.beamIn();
                 });
             }
