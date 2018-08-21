@@ -22,8 +22,6 @@ module z89 {
             let config:AnimationConfig;
             let repeat:number=-1;
 
-          
-          
             //console.log(itemObj.sprite)
             if (itemObj.animations != undefined) {
              
@@ -110,16 +108,9 @@ module z89 {
 
 
 
-           if (this.y>660 && this.isIdle()) 
-           
-         {
-             
-            this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x);
-      
-
-
-         }  
+           if (this.y>660 && this.isIdle()) {  this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x); }  
         
+           
         
        
 

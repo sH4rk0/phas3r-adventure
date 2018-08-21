@@ -1567,6 +1567,7 @@ gameData.assets = {
         { name: "daniele", path: "assets/images/game/people/daniele.png", width: 65, height: 138, frames: 4 },
         { name: "davide", path: "assets/images/game/people/davide.png", width: 65, height: 138, frames: 4 },
         { name: "michele", path: "assets/images/game/people/michele.png", width: 65, height: 138, frames: 4 },
+        { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 100 },
         { name: "inventory", path: "assets/images/game/inventory.png", width: 70, height: 70, frames: 2 },
         { name: "icons", path: "assets/images/game/icons/icons.png", width: 80, height: 80, frames: 11 },
         { name: "beam", path: "assets/images/game/beam.png", width: 200, height: 200, frames: 12 },
@@ -1910,17 +1911,37 @@ gameData.ingame.items = [
         id: 100,
         type: 6,
         onStart: true,
-        sprite: "player",
-        animations: [{ name: "idle", frames: [8, 9, 10, 11], rate: 5, loop: true }, { name: "walking", frames: [0, 1, 2, 3, 4, 5, 6, 7], rate: 5, loop: true }],
+        sprite: "walkers",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }, { name: "walking", frames: [4, 5, 6, 7, 8, 9], rate: 5, loop: true }, { name: "running", frames: [10, 11, 12, 13, 14, 15, 16, 17], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(31),
+        name: "Bad Boy",
         x: 500,
         y: 700,
         interactive: true,
         offsetX: 80,
         fixedToCamera: false,
-        checkIntersect: false
+        checkIntersect: false,
+        insight: { distance: 80, behaviour: "stop", offsetY: 20 },
+        walkRange: { start: 100, end: 1000 }
+    },
+    {
+        id: 101,
+        type: 6,
+        onStart: true,
+        sprite: "walkers",
+        animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true }, { name: "walking", frames: [24, 25, 26, 27, 28, 29], rate: 5, loop: true }, { name: "running", frames: [30, 31, 32, 33, 34, 35, 36, 37], rate: 8, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: "Bad Boy",
+        x: 700,
+        y: 604,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        insight: { distance: 80, behaviour: "stop", offsetY: 20 },
+        walkRange: { start: 100, end: 1000 }
     },
     {
         id: 17,
@@ -3500,18 +3521,24 @@ var z89;
         __extends(ItemsWalking, _super);
         function ItemsWalking(scene, itemObj) {
             var _this = _super.call(this, scene, itemObj) || this;
+            _this.behaviour = true;
+            _this.beaming = false;
             _this.setAlpha(0);
             _this.playAnim(_this.itemObj.id + "-idle");
-            _this.scene.time.delayedCall(500, function (scene) {
+            _this.movingTimer = _this.scene.time.delayedCall(500, function (scene) {
                 _this.beamIn();
             }, null, _this);
             return _this;
         }
         ItemsWalking.prototype.beamIn = function () {
             var _this = this;
+            this.beaming = true;
             this.scene.gameItemsUtils.beamIn(this, function () {
                 _this.playAnim(_this.itemObj.id + "-idle");
-                _this.scene.time.delayedCall(1000, function () { _this.startPath(Phaser.Math.RND.integerInRange(1, 1)); }, null, _this);
+                _this.beaming = false;
+                _this.movingTimer = _this.scene.time.delayedCall(1000, function () {
+                    _this.startPath(Phaser.Math.RND.integerInRange(1, 1));
+                }, null, _this);
             });
         };
         ItemsWalking.prototype.startPath = function (direction) {
@@ -3527,15 +3554,15 @@ var z89;
             }
             this.setIdle(false);
             this.playAnim(this.itemObj.id + "-walking");
-            this.scene.tweens.add({
+            this.movingTween = this.scene.tweens.add({
                 targets: this,
                 x: this.x + _walk,
                 duration: _walkSpeed,
                 onComplete: function () {
-                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + _this.x);
+                    _this.updateItemObj("x", _this.scene.mainCamera.scrollX * 0.095 + _this.x);
                     _this.setIdle(true);
                     _this.playAnim(_this.itemObj.id + "-idle");
-                    _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(500, 1500), function (scene) {
+                    _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(5000, 5000), function (scene) {
                         _this.nextDirection();
                     }, null, _this);
                 }
@@ -3546,21 +3573,78 @@ var z89;
             var _action = Phaser.Math.RND.integerInRange(0, 100);
             var _direction = Phaser.Math.RND.integerInRange(0, 1);
             if (_action > 80) {
+                this.beaming = true;
                 this.scene.gameItemsUtils.beamOut(this, function () {
+                    _this.beaming = false;
                     var _jump = Phaser.Math.RND.integerInRange(-500, 500);
-                    _this.updateItemObj("x", (_this.scene.mainCamera.scrollX * 0.095) + (_this.x + (_jump)));
-                    _this.x = _this.x + (_jump);
+                    _this.updateItemObj("x", _this.scene.mainCamera.scrollX * 0.095 + (_this.x + _jump));
+                    _this.x = _this.x + _jump;
                     _this.beamIn();
                 });
             }
             else {
-                if (this.x > 3670) {
+                if (this.x > this.itemObj.walkRange.end) {
                     _direction = 0;
                 }
-                else if (this.x < 0) {
+                else if (this.x < this.itemObj.walkRange.start) {
                     _direction = 1;
                 }
                 this.startPath(_direction);
+            }
+        };
+        ItemsWalking.prototype.checkYOffset = function () {
+            if (this.scene.player.y < this.y) {
+                if (this.y - this.scene.player.y < this.itemObj.insight.offsetY)
+                    return true;
+            }
+            else {
+                if (this.scene.player.y - this.y < this.itemObj.insight.offsetY)
+                    return true;
+            }
+            return false;
+        };
+        ItemsWalking.prototype.update = function () {
+            if (!this.beaming) {
+                if (this.itemObj.insight.distance > 0) {
+                    if ((Math.round(Phaser.Math.Distance.Between(this.x, this.y, this.scene.player.x, this.scene.player.y)) < this.itemObj.insight.distance) && this.checkYOffset()) {
+                        if (this.behaviour) {
+                            this.behaviour = !this.behaviour;
+                            switch (this.itemObj.insight.behaviour) {
+                                case "run":
+                                    break;
+                                case "jump":
+                                    break;
+                                case "stop":
+                                    console.log("stop", this.y, this.scene.player.y, this.checkYOffset());
+                                    if (this.movingTween != undefined)
+                                        this.movingTween.stop();
+                                    if (this.movingTimer != undefined)
+                                        this.movingTimer.remove(false);
+                                    this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + this.x);
+                                    this.setIdle(true);
+                                    this.playAnim(this.itemObj.id + "-idle");
+                                    if (this.scene.player.x <= this.x) {
+                                        this.turnLeft();
+                                    }
+                                    else {
+                                        this.turnRight();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    else {
+                        //console.log("far");
+                        if (!this.behaviour) {
+                            console.log("restart");
+                            this.nextDirection();
+                        }
+                        this.behaviour = true;
+                    }
+                }
+                if (this.y > 660 && this.isIdle()) {
+                    this.setX(this.scene.mainCamera.scrollX * -0.095 + this.itemObj.x);
+                }
             }
         };
         return ItemsWalking;

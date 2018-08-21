@@ -94,19 +94,38 @@
             id: 100,
             type: 6,
             onStart: true,
-            sprite: "player",
-            animations: [{ name: "idle", frames: [8, 9, 10, 11], rate: 5, loop: true },{ name: "walking", frames: [0, 1, 2, 3,4,5,6,7], rate: 5, loop: true }],
+            sprite: "walkers",
+            animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true },{ name: "walking", frames: [4,5,6,7,8,9], rate: 5, loop: true },{ name: "running", frames: [10,11,12,13,14,15,16,17], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: z89.getLabel(31),
+            name: "Bad Boy",//z89.getLabel(31),
             x: 500,
             y: 700,
             interactive: true,
             offsetX: 80,
             fixedToCamera: false,
-            checkIntersect: false
-           
-         
+            checkIntersect: false,
+            insight:{distance:80, behaviour:"stop", offsetY:20},
+            walkRange:{start:100,end:1000}
+
+        }, 
+        {
+            id: 101,
+            type: 6,
+            onStart: true,
+            sprite: "walkers",
+            animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true },{ name: "walking", frames: [24,25,26,27,28,29], rate: 5, loop: true },{ name: "running", frames: [30,31,32,33,34,35,36,37], rate: 8, loop: true }],
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: "Bad Boy",//z89.getLabel(31),
+            x: 700,
+            y: 604,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false,
+            insight:{distance:80, behaviour:"stop", offsetY:20},
+            walkRange:{start:100,end:1000}
 
         }, 
         
