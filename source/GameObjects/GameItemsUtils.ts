@@ -13,9 +13,18 @@ namespace z89 {
       });
     }
 
-    addItem(id: number): void {
+    addItem(id: number, randomId?:boolean): void {
+
       let _itemObj: any = this.getItemObjById(id);
 
+     
+      if(randomId!=undefined){
+
+        _itemObj=JSON.parse(JSON.stringify(_itemObj));
+        _itemObj.id=Phaser.Math.RND.integerInRange(1000,100000);
+
+      }
+      //console.log(_itemObj)
       this.attachItem(_itemObj);
     }
 
@@ -51,10 +60,7 @@ namespace z89 {
 
     getItemObjById(id: number): any {
       let _itemObj: any;
-      gameData.ingame.items.forEach(element => {
-        if (element.id == id) _itemObj = element;
-      });
-
+      gameData.ingame.items.forEach(element => { if (element.id == id) _itemObj = element; });
       return _itemObj;
     }
 
@@ -202,7 +208,7 @@ namespace z89 {
               if(callback!=undefined) callback();
               //to remove an item definitly
               //this.scene.removeItem(itemId);
-              this.scene.saveGameObj.updateItems();
+              //this.scene.saveGameObj.updateItems();
               
             }
           });

@@ -89,24 +89,26 @@
          
 
         },
-        
+      
         {
             id: 100,
             type: 6,
             onStart: true,
             sprite: "walkers",
-            animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true },{ name: "walking", frames: [4,5,6,7,8,9], rate: 5, loop: true },{ name: "running", frames: [10,11,12,13,14,15,16,17], rate: 8, loop: true }],
+             animations: [{ name: "idle", frames: [40, 41, 42, 43], rate: 5, loop: true },{ name: "walking", frames: [44,45,46,47,48,49], rate: 5, loop: true },{ name: "running", frames: [50,51,52,53,54,55,56,57], rate: 8, loop: true }],
+
             currentAnimation:"idle",
             conversationStatus:null,
             name: "Bad Boy",//z89.getLabel(31),
-            x: 500,
+            x: 1800,
             y: 700,
             interactive: true,
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:80, behaviour:"stop", offsetY:20},
-            walkRange:{start:100,end:1000}
+            insight:{distance:100, behaviour:"idler", offsetY:30},
+            walkRange:{start:100,end:3000},
+            jumpChance:20
 
         }, 
         {
@@ -117,17 +119,61 @@
             animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true },{ name: "walking", frames: [24,25,26,27,28,29], rate: 5, loop: true },{ name: "running", frames: [30,31,32,33,34,35,36,37], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Bad Boy",//z89.getLabel(31),
-            x: 700,
-            y: 604,
+            name: "Bad Boy 2",//z89.getLabel(31),
+            x: 1000,
+            y: 700,
             interactive: true,
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:80, behaviour:"stop", offsetY:20},
-            walkRange:{start:100,end:1000}
+            insight:{distance:300, behaviour:"jumper", offsetY:50},
+            walkRange:{start:100,end:3000},
+            jumpChance:0
 
         }, 
+       {
+            id: 102,
+            type: 6,
+            onStart: true,
+            sprite: "walkers",
+          
+           animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true },{ name: "walking", frames: [4,5,6,7,8,9], rate: 5, loop: true },{ name: "running", frames: [10,11,12,13,14,15,16,17], rate: 8, loop: true }],
+
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: "Bad Boy 3",//z89.getLabel(31),
+            x: 2000,
+            y: 700,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false,
+            insight:{distance:200, behaviour:"runner", offsetY:50},
+            walkRange:{start:0,end:3600},
+            jumpChance:0
+
+        }, 
+ 
+        {
+            id: 103,
+            type: 6,
+            onStart: true,
+            sprite: "walkers",
+            animations: [{ name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true },{ name: "walking", frames: [64,65,66,67,68,69], rate: 5, loop: true },{ name: "running", frames: [70,71,72,73,74,75,76,77], rate: 8, loop: true }],
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: "Bad Boy 4", //z89.getLabel(31),
+            x: 2500,
+            y: 610,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false,
+            insight:{distance:100, behaviour:"idler", offsetY:30},
+            walkRange:{start:100,end:3000},
+            jumpChance:20
+
+        },
         
         {
             id: 17,
@@ -335,7 +381,7 @@
             sprite: "drink-machine",
             name: z89.getLabel(0),
             x: 800,
-            y: 724-48,
+            y: 680,
             animations: [{ name: "idle", frames: [0,1], rate: 1, loop: true }],
             currentAnimation:"idle",
             onStart: true,

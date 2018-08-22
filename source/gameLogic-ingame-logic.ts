@@ -111,6 +111,13 @@ gameData.ingame.logic = {
 
   },
 
+   // use coins on drink machine
+  /* USE_25: (cs: z89.GameCity) => {
+    console.log("use coin test");
+ 
+ 
+  },*/
+
   //use devday
   USE_21: (cs: z89.GameCity) => {
     let convObj: any = {

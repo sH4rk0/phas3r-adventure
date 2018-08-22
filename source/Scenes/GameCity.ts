@@ -243,9 +243,19 @@ namespace z89 {
       playSound(gameSound.intro);
 
 
-   
+      //add an Items on scene && a copy of the same item with randomized id
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      //this.gameItemsUtils.addItem(100);
+    /* this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      this.gameItemsUtils.addItem(100,true);
+      */
 
-   
 
       //get an item and add directly to the inventory
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -255,17 +265,19 @@ namespace z89 {
       // this.addInventoryItem(this.gameItemsUtils.getItemById(32));
 
       //beam out existing Items
-      //+++++++++++++++++++++++++++++++++
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // this.gameItemsUtils.beamOut(27);
 
       //add an Item and beam In
-      //+++++++++++++++++++++++++++++++++++
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       //this.gameItemsUtils.addItem(27);
       //this.gameItemsUtils.beamIn(27);
 
       //shoot Items from high
-      //++++++++++++++++++++++++++++++++++
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       //this.shootFromHigh([27]);
+
+      //accessible global instance for backend ajax call
       _gamecity = this;
 
       

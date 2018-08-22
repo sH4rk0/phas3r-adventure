@@ -83,7 +83,7 @@ module z89 {
 
             }, this)
             
-            
+            /*
             .on("pointerover",()=>{
 
 
@@ -95,6 +95,7 @@ module z89 {
                 this.scene.gameUtils.itemOutEffect(this);
 
             });
+            */
         }
 
             this.scene.add.existing(this);
@@ -111,9 +112,6 @@ module z89 {
            if (this.y>660 && this.isIdle()) {  this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x); }  
         
            
-        
-       
-
         }
 
         isInteractive(): boolean {
@@ -140,7 +138,6 @@ module z89 {
 
         turnLeft(): void {
 
-            
             this.setFlipX(true);
 
         }
