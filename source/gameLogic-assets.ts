@@ -11,7 +11,7 @@
             { name: "daniele", path: "assets/images/game/people/daniele.png", width: 65, height: 138, frames: 4 },
             { name: "davide", path: "assets/images/game/people/davide.png", width: 65, height: 138, frames: 4 },
             { name: "michele", path: "assets/images/game/people/michele.png", width: 65, height: 138, frames: 4 },
-            { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 100 },
+            { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 120 },
             { name: "inventory", path: "assets/images/game/inventory.png", width: 70, height: 70, frames: 2 },
 
             { name: "icons", path: "assets/images/game/icons/icons.png", width: 80, height: 80, frames: 11 },

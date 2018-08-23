@@ -240,6 +240,11 @@ gameData.ingame.logic = {
     cs.addInventoryItem(cs.gameItemsUtils.getItemById(32), false);
   },
 
+  //pickup jumper
+  PICKUP_101: (cs: z89.GameCity) => {
+    console.log("pickup jumper")
+  },
+
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

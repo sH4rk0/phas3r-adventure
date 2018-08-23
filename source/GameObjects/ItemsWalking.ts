@@ -6,8 +6,6 @@ namespace z89 {
     private behaviour: boolean = true;
     private beaming: boolean = false;
     private distanceUpdate: boolean = true;
-    private tweenBreak: boolean = false;
-
 
     constructor(scene: GameCity, itemObj: any) {
       super(scene, itemObj);
@@ -68,7 +66,7 @@ namespace z89 {
 
     startPath(direction: number): void {
         //console.log("startpath")
-      let _walk: number = Phaser.Math.RND.integerInRange(200, 500);
+      let _walk: number = Phaser.Math.RND.integerInRange(this.itemObj.walkRange.step.min, this.itemObj.walkRange.step.max);
       let _walkSpeed: number = _walk * 10;
 
       if (direction == 0) {
@@ -110,10 +108,6 @@ namespace z89 {
 
         onComplete: () => {
           //  console.log("startpath complete");
-           
-
-               
-
 
                   this.setIdle(true);
                   this.playAnim(this.itemObj.id + "-idle"); 
@@ -145,12 +139,8 @@ namespace z89 {
                   }else{
 
 
-                 
-                  
-                  
-        
                   this.movingTimer = this.scene.time.delayedCall(
-                    Phaser.Math.RND.integerInRange(1000, 1500),
+                    Phaser.Math.RND.integerInRange(this.itemObj.walkRange.idle.min, this.itemObj.walkRange.idle.max),
                     scene => {
                       this.nextDirection();
                     },
@@ -233,7 +223,7 @@ namespace z89 {
       if (
         !this.beaming &&
         this.itemObj.insight.distance > 0 &&
-        this.distanceUpdate
+        this.distanceUpdate && this.scene.player.alpha==1
       ) {
         if (
           Math.round(

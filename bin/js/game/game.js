@@ -498,11 +498,11 @@ var z89;
             var _actionObj = this.getActionObject();
             if (this.actionTimer != null)
                 this.actionTimer.remove(false);
-            console.log(_actionObj);
+            //console.log(_actionObj);
             if (_actionObj.action != -1 &&
                 (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
                 this.executeActionLogic(_item)) {
-                console.log("doActionSequence");
+                //console.log("doActionSequence");
                 //this.playerBaloon.hideBaloon();
                 //this.playerActions.hide();
                 //this.playerMenu.hide();
@@ -517,8 +517,15 @@ var z89;
                   */
             }
             else {
-                console.log("doillogic");
-                console.log(_actionObj.key, _actionObj.key.indexOf("_"), _actionObj.inventory.length, _actionObj.item);
+                /* console.log("doillogic");
+         
+                 console.log(
+                   _actionObj.key,
+                   _actionObj.key.indexOf("_"),
+                   _actionObj.inventory.length,
+                   _actionObj.item
+                 );
+                 */
                 if (_actionObj.key != "noAction" &&
                     _actionObj.key.indexOf("_") != -1 &&
                     ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
@@ -594,7 +601,7 @@ var z89;
             else if (_currentAction == "") {
                 returnObj.key = "noAction";
             }
-            console.log(returnObj);
+            // console.log(returnObj);
             this.logicCombination = returnObj;
             //return this.logicCombination;
         };
@@ -1583,7 +1590,7 @@ gameData.assets = {
         { name: "daniele", path: "assets/images/game/people/daniele.png", width: 65, height: 138, frames: 4 },
         { name: "davide", path: "assets/images/game/people/davide.png", width: 65, height: 138, frames: 4 },
         { name: "michele", path: "assets/images/game/people/michele.png", width: 65, height: 138, frames: 4 },
-        { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 100 },
+        { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 120 },
         { name: "inventory", path: "assets/images/game/inventory.png", width: 70, height: 70, frames: 2 },
         { name: "icons", path: "assets/images/game/icons/icons.png", width: 80, height: 80, frames: 11 },
         { name: "beam", path: "assets/images/game/beam.png", width: 200, height: 200, frames: 12 },
@@ -1931,15 +1938,16 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [40, 41, 42, 43], rate: 5, loop: true }, { name: "walking", frames: [44, 45, 46, 47, 48, 49], rate: 5, loop: true }, { name: "running", frames: [50, 51, 52, 53, 54, 55, 56, 57], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad Boy",
+        name: "Bad guy",
         x: 1800,
         y: 700,
         interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 100, behaviour: "idler", offsetY: 30 },
-        walkRange: { start: 100, end: 3000 },
+        walkRange: { start: 100, end: 3000, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 20
     },
     {
@@ -1950,15 +1958,16 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true }, { name: "walking", frames: [24, 25, 26, 27, 28, 29], rate: 5, loop: true }, { name: "running", frames: [30, 31, 32, 33, 34, 35, 36, 37], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad Boy 2",
+        name: "The jumper",
         x: 1000,
         y: 700,
         interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 300, behaviour: "jumper", offsetY: 50 },
-        walkRange: { start: 100, end: 3000 },
+        insight: { distance: 300, behaviour: "jumper", offsetY: 250 },
+        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 0
     },
     {
@@ -1969,15 +1978,16 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }, { name: "walking", frames: [4, 5, 6, 7, 8, 9], rate: 5, loop: true }, { name: "running", frames: [10, 11, 12, 13, 14, 15, 16, 17], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad Boy 3",
+        name: "The runner",
         x: 2000,
         y: 700,
         interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 200, behaviour: "runner", offsetY: 50 },
-        walkRange: { start: 0, end: 3600 },
+        walkRange: { start: 0, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 0
     },
     {
@@ -1988,16 +1998,77 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true }, { name: "walking", frames: [64, 65, 66, 67, 68, 69], rate: 5, loop: true }, { name: "running", frames: [70, 71, 72, 73, 74, 75, 76, 77], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad Boy 4",
+        name: "Bad guy",
         x: 2500,
         y: 610,
         interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 100, behaviour: "idler", offsetY: 30 },
-        walkRange: { start: 100, end: 3000 },
+        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 20
+    },
+    {
+        id: 104,
+        type: 6,
+        onStart: true,
+        sprite: "walkers",
+        animations: [{ name: "idle", frames: [80, 81, 82, 83], rate: 5, loop: true }, { name: "walking", frames: [84, 85, 86, 87, 88, 89], rate: 5, loop: true }, { name: "running", frames: [90, 91, 92, 93, 94, 95, 96, 97], rate: 8, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: "Bad guy",
+        x: 1800,
+        y: 700,
+        interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        jumpChance: 20
+    },
+    {
+        id: 105,
+        type: 6,
+        onStart: true,
+        sprite: "walkers",
+        animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: "Informer",
+        x: 500,
+        y: 700,
+        interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        jumpChance: 50
+    },
+    {
+        id: 106,
+        type: 6,
+        onStart: true,
+        sprite: "walkers",
+        animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: "Pasticciera",
+        x: 1675,
+        y: 610,
+        interactive: true,
+        interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        walkRange: { start: 1600, end: 1750, step: { min: 50, max: 80 }, idle: { min: 3000, max: 4000 } },
+        jumpChance: 0
     },
     {
         id: 17,
@@ -2442,6 +2513,10 @@ gameData.ingame.logic = {
     //pickup blockchain
     PICKUP_32: function (cs) {
         cs.addInventoryItem(cs.gameItemsUtils.getItemById(32), false);
+    },
+    //pickup jumper
+    PICKUP_101: function (cs) {
+        console.log("pickup jumper");
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3171,7 +3246,12 @@ var z89;
             if (itemObj.turnLeft != undefined)
                 _this.turnLeft();
             if (_this.isInteractive()) {
-                _this.setInteractive();
+                if (_this.itemObj.interactiveArea != undefined) {
+                    _this.setInteractive(new Phaser.Geom.Rectangle(itemObj.interactiveArea.x, itemObj.interactiveArea.y, itemObj.interactiveArea.w, itemObj.interactiveArea.h), Phaser.Geom.Rectangle.Contains);
+                }
+                else {
+                    _this.setInteractive();
+                }
                 _this.on("pointerdown", function () {
                     if (_this.scene.isInteractionDisabled())
                         return;
@@ -3187,19 +3267,17 @@ var z89;
                     }
                     _this.scene.player.goTo(_playerDest, _this.y, _this);
                 }, _this);
-                /*
-                .on("pointerover",()=>{
-    
-    
-                    this.scene.gameUtils.itemOverEffect(this);
-    
-                }).on("pointerout",()=>{
-    
-    
-                    this.scene.gameUtils.itemOutEffect(this);
-    
-                });
-                */
+                /* .on("pointerover",()=>{
+     
+     
+                     this.scene.gameUtils.itemOverEffect(this);
+     
+                 }).on("pointerout",()=>{
+     
+     
+                     this.scene.gameUtils.itemOutEffect(this);
+     
+                 });*/
             }
             _this.scene.add.existing(_this);
             return _this;
@@ -3594,7 +3672,6 @@ var z89;
             _this.behaviour = true;
             _this.beaming = false;
             _this.distanceUpdate = true;
-            _this.tweenBreak = false;
             _this.setAlpha(0);
             _this.playAnim(_this.itemObj.id + "-idle");
             _this.movingTimer = _this.scene.time.delayedCall(500, function (scene) {
@@ -3639,7 +3716,7 @@ var z89;
         ItemsWalking.prototype.startPath = function (direction) {
             var _this = this;
             //console.log("startpath")
-            var _walk = Phaser.Math.RND.integerInRange(200, 500);
+            var _walk = Phaser.Math.RND.integerInRange(this.itemObj.walkRange.step.min, this.itemObj.walkRange.step.max);
             var _walkSpeed = _walk * 10;
             if (direction == 0) {
                 this.turnLeft();
@@ -3693,7 +3770,7 @@ var z89;
                         });
                     }
                     else {
-                        _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(1000, 1500), function (scene) {
+                        _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(_this.itemObj.walkRange.idle.min, _this.itemObj.walkRange.idle.max), function (scene) {
                             _this.nextDirection();
                         }, null, _this);
                     }
@@ -3753,7 +3830,7 @@ var z89;
             var _this = this;
             if (!this.beaming &&
                 this.itemObj.insight.distance > 0 &&
-                this.distanceUpdate) {
+                this.distanceUpdate && this.scene.player.alpha == 1) {
                 if (Math.round(Phaser.Math.Distance.Between(this.x, this.y, this.scene.player.x, this.scene.player.y)) < this.itemObj.insight.distance &&
                     this.checkYOffset()) {
                     if (this.behaviour) {
@@ -3888,8 +3965,7 @@ var z89;
             _this.yMax = 720;
             _this.direction = PlayerDirection.RIGHT;
             _this.playerState = PlayerStates.IDLE;
-            _this.money = 10;
-            _this.inventory = [];
+            // private myArea: Phaser.GameObjects.Sprite;
             _this.illogicText = [
                 z89.getLabel(19),
                 z89.getLabel(20),
@@ -3959,22 +4035,13 @@ var z89;
             _this.play("player-idle");
             _this.setOrigin(0.5, 1)
                 .setScale(1)
-                .setY(608);
-            /*.setInteractive(new Phaser.Geom.Rectangle(0,0,50,126),Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown',()=>{
-      
-                      if(this.scene.isInteractionDisabled()) return;
-                      this.scene.playerMenu.toggle();
-      
-                      });
-                      */
-            _this.myArea = _this.scene.add.sprite(0, 0, "playerHitArea");
-            _this.myArea.setInteractive();
-            _this.myArea.setAlpha(0.01);
-            _this.myArea.on("pointerdown", function () {
+                .setY(608)
+                .setAlpha()
+                .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 126), Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown', function () {
                 if (_this.scene.isInteractionDisabled())
                     return;
                 _this.scene.playerMenu.toggle();
-            }, _this);
+            });
             scene.add.existing(_this);
             return _this;
         }
@@ -4060,7 +4127,8 @@ var z89;
                     _this.playerTween = null;
                     _this.scene.saveGameObj.updatePlayerPosition(_this.x, _this.y);
                     _this.play("player-idle");
-                    if (_item != null) {
+                    if (_item != null && Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) < 150) {
+                        //console.log("distance",)
                         _this.scene.setCurrentItem(_item);
                         if (_this.x < _item.x) {
                             if (_this.direction == PlayerDirection.LEFT)
@@ -4238,8 +4306,6 @@ var z89;
         Player.prototype.update = function () {
             //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
             this.setDepth(this.y);
-            this.myArea.setDepth(this.y - 1);
-            Phaser.Display.Align.In.Center(this.myArea, this);
             //  console.log(this.name,this.depth)
             /*
                   this.body.velocity.x = 0;

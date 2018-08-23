@@ -20,10 +20,10 @@ namespace z89 {
     private direction: PlayerDirection = PlayerDirection.RIGHT;
     private playerState: PlayerStates = PlayerStates.IDLE;
     private playerTween: Phaser.Tweens.Tween;
-    private money: number = 10;
-    private inventory: Array<string> = [];
+    //private money: number = 10;
+    //private inventory: Array<string> = [];
     private intersect: boolean;
-    private myArea: Phaser.GameObjects.Sprite;
+   // private myArea: Phaser.GameObjects.Sprite;
 
     private illogicText: Array<string> = [
       z89.getLabel(19),
@@ -115,27 +115,16 @@ namespace z89 {
 
       this.setOrigin(0.5, 1)
         .setScale(1)
-        .setY(608);
+        .setY(608)
+        .setAlpha()
 
-      /*.setInteractive(new Phaser.Geom.Rectangle(0,0,50,126),Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown',()=>{
+      .setInteractive(new Phaser.Geom.Rectangle(33,0,60,126),Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown',()=>{
 
                 if(this.scene.isInteractionDisabled()) return;
                 this.scene.playerMenu.toggle();
 
                 });
-                */
-
-      this.myArea = this.scene.add.sprite(0, 0, "playerHitArea");
-      this.myArea.setInteractive();
-      this.myArea.setAlpha(0.01);
-      this.myArea.on(
-        "pointerdown",
-        () => {
-          if (this.scene.isInteractionDisabled()) return;
-          this.scene.playerMenu.toggle();
-        },
-        this
-      );
+                
 
       scene.add.existing(this);
     }
@@ -177,11 +166,6 @@ namespace z89 {
         //&& this.scene.currentItem.itemObj.id != _item.itemObj.id
       ){ this.scene.playerActions.hide();}
        
-
-    
-
-       
-
         if (this.playerTween != null) {
           
           this.playerTween.stop();
@@ -246,8 +230,11 @@ namespace z89 {
             this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
             this.play("player-idle");
 
-          
-            if (_item != null) {
+            
+            if (_item != null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)<150) {
+
+              //console.log("distance",)
+
               this.scene.setCurrentItem(_item);
 
               if (this.x < _item.x) {
@@ -478,8 +465,7 @@ namespace z89 {
       //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
      
       this.setDepth(this.y);
-      this.myArea.setDepth(this.y - 1);
-      Phaser.Display.Align.In.Center(this.myArea, this);
+    
 
       //  console.log(this.name,this.depth)
       /*

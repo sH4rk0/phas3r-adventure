@@ -60,7 +60,12 @@ module z89 {
             if(itemObj.turnLeft!=undefined) this.turnLeft();
 
             if(this.isInteractive()){
-            this.setInteractive();
+                if(this.itemObj.interactiveArea!=undefined){
+                    this.setInteractive(new Phaser.Geom.Rectangle(itemObj.interactiveArea.x,itemObj.interactiveArea.y,itemObj.interactiveArea.w,itemObj.interactiveArea.h),Phaser.Geom.Rectangle.Contains)
+                }else{
+                    this.setInteractive()
+                }
+            
             this.on("pointerdown",() => {
             
                 if(this.scene.isInteractionDisabled()) return;
@@ -83,8 +88,8 @@ module z89 {
 
             }, this)
             
-            /*
-            .on("pointerover",()=>{
+          
+           /* .on("pointerover",()=>{
 
 
                 this.scene.gameUtils.itemOverEffect(this);
@@ -94,8 +99,8 @@ module z89 {
 
                 this.scene.gameUtils.itemOutEffect(this);
 
-            });
-            */
+            });*/
+            
         }
 
             this.scene.add.existing(this);

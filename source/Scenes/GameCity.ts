@@ -382,14 +382,14 @@ namespace z89 {
 
       if (this.actionTimer != null) this.actionTimer.remove(false);
 
-      console.log(_actionObj);
+      //console.log(_actionObj);
 
       if (
         _actionObj.action != -1 &&
         (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
         this.executeActionLogic(_item)
       ) {
-        console.log("doActionSequence");
+        //console.log("doActionSequence");
         //this.playerBaloon.hideBaloon();
         //this.playerActions.hide();
         //this.playerMenu.hide();
@@ -404,7 +404,7 @@ namespace z89 {
           );
           */
       } else {
-        console.log("doillogic");
+       /* console.log("doillogic");
 
         console.log(
           _actionObj.key,
@@ -412,6 +412,7 @@ namespace z89 {
           _actionObj.inventory.length,
           _actionObj.item
         );
+        */
 
         if (
           _actionObj.key != "noAction" &&
@@ -507,7 +508,7 @@ namespace z89 {
         returnObj.key = "noAction";
       }
 
-      console.log(returnObj);
+     // console.log(returnObj);
       this.logicCombination = returnObj;
 
       //return this.logicCombination;
