@@ -17,7 +17,7 @@ module z89 {
         //38 40 37 49 up down left right
         //private keys: Array<number> = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 13, 44, 32, 8, 38, 40, 37, 39, 188, 190];
 
-        private keys: Array<string> = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","*","\"",",","."];
+        private keys: Array<string> = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","*","\"",",","."," ","'"];
 
         private terminalGroup: Phaser.GameObjects.Group;
         public TerminalLogic: TerminalLogic;
@@ -48,7 +48,7 @@ module z89 {
 
             this.scene.input.keyboard.on('keydown', (event) =>{
 
-                //console.log(event.key);
+                console.log(event.key);
                 this.addChar(event.key);
                
         
@@ -125,6 +125,7 @@ module z89 {
             }
 
             else {
+                
                if(this.keys.indexOf(key)!=-1)  this.TerminalLogic.addChar(key);
                
             }
@@ -151,7 +152,7 @@ module z89 {
             this.scene.tweens.add({ targets:this, alpha: 0, duration:400, onComplete:() => {
                 this.setVisible(false);
                 this.scene.enableInteraction();
-               // this.destroy();
+                this.TerminalLogic.enableInput();
             }
 
         });

@@ -9,6 +9,8 @@ namespace z89 {
     currentItem: Items;
     Terminal: Terminal;
 
+    private gameCompleted:boolean=false;
+
     public mainCamera: Phaser.Cameras.Scene2D.Camera;
     private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
     private bgLevel1: Phaser.GameObjects.TileSprite;
@@ -28,13 +30,14 @@ namespace z89 {
     private logicCombination: string;
 
     // private filters: Array<Phaser.Filter>;
-    private gameInteracion: boolean = true;
+    private gameInteraction: boolean = true;
 
     public saveGameObj: saveGame;
     public gameUtils: GameUtils;
     public gameItemsUtils: GameItemsUtils;
 
     public chapterTitle: Phaser.GameObjects.BitmapText;
+    public chapterTitleBg: Phaser.GameObjects.Image;
     public currentChapter: number = 0;
 
     private half: Phaser.GameObjects.TileSprite;
@@ -222,7 +225,7 @@ namespace z89 {
       bgLevel0.on(
         "pointerdown",
         (ground: Phaser.GameObjects.Sprite) => {
-          if (!this.gameInteracion) return;
+          if (!this.gameInteraction) return;
 
           //if (this.playerActions.IsOpen()) this.playerActions.hide();
           this.player.goTo(
@@ -233,12 +236,18 @@ namespace z89 {
         this
       );
 
+      this.chapterTitleBg = this.add.image(0,100,"chapterTitleBg");
+      this.chapterTitleBg.setScrollFactor(0)
+      .setOrigin(0)
+      .setAlpha(0)
+      .setDepth(909).setVisible(false);
+
       this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
       this.chapterTitle
         .setScrollFactor(0)
-        .setOrigin(0.5)
+        .setOrigin(0)
         .setAlpha(0)
-        .setDepth(910);
+        .setDepth(910).setVisible(false);
 
       playSound(gameSound.intro);
 
@@ -281,6 +290,14 @@ namespace z89 {
       _gamecity = this;
 
       
+    }
+
+
+
+    setGameCompleted():void{
+
+      this.gameCompleted=true;
+
     }
 
     stopSound(): void {
@@ -391,7 +408,7 @@ namespace z89 {
       ) {
         //console.log("doActionSequence");
         //this.playerBaloon.hideBaloon();
-        //this.playerActions.hide();
+        this.playerActions.hide();
         //this.playerMenu.hide();
 
         /* this.time.delayedCall(
@@ -550,8 +567,7 @@ namespace z89 {
             _actionText =
               this.getCurrentActionLabel() +
               " " +
-              _actionObj.inventory[0].name +
-              _destText;
+              _actionObj.inventory[0].name //+ _destText;
           } else if (_actionObj.inventory.length == 2) {
             _actionText =
               this.getCurrentActionLabel() +
@@ -763,15 +779,17 @@ namespace z89 {
     }
 
     disableInteraction(): void {
-      this.gameInteracion = false;
+      console.log("disableInteraction")
+      this.gameInteraction = false;
     }
 
     enableInteraction(): void {
-      this.gameInteracion = true;
+      console.log("enableInteraction")
+      this.gameInteraction = true;
     }
 
     isInteractionDisabled(): boolean {
-      return !this.gameInteracion;
+      return !this.gameInteraction;
     }
 
     addInventory(itemIndex: number, noAnimation?: boolean) {
@@ -820,6 +838,17 @@ namespace z89 {
       this.gameItemsUtils.getItemById(itemId).updateItemObj(key, value);
     }
 
+    updateItemsObjects(items: Array<number>, keys: Array<string>, values: Array<any>): void {
+     
+      items.forEach((element,index)=>{
+
+        this.updateItemObject(element,keys[index],values[index]);
+
+      });
+
+
+    }
+
     removeInventoryItems(): void {
       this.playerActions.removeItems(this.getActionObject().inventory);
     }
@@ -864,8 +893,16 @@ namespace z89 {
       this.saveGameObj.updateItems();
     }
 
+    isChapterCompleted(chapterIndex:number):boolean{
+
+      return this.saveGameObj.getSaved().chapter.chapters[chapterIndex];
+
+    }
+
     chapterCompleted(): void {
       console.log("chapter completed");
+
+      this.saveGameObj.setChapterCompleted(this.currentChapter);
       this.currentChapter++;
 
       //this.currentChapter=this.saveGameObj.getSaved().chapter.current;
@@ -879,18 +916,24 @@ namespace z89 {
     }
 
     displayChapterOptions(): void {
+      console.log("displayChapterOptions")
       this.conversationBaloon.setUpConversation({
         key: "CHAPTER_COMPLETED",
         action: null,
         inventory: null,
         item: null
       });
+     
+      this.playerMenu.hide();
+      this.playerActions.hide();
+      this.playerBaloon.hideBaloon();
       this.disableInteraction();
     }
 
     nextChapter(): void {
       this.saveGameObj.setChoiceChapter(true);
-      console.log(this.saveGameObj.getSaved());
+      this.saveGameObj.clearTips();
+      //console.log(this.saveGameObj.getSaved());
 
       this.currentChapter = this.saveGameObj.getSaved().chapter.current;
 
@@ -899,20 +942,27 @@ namespace z89 {
       this.playerActions.hide();
       this.playerBaloon.hideBaloon();
       this.conversationBaloon.hideBaloon();
+      
       this.enableInteraction();
     }
 
     displayChapterTitle(chapterIndex: number): void {
       if (chapterIndex != undefined) this.currentChapter = chapterIndex;
-
+      this.chapterTitle.setVisible(true);
+      this.chapterTitleBg.setVisible(true);
       this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
+      Phaser.Display.Align.In.Center(this.chapterTitle,this.chapterTitleBg);
       this.tweens.add({
-        targets: this.chapterTitle,
+        targets: [this.chapterTitle,this.chapterTitleBg],
         duration: 1000,
         alpha: 1,
         yoyo: true,
         loop: 0,
-        hold: 2000
+        hold: 2000,
+        onComplete:()=>{
+          this.chapterTitle.setVisible(false);
+          this.chapterTitleBg.setVisible(false);
+        }
       });
     }
 

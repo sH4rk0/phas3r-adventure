@@ -11,9 +11,11 @@ module z89 {
         private items: Array<any>;
         private firstChoice:boolean=null;
         private current:number=0;
-     
+        private lastTip:Date;
+        private tips:Array<String>=[];
         private choice:boolean=null;
-
+        private chapters:Array<Boolean>=[];
+        private chapter:any;
         constructor(scene: GameCity) {
 
             this.scene = scene;
@@ -87,7 +89,7 @@ module z89 {
 
 
         setCurrentChapter(current:number){
-console.log("setCurrentChapter")
+//console.log("setCurrentChapter")
             this.current=current;
             this.updateSaveObj();
         }
@@ -97,6 +99,26 @@ console.log("setCurrentChapter")
             this.choice=choice;
             this.updateSaveObj();
         }
+
+        setChapterCompleted(chapterIndex:number){
+
+            this.chapters[chapterIndex]=true;
+            this.updateSaveObj();
+        }
+
+        setTip(tip:string){
+
+            this.lastTip=new Date();
+            this.tips.push(tip);
+            this.updateSaveObj();
+        }
+
+        clearTips(){
+
+            this.tips=[];
+            this.updateSaveObj();
+        }
+
 
 
         gameIsSaved(): boolean {
@@ -135,6 +157,9 @@ console.log("setCurrentChapter")
                 this.firstChoice= this.savedObj.firstChoice;
                 this.current = this.savedObj.chapter.current;
                 this.choice = this.savedObj.chapter.choice;
+                this.chapters = this.savedObj.chapter.chapters;
+                this.lastTip = this.savedObj.tips.lastTip;
+                this.tips = this.savedObj.tips.tips;
             } else {
                 this.savedObj = null;
                 this.isSaved = false;
@@ -153,7 +178,8 @@ console.log("setCurrentChapter")
                 inventory: this.inventory,
                 items: this.items,
                 firstChoice: this.firstChoice,
-                chapter: {current:this.current,choice:this.choice}
+                chapter: {current:this.current,choice:this.choice,chapters:this.chapters},
+                tips: {lastTip:this.lastTip,tips:this.tips}
 
             }
 

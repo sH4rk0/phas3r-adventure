@@ -48,9 +48,10 @@ module z89 {
             }
 
             
-            this.setDepth(this.y).setOrigin(0.5, 1).setX(itemObj.x);;
+            this.setDepth(this.y).setOrigin(0.5, 1).setX(itemObj.x);
 
             if (itemObj.scale != undefined) this.setScale(itemObj.scale);
+            if (itemObj.alpha != undefined) this.setAlpha(itemObj.alpha);
             
             this.id = itemObj.id;
             this.itemObj = itemObj;
@@ -99,8 +100,8 @@ module z89 {
 
                 this.scene.gameUtils.itemOutEffect(this);
 
-            });*/
-            
+            });
+            */
         }
 
             this.scene.add.existing(this);

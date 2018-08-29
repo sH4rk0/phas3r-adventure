@@ -92,6 +92,12 @@ namespace z89 {
       graphics.generateTexture("guru-meditation", 380, 80);
       graphics.clear();
 
+      graphics = this.make.graphics({ x: 0, y: 0, add: false });
+      graphics.fillStyle(0x000000, .75);
+      graphics.fillRect(0, 0, 1080, 200);
+      graphics.generateTexture("chapterTitleBg", 1080, 200);
+      graphics.clear();
+
       var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
       graphics2.fillRect(0, 0, 50, 126);
       graphics2.generateTexture("playerHitArea", 50, 126);

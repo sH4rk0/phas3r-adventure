@@ -224,8 +224,29 @@ namespace z89 {
 
     show() {
       if (!this.isOpen) {
-        this.scene.disableInteraction();
+       // this.scene.disableInteraction();
        
+       if(this.scene.player.x<400){
+
+        this.setX(1080);
+
+        this.scene.tweens.add({
+          targets: this,
+          x: 780,
+          alpha:1,
+          duration: 400,
+          ease: "Quad.easeInOut",
+          onComplete: () => {
+            this.isOpen = true;
+          }
+        });
+
+        this.actionText.setAlpha(0).setX(-800);
+        this.actionTextTween = this.scene.tweens.add({targets:this.actionText, alpha: 1, x: -750, duration:500, delay:400, ease: "Quad.easeInOut", onComplete: () => { }  });
+
+
+       }else{
+
         this.scene.tweens.add({
           targets: this,
           x: -30,
@@ -234,15 +255,16 @@ namespace z89 {
           ease: "Quad.easeInOut",
           onComplete: () => {
             this.isOpen = true;
-            this.scene.enableInteraction();
           }
         });
 
         this.actionText.setAlpha(0).setX(280);
-        this.actionTextTween = this.scene.tweens.add({targets:this.actionText, alpha: 1, x: 320, duration:500, delay:400, ease: "Quad.easeInOut",
-        onComplete: () => {
-          
-        }  });
+        this.actionTextTween = this.scene.tweens.add({targets:this.actionText, alpha: 1, x: 320, duration:500, delay:400, ease: "Quad.easeInOut", onComplete: () => { }  });
+
+       }
+
+
+        
 
       }
     }
@@ -265,6 +287,32 @@ namespace z89 {
     hide() {
       if (!this.isOpen) return;
 
+
+      if(this.scene.player.x<400){
+
+
+        this.scene.tweens.add({
+          targets: this,
+          x: 1080,
+          alpha:0,
+          duration: 400,
+          ease: "Quad.easeInOut",
+          onComplete: () => {
+            this.setX(-300)
+            this.isOpen = false;
+            this.currentAction = -1;
+  
+            this.deselectItems();
+            this.resetActions();
+            this.uncheckInventoryIcons();
+            this.scene.setActionObject(null);
+            this.setText("");
+          }
+        });
+
+
+      }else{
+
       this.scene.tweens.add({
         targets: this,
         x: -300,
@@ -282,6 +330,8 @@ namespace z89 {
           this.setText("");
         }
       });
+
+    }
 
       this.hideText();
     }
@@ -404,6 +454,7 @@ namespace z89 {
     }
 
     private assignItemToIcon(): void {
+
       this.inventory.forEach((element: Items, index: number) => {
         let _inv: Phaser.GameObjects.Sprite = this.scene.add.sprite(
           35,
@@ -411,7 +462,7 @@ namespace z89 {
           element.itemObj.sprite
         );
 
-        _inv.setOrigin(0.5).setScrollFactor(0);
+        _inv.setOrigin(0.5).setScrollFactor(0).setFrame(0);
         Phaser.Display.Align.In.Center(_inv, this.inventoryBtns[index]);
         this.inventoryBtnsItems.push(_inv);
         this.add(_inv);
@@ -452,10 +503,10 @@ namespace z89 {
       return match;
     }
 
-    private dropItem(): void {}
+    //private dropItem(): void {}
 
 
-    update(){console.log("update")}
+  //  update(){console.log("update")}
 
   }
 

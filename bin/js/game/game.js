@@ -88,6 +88,11 @@ var z89;
             graphics.strokeRect(0, 0, 380, 80);
             graphics.generateTexture("guru-meditation", 380, 80);
             graphics.clear();
+            graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.fillStyle(0x000000, .75);
+            graphics.fillRect(0, 0, 1080, 200);
+            graphics.generateTexture("chapterTitleBg", 1080, 200);
+            graphics.clear();
             var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
             graphics2.fillRect(0, 0, 50, 126);
             graphics2.generateTexture("playerHitArea", 50, 126);
@@ -226,8 +231,9 @@ var z89;
             var _this = _super.call(this, {
                 key: "GameCity"
             }) || this;
+            _this.gameCompleted = false;
             // private filters: Array<Phaser.Filter>;
-            _this.gameInteracion = true;
+            _this.gameInteraction = true;
             _this.currentChapter = 0;
             return _this;
         }
@@ -373,17 +379,22 @@ var z89;
             // GROUND
             // +++++++++++++++++++++++++++++++++++++++
             bgLevel0.on("pointerdown", function (ground) {
-                if (!_this.gameInteracion)
+                if (!_this.gameInteraction)
                     return;
                 //if (this.playerActions.IsOpen()) this.playerActions.hide();
                 _this.player.goTo(_this.input.x + _this.mainCamera.scrollX, _this.input.y);
             }, this);
+            this.chapterTitleBg = this.add.image(0, 100, "chapterTitleBg");
+            this.chapterTitleBg.setScrollFactor(0)
+                .setOrigin(0)
+                .setAlpha(0)
+                .setDepth(909).setVisible(false);
             this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
             this.chapterTitle
                 .setScrollFactor(0)
-                .setOrigin(0.5)
+                .setOrigin(0)
                 .setAlpha(0)
-                .setDepth(910);
+                .setDepth(910).setVisible(false);
             z89.playSound(z89.gameSound.intro);
             //add an Items on scene && a copy of the same item with randomized id
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -415,6 +426,9 @@ var z89;
             //this.shootFromHigh([27]);
             //accessible global instance for backend ajax call
             _gamecity = this;
+        };
+        GameCity.prototype.setGameCompleted = function () {
+            this.gameCompleted = true;
         };
         GameCity.prototype.stopSound = function () {
             z89.stopSoundAll();
@@ -504,7 +518,7 @@ var z89;
                 this.executeActionLogic(_item)) {
                 //console.log("doActionSequence");
                 //this.playerBaloon.hideBaloon();
-                //this.playerActions.hide();
+                this.playerActions.hide();
                 //this.playerMenu.hide();
                 /* this.time.delayedCall(
                     3000,
@@ -639,8 +653,7 @@ var z89;
                         _actionText =
                             this.getCurrentActionLabel() +
                                 " " +
-                                _actionObj.inventory[0].name +
-                                _destText;
+                                _actionObj.inventory[0].name; //+ _destText;
                     }
                     else if (_actionObj.inventory.length == 2) {
                         _actionText =
@@ -818,13 +831,15 @@ var z89;
             return this.groupAll;
         };
         GameCity.prototype.disableInteraction = function () {
-            this.gameInteracion = false;
+            console.log("disableInteraction");
+            this.gameInteraction = false;
         };
         GameCity.prototype.enableInteraction = function () {
-            this.gameInteracion = true;
+            console.log("enableInteraction");
+            this.gameInteraction = true;
         };
         GameCity.prototype.isInteractionDisabled = function () {
-            return !this.gameInteracion;
+            return !this.gameInteraction;
         };
         GameCity.prototype.addInventory = function (itemIndex, noAnimation) {
             this.gameItemsUtils.addItem(itemIndex);
@@ -865,6 +880,12 @@ var z89;
         GameCity.prototype.updateItemObject = function (itemId, key, value) {
             this.gameItemsUtils.getItemById(itemId).updateItemObj(key, value);
         };
+        GameCity.prototype.updateItemsObjects = function (items, keys, values) {
+            var _this = this;
+            items.forEach(function (element, index) {
+                _this.updateItemObject(element, keys[index], values[index]);
+            });
+        };
         GameCity.prototype.removeInventoryItems = function () {
             this.playerActions.removeItems(this.getActionObject().inventory);
         };
@@ -899,8 +920,12 @@ var z89;
             this.player.play("player-pickdrop");
             this.saveGameObj.updateItems();
         };
+        GameCity.prototype.isChapterCompleted = function (chapterIndex) {
+            return this.saveGameObj.getSaved().chapter.chapters[chapterIndex];
+        };
         GameCity.prototype.chapterCompleted = function () {
             console.log("chapter completed");
+            this.saveGameObj.setChapterCompleted(this.currentChapter);
             this.currentChapter++;
             //this.currentChapter=this.saveGameObj.getSaved().chapter.current;
             gameData.chapters[this.currentChapter].completed = true;
@@ -909,17 +934,22 @@ var z89;
             this.displayChapterOptions();
         };
         GameCity.prototype.displayChapterOptions = function () {
+            console.log("displayChapterOptions");
             this.conversationBaloon.setUpConversation({
                 key: "CHAPTER_COMPLETED",
                 action: null,
                 inventory: null,
                 item: null
             });
+            this.playerMenu.hide();
+            this.playerActions.hide();
+            this.playerBaloon.hideBaloon();
             this.disableInteraction();
         };
         GameCity.prototype.nextChapter = function () {
             this.saveGameObj.setChoiceChapter(true);
-            console.log(this.saveGameObj.getSaved());
+            this.saveGameObj.clearTips();
+            //console.log(this.saveGameObj.getSaved());
             this.currentChapter = this.saveGameObj.getSaved().chapter.current;
             this.displayChapterTitle(this.currentChapter);
             this.playerMenu.hide();
@@ -929,16 +959,24 @@ var z89;
             this.enableInteraction();
         };
         GameCity.prototype.displayChapterTitle = function (chapterIndex) {
+            var _this = this;
             if (chapterIndex != undefined)
                 this.currentChapter = chapterIndex;
+            this.chapterTitle.setVisible(true);
+            this.chapterTitleBg.setVisible(true);
             this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
+            Phaser.Display.Align.In.Center(this.chapterTitle, this.chapterTitleBg);
             this.tweens.add({
-                targets: this.chapterTitle,
+                targets: [this.chapterTitle, this.chapterTitleBg],
                 duration: 1000,
                 alpha: 1,
                 yoyo: true,
                 loop: 0,
-                hold: 2000
+                hold: 2000,
+                onComplete: function () {
+                    _this.chapterTitle.setVisible(false);
+                    _this.chapterTitleBg.setVisible(false);
+                }
             });
         };
         GameCity.prototype.removeItem = function (itemIndex) {
@@ -1297,11 +1335,6 @@ var z89;
         width: 1080,
         height: 720,
         scene: [z89.Boot, z89.Preloader, z89.GameCity],
-        callbacks: {
-            postBoot: function (game) {
-                game.renderer.addPipeline('testPipeline', new z89.testPipeline({ 'game': game, 'renderer': game.renderer }));
-            },
-        },
     };
     var c64ColorsEnum;
     (function (c64ColorsEnum) {
@@ -1537,6 +1570,55 @@ var languages = {
         "The GOVERNOR",
         "Hi!",
         "I'm the GOVERNOR... and you are nothing!",
+        "Sidney C64",
+        "Chris AGS guru",
+        "Bad guy 1",
+        "Bad guy 2",
+        "Bad guy 3",
+        "The Jumper",
+        "The Runner",
+        "Girl 1",
+        "Pastry",
+        "Invitation ticket",
+        "Come back later!",
+        "Already here? Try to use your brain sometimes! Come back later!",
+        "Already here? Have you lost all your neurons? Come back later!",
+        "No more to say!",
+        "You have all information to solve this quest!",
+        "Is this your first adventure? Play arond and come back later!",
+        "Yo bro! I need your help to solve the ENIGMA!",
+        "Yo bro! Do you have any clue on how to solve the quest?",
+        "Yo bro! I dont know how to go forward!",
+        "sugg 0_0",
+        "sugg 0_1",
+        "sugg 0_2",
+        "sugg 1_0",
+        "sugg 1_1",
+        "sugg 1_2",
+        "Do you want to restart the game?",
+        "YES",
+        "NO",
+        "LEAVE THE GAME",
+        "CREDITS",
+        "BACK",
+        "Nothing",
+        "Some 8bit Tune",
+        "Never played Zak McKracken and the Alien Mindbenders? Play it and come back later!",
+        "Day of the Tentacle sounds new for you? Play it and come back later!",
+        "You need to revise The Secret of Monkey Island! Play it and come back later!",
+        "Ok, i'll try to find the solution!",
+        "Ok, i'll be back!",
+        "Gotcha!",
+        "Good point!",
+        "Galaga is the first game I played!",
+        "Mmmm, interesting...",
+        "Welcome to my personal adventure website experiment.\nComplete the quests to access the website sections... or explore the website without solving the quest!",
+        "Empty bottle",
+        "Someone has not thrown the bottle in the trash.",
+        "The trashbin is full!",
+        "Old floppy disk",
+        "WOW! It's an original copy of Zak McKracken... Should be worth a lot of $$$!!! ",
+        "WOW! A real Cloak of Invisibility",
     ]
 };
 var actions = {
@@ -1550,6 +1632,15 @@ var gameData = {
     assets: null,
     menuBlink: null,
     menuBtns: null,
+    tips: {
+        delay: 10,
+        nomore: [112, 113],
+        later: [114, 110, 111, 132, 133, 134],
+        ok: [[118, 119, 120], [121, 122, 123]],
+        nomoreA: [135],
+        laterA: [136],
+        okA: [137, 138, 140]
+    },
     skills: [{ s: "phaser", v: 60 }, { s: "javascript", v: 70 }, { s: "html", v: 75 }, { s: "typescript", v: 60 }, { s: "css", v: 65 }, { s: ".net", v: 70 }, { s: "c#", v: 65 }, { s: "gamedev", v: 50 }, { s: "design", v: 60 }, { s: "ux", v: 65 }, { s: "clm", v: 80 }, { s: "tsql", v: 70 }, { s: "firebase", v: 60 }]
 };
 var eases = [
@@ -1590,6 +1681,8 @@ gameData.assets = {
         { name: "daniele", path: "assets/images/game/people/daniele.png", width: 65, height: 138, frames: 4 },
         { name: "davide", path: "assets/images/game/people/davide.png", width: 65, height: 138, frames: 4 },
         { name: "michele", path: "assets/images/game/people/michele.png", width: 65, height: 138, frames: 4 },
+        { name: "chris", path: "assets/images/game/people/chris.png", width: 65, height: 138, frames: 4 },
+        { name: "sidney", path: "assets/images/game/people/sidney.png", width: 65, height: 138, frames: 4 },
         { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 120 },
         { name: "inventory", path: "assets/images/game/inventory.png", width: 70, height: 70, frames: 2 },
         { name: "icons", path: "assets/images/game/icons/icons.png", width: 80, height: 80, frames: 11 },
@@ -1602,6 +1695,9 @@ gameData.assets = {
         { name: "cake", path: "assets/images/game/items/cake.png", width: 150, height: 177, frames: 9 },
         { name: "drink-machine", path: "assets/images/game/items/drink-machine.png", width: 80, height: 124, frames: 2 },
         { name: "jukebox", path: "assets/images/game/items/jukebox.png", width: 68, height: 136, frames: 8 },
+        { name: "phaser-logo", path: "assets/images/game/items/phaser-logo.png", width: 412, height: 93, frames: 2 },
+        { name: "photonstorm", path: "assets/images/game/items/photonstorm.png", width: 50, height: 50, frames: 3 },
+        { name: "floppy", path: "assets/images/game/items/floppy.png", width: 50, height: 50, frames: 2 },
     ],
     images: [
         { name: "bg-level0", path: "assets/images/game/bg-level0.png" },
@@ -1616,10 +1712,10 @@ gameData.assets = {
         { name: "hydrant", path: "assets/images/game/items/hydrant.png" },
         { name: "coke", path: "assets/images/game/items/coke.png" },
         { name: "coins", path: "assets/images/game/items/coins.png" },
+        { name: "amazonPack", path: "assets/images/game/items/amazonPack.png" },
         { name: "truck", path: "assets/images/game/items/truck.png" },
         { name: "truck-wheel", path: "assets/images/game/items/truck-wheel.png" },
         { name: "truck-empty", path: "assets/images/game/items/truck-empty.png" },
-        { name: "hack", path: "assets/images/game/items/hack.png" },
         { name: "chain", path: "assets/images/game/items/chain.png" },
         { name: "block", path: "assets/images/game/items/block.png" },
         { name: "bit", path: "assets/images/game/items/bit.png" },
@@ -1643,7 +1739,9 @@ gameData.assets = {
         { name: "bg-cake", path: "assets/images/game/buildings/cake.png" },
         { name: "bg-arcade", path: "assets/images/game/buildings/arcade.png" },
         { name: "bg-aerosol", path: "assets/images/game/buildings/aerosol.png" },
-        { name: "bg-contact", path: "assets/images/game/buildings/contact.png" }
+        { name: "bg-contact", path: "assets/images/game/buildings/contact.png" },
+        { name: "arcade", path: "assets/images/game/items/arcade.png" },
+        { name: "bottle", path: "assets/images/game/items/bottle.png" },
     ],
     sounds: [{ name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false }
     ],
@@ -1688,172 +1786,358 @@ gameData.chapters = [
     }
 ];
 gameData.ingame.conversation = {
-    RESTART: [{
-            text: "Do you want to restart the game?",
-            isItem: false,
-            fork: false,
-            options: [
-                { option: "YES", action: function (cs, target) { cs.restartGame(); } },
-                { option: "NO", action: function (cs, target) { cs.conversationBaloon.hideBaloon(); } }
-            ]
-        }],
-    CHAPTER_COMPLETED: [{
-            text: z89.getLabel(94),
-            isItem: false,
-            fork: true,
-            options: [
-                { option: "YES", action: function (cs, target) {
-                        cs.nextChapter();
-                    } },
-                { option: "LEAVE THE GAME", action: function (cs, target) {
-                        cs.leaveGame();
-                    } }
-            ]
-        }],
-    INFO: [{
-            label: "info",
-            text: z89.getLabel(84),
-            isItem: false,
-            fork: true,
-            options: [
-                { option: "Credits", goto: "credits" }
-            ]
-        },
-        {
-            label: "credits",
-            text: z89.getLabel(86),
-            isItem: false,
-            fork: true,
-            options: [
-                { option: "back", goto: "info" }
-            ]
-        }],
-    OPTIONS: [{
-            text: z89.getLabel(87),
-            isItem: false
-        }],
-    TALKTO_devday: [
-        {
-            text: z89.getLabel(89),
-            isItem: false,
-            fork: true,
-            options: [{ option: "DEVDAY website", link: "http://www.devday.it" }, { option: "DEVDAY on youtube", link: "https://www.youtube.com/channel/UCUmykbn_rG5dExSncCgW9Nw" }, { option: "DEVDAY galaxy", link: "http://dd.zero89.it" }]
+    //TIPS: [[z89.getLabel(118), z89.getLabel(119), z89.getLabel(120)], [z89.getLabel(121), z89.getLabel(122), z89.getLabel(123)]],
+    CHECK_TIP_TIME: function (cs) {
+        var lastTip = cs.saveGameObj.getSaved().tips.lastTip;
+        if (lastTip != undefined) {
+            lastTip = new Date(cs.saveGameObj.getSaved().tips.lastTip);
+            var now = new Date();
+            return (now.getTime() - lastTip.getTime()) / 1000;
         }
-    ],
-    USE_jukebox: [
-        {
-            text: z89.getLabel(91),
-            isItem: false,
-            fork: true,
-            options: [
-                {
-                    option: "Nothing", action: function (cs, target) {
-                        cs.gameUtils.addDelay(500, function () {
-                            var _jukebox = cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("11-idle");
-                            cs.stopSound();
-                            // let _woofer=cs.gameItemsUtils.getItemById(12);
-                            // _woofer.tween.pause();
-                        });
-                        cs.conversationBaloon.hideBaloon();
-                        cs.player.play("player-use");
-                    }
-                },
-                {
-                    option: "Some 8bit Tune", action: function (cs, target) {
-                        cs.playSound(0);
-                        cs.gameUtils.addDelay(500, function () {
-                            var _jukebox = cs.gameItemsUtils.getItemById(11);
-                            _jukebox.play("11-play");
-                            // let _woofer=cs.gameItemsUtils.getItemById(12);
-                            // _woofer.tween.resume();
-                        });
-                        cs.conversationBaloon.hideBaloon();
-                        cs.player.play("player-use");
-                    }
+        return 0;
+    },
+    /*
+    MANAGE_TIP: (cs: z89.GameCity) => {
+      console.log("MANAGE_TIP");
+      let tips: Array<String> = JSON.parse(
+        JSON.stringify(cs.saveGameObj.getSaved().tips.tips)
+      );
+  
+      
+      let nextTip: String = "";
+      let diff: number = gameData.ingame.conversation.CHECK_TIP_TIME(cs);
+  
+      if (diff < 60) {
+          nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([114,110,111,132,133,134]));
+          gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([136]));
+        }
+  
+        if (tips.length == 0) {
+          cs.saveGameObj.setTip(
+            gameData.ingame.conversation.TIPS[cs.currentChapter][0]
+          );
+          nextTip = gameData.ingame.conversation.TIPS[cs.currentChapter][0];
+          gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
+  
+        } else {
+  
+          if (diff != null && diff > 60) {
+          if (tips.length < gameData.ingame.conversation.TIPS[cs.currentChapter].length) {
+            gameData.ingame.conversation.TIPS[cs.currentChapter].forEach(
+              (alltips,index) => {
+                  
+                if (tips.indexOf(alltips) == -1 && nextTip == "") {
+                  cs.saveGameObj.setTip(alltips);
+                  nextTip = alltips;
+                  gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
+  
                 }
-            ]
+              }
+            );
+          }else{
+              nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([112,113]));
+              gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([135]));
+          }
         }
-    ],
-    TALKTO_27: [
-        {
-            text: z89.getLabel(97),
-            isItem: false,
-            next: true,
-        },
-        {
-            text: z89.getLabel(98),
-            isItem: true,
-            next: true,
-        },
-        {
-            text: z89.getLabel(67),
-            isItem: false,
-            end: true,
-        },
-    ],
-    TALKTO_16: [
-        {
-            text: z89.getLabel(66),
-            isItem: false,
-            next: true,
-        },
-        {
-            text: z89.getLabel(65),
-            isItem: true,
-            next: true,
-        },
-        {
-            text: z89.getLabel(67),
-            isItem: false,
-            end: true,
-        },
-    ],
-    TALKTO_19_null: [
-        {
-            text: z89.getLabel(68),
-            isItem: false,
-            next: true,
-        },
-        {
-            text: z89.getLabel(69),
-            isItem: true,
-            next: true,
-        },
-        {
-            text: z89.getLabel(70),
-            isItem: false,
-            end: true,
-            callback: function (cs) {
-                cs.updateItemObject(19, "conversationStatus", 0);
+  
+      }
+      //console.log("return",nextTip)
+      return nextTip;
+    },*/
+    MANAGE_TIP: function (cs) {
+        console.log("MANAGE_TIP");
+        var tips = JSON.parse(JSON.stringify(cs.saveGameObj.getSaved().tips.tips));
+        var nextTip = "";
+        var diff = gameData.ingame.conversation.CHECK_TIP_TIME(cs);
+        if (diff < gameData.tips.delay) {
+            //later
+            nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.later));
+            //laterA
+            gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.laterA));
+        }
+        if (tips.length == 0) {
+            cs.saveGameObj.setTip(gameData.tips.ok[cs.currentChapter][0] + "");
+            //ok
+            nextTip = z89.getLabel(gameData.tips.ok[cs.currentChapter][0]);
+            //okA
+            gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.okA));
+        }
+        else {
+            if (diff != null && diff > gameData.tips.delay) {
+                if (tips.length < gameData.tips.ok[cs.currentChapter].length) {
+                    gameData.tips.ok[cs.currentChapter].forEach(function (alltips, index) {
+                        if (tips.indexOf(alltips + "") == -1 && nextTip == "") {
+                            cs.saveGameObj.setTip(alltips + "");
+                            //ok
+                            nextTip = z89.getLabel(alltips);
+                            //okA
+                            gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.okA));
+                        }
+                    });
+                }
+                else {
+                    //nomore
+                    nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.nomore));
+                    //nomoreA
+                    gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom(gameData.tips.nomoreA));
+                }
             }
         }
-    ],
-    TALKTO_19_0: [
-        {
-            text: z89.getLabel(71),
-            isItem: true,
-            next: true,
-        },
-        {
-            text: z89.getLabel(72),
-            isItem: false,
-            end: true,
-        }
-    ],
-    TALKTO_19_1: [
-        {
-            text: z89.getLabel(73),
-            isItem: true,
-            next: true,
-        },
-        {
-            text: z89.getLabel(74),
-            isItem: false,
-            end: true,
-        }
-    ]
+        //console.log("return",nextTip)
+        return nextTip;
+    },
+    MANAGE_TIP_LIST: function (cs) {
+        var _return = "";
+        cs.saveGameObj.getSaved().tips.tips.forEach(function (element) {
+            _return = _return + z89.getLabel(element) + "\n\n";
+        });
+        return _return;
+    },
+    MANAGE_TIP_ANSWER: "",
+    HELP_GAME: function (cs) {
+        return [
+            {
+                text: z89.getLabel(Phaser.Utils.Array.GetRandom([115, 116, 117])),
+                isItem: false,
+                next: true
+            },
+            {
+                text: gameData.ingame.conversation.MANAGE_TIP(cs),
+                isItem: true,
+                next: true
+            },
+            {
+                text: gameData.ingame.conversation.MANAGE_TIP_ANSWER,
+                isItem: false,
+                fork: true,
+                options: [{ option: "TIPs I GOT!", goto: "tiplist" }]
+            },
+            {
+                label: "tiplist",
+                text: gameData.ingame.conversation.MANAGE_TIP_LIST(cs),
+                isItem: false,
+                fork: false,
+            }
+        ];
+    },
+    RESTART: function (cs) {
+        return [
+            {
+                text: z89.getLabel(124),
+                isItem: false,
+                fork: false,
+                options: [
+                    {
+                        option: z89.getLabel(125),
+                        action: function (cs, target) {
+                            cs.restartGame();
+                        }
+                    },
+                    {
+                        option: z89.getLabel(126),
+                        action: function (cs, target) {
+                            cs.conversationBaloon.hideBaloon();
+                        }
+                    }
+                ]
+            }
+        ];
+    },
+    CHAPTER_COMPLETED: function (cs) {
+        return [
+            {
+                text: z89.getLabel(94),
+                isItem: false,
+                fork: true,
+                options: [
+                    {
+                        option: z89.getLabel(125),
+                        action: function (cs, target) {
+                            cs.nextChapter();
+                        }
+                    },
+                    {
+                        option: z89.getLabel(127),
+                        action: function (cs, target) {
+                            cs.leaveGame();
+                        }
+                    }
+                ]
+            }
+        ];
+    },
+    INFO: function (cs) {
+        return [
+            {
+                label: "info",
+                text: z89.getLabel(84),
+                isItem: false,
+                fork: true,
+                options: [{ option: z89.getLabel(128), goto: "credits" }]
+            },
+            {
+                label: "credits",
+                text: z89.getLabel(86),
+                isItem: false,
+                fork: true,
+                options: [{ option: z89.getLabel(129), goto: "info" }]
+            }
+        ];
+    },
+    OPTIONS: function (cs) {
+        return [
+            {
+                text: z89.getLabel(87),
+                isItem: false
+            }
+        ];
+    },
+    TALKTO_devday: function (cs) {
+        return [
+            {
+                text: z89.getLabel(89),
+                isItem: false,
+                fork: true,
+                options: [
+                    { option: "DEVDAY website", link: "http://www.devday.it" },
+                    {
+                        option: "DEVDAY on youtube",
+                        link: "https://www.youtube.com/channel/UCUmykbn_rG5dExSncCgW9Nw"
+                    },
+                    { option: "DEVDAY galaxy", link: "http://dd.zero89.it" }
+                ]
+            }
+        ];
+    },
+    USE_jukebox: function (cs) {
+        return [
+            {
+                text: z89.getLabel(91),
+                isItem: false,
+                fork: true,
+                options: [
+                    {
+                        option: z89.getLabel(130),
+                        action: function (cs, target) {
+                            cs.gameUtils.addDelay(500, function () {
+                                var _jukebox = cs.gameItemsUtils.getItemById(11);
+                                _jukebox.play("11-idle");
+                                cs.stopSound();
+                                // let _woofer=cs.gameItemsUtils.getItemById(12);
+                                // _woofer.tween.pause();
+                            });
+                            cs.conversationBaloon.hideBaloon();
+                            cs.player.play("player-use");
+                        }
+                    },
+                    {
+                        option: z89.getLabel(131),
+                        action: function (cs, target) {
+                            cs.playSound(0);
+                            cs.gameUtils.addDelay(500, function () {
+                                var _jukebox = cs.gameItemsUtils.getItemById(11);
+                                _jukebox.play("11-play");
+                                // let _woofer=cs.gameItemsUtils.getItemById(12);
+                                // _woofer.tween.resume();
+                            });
+                            cs.conversationBaloon.hideBaloon();
+                            cs.player.play("player-use");
+                        }
+                    }
+                ]
+            }
+        ];
+    },
+    TALKTO_27: function (cs) {
+        return [
+            {
+                text: z89.getLabel(97),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(98),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(67),
+                isItem: false,
+                end: true
+            }
+        ];
+    },
+    TALKTO_16: function (cs) {
+        return [
+            {
+                text: z89.getLabel(66),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(65),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(67),
+                isItem: false,
+                end: true
+            }
+        ];
+    },
+    TALKTO_19_null: function (cs) {
+        return [
+            {
+                text: z89.getLabel(68),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(69),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(70),
+                isItem: false,
+                end: true,
+                callback: function (cs) {
+                    cs.updateItemObject(19, "conversationStatus", 0);
+                }
+            }
+        ];
+    },
+    TALKTO_19_0: function (cs) {
+        return [
+            {
+                text: z89.getLabel(71),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(72),
+                isItem: false,
+                end: true
+            }
+        ];
+    },
+    TALKTO_19_1: function (cs) {
+        return [
+            {
+                text: z89.getLabel(73),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(74),
+                isItem: false,
+                end: true
+            }
+        ];
+    }
 };
+/*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
 gameData.ingame.items = [
     {
         id: 50,
@@ -1871,7 +2155,7 @@ gameData.ingame.items = [
         working: false
     },
     {
-        id: 21,
+        id: 26,
         type: 1,
         onStart: true,
         animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
@@ -1906,7 +2190,22 @@ gameData.ingame.items = [
         sprite: "trash",
         name: z89.getLabel(16),
         x: 450,
-        y: 649 - 48,
+        y: 601,
+        interactive: true,
+        firstMessage: [z89.getLabel(18)],
+        offsetX: 50,
+        fixedToCamera: false,
+        checkIntersect: false,
+        moved: false
+    },
+    {
+        id: 7,
+        type: 1,
+        onStart: true,
+        sprite: "trash",
+        name: z89.getLabel(16),
+        x: 1520,
+        y: 601,
         interactive: true,
         firstMessage: [z89.getLabel(18)],
         offsetX: 50,
@@ -1931,6 +2230,39 @@ gameData.ingame.items = [
         checkIntersect: false
     },
     {
+        id: 20,
+        type: 1,
+        onStart: true,
+        sprite: "chris",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: z89.getLabel(100),
+        x: 1860,
+        y: 603,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 21,
+        type: 1,
+        onStart: true,
+        sprite: "sidney",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
+        currentAnimation: "idle",
+        conversationStatus: null,
+        name: z89.getLabel(99),
+        x: 1980,
+        y: 603,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        turnLeft: true
+    },
+    {
         id: 100,
         type: 6,
         onStart: true,
@@ -1938,7 +2270,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [40, 41, 42, 43], rate: 5, loop: true }, { name: "walking", frames: [44, 45, 46, 47, 48, 49], rate: 5, loop: true }, { name: "running", frames: [50, 51, 52, 53, 54, 55, 56, 57], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad guy",
+        name: z89.getLabel(101),
         x: 1800,
         y: 700,
         interactive: true,
@@ -1946,7 +2278,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        insight: { distance: 70, behaviour: "idler", offsetY: 10 },
         walkRange: { start: 100, end: 3000, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 20
     },
@@ -1958,7 +2290,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true }, { name: "walking", frames: [24, 25, 26, 27, 28, 29], rate: 5, loop: true }, { name: "running", frames: [30, 31, 32, 33, 34, 35, 36, 37], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "The jumper",
+        name: z89.getLabel(104),
         x: 1000,
         y: 700,
         interactive: true,
@@ -1966,7 +2298,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 300, behaviour: "jumper", offsetY: 250 },
+        insight: { distance: 300, behaviour: "jumper", offsetY: 300 },
         walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 0
     },
@@ -1978,7 +2310,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }, { name: "walking", frames: [4, 5, 6, 7, 8, 9], rate: 5, loop: true }, { name: "running", frames: [10, 11, 12, 13, 14, 15, 16, 17], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "The runner",
+        name: z89.getLabel(105),
         x: 2000,
         y: 700,
         interactive: true,
@@ -1986,7 +2318,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 200, behaviour: "runner", offsetY: 50 },
+        insight: { distance: 200, behaviour: "runner", offsetY: 200 },
         walkRange: { start: 0, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 0
     },
@@ -1998,7 +2330,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true }, { name: "walking", frames: [64, 65, 66, 67, 68, 69], rate: 5, loop: true }, { name: "running", frames: [70, 71, 72, 73, 74, 75, 76, 77], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad guy",
+        name: z89.getLabel(102),
         x: 2500,
         y: 610,
         interactive: true,
@@ -2006,7 +2338,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        insight: { distance: 70, behaviour: "idler", offsetY: 10 },
         walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 20
     },
@@ -2018,7 +2350,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [80, 81, 82, 83], rate: 5, loop: true }, { name: "walking", frames: [84, 85, 86, 87, 88, 89], rate: 5, loop: true }, { name: "running", frames: [90, 91, 92, 93, 94, 95, 96, 97], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Bad guy",
+        name: z89.getLabel(103),
         x: 1800,
         y: 700,
         interactive: true,
@@ -2026,7 +2358,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        insight: { distance: 70, behaviour: "idler", offsetY: 10 },
         walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 20
     },
@@ -2038,7 +2370,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Informer",
+        name: z89.getLabel(106),
         x: 500,
         y: 700,
         interactive: true,
@@ -2046,7 +2378,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        insight: { distance: 70, behaviour: "idler", offsetY: 10 },
         walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
         jumpChance: 50
     },
@@ -2058,15 +2390,15 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: "Pasticciera",
-        x: 1675,
+        name: z89.getLabel(107),
+        x: 1600,
         y: 610,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        insight: { distance: 100, behaviour: "idler", offsetY: 30 },
+        insight: { distance: 70, behaviour: "idler", offsetY: 10 },
         walkRange: { start: 1600, end: 1750, step: { min: 50, max: 80 }, idle: { min: 3000, max: 4000 } },
         jumpChance: 0
     },
@@ -2166,7 +2498,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "bitcoin",
         onStart: false,
-        name: "bitcoin",
+        name: z89.getLabel(52),
         x: 400,
         y: 700 - 48,
         interactive: true,
@@ -2179,7 +2511,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "blockchain",
         onStart: false,
-        name: "blockchain",
+        name: z89.getLabel(50),
         x: 500,
         y: 700 - 48,
         interactive: true,
@@ -2192,7 +2524,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "invite",
         onStart: false,
-        name: "invite",
+        name: z89.getLabel(108),
         x: 400,
         y: 648 - 48,
         interactive: true,
@@ -2220,9 +2552,25 @@ gameData.ingame.items = [
         sprite: "terminal",
         animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
         currentAnimation: "notWorking",
-        working: false,
+        working: true,
         name: z89.getLabel(12),
         x: 1214,
+        y: 644 - 48,
+        interactive: true,
+        offsetX: 50,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 6,
+        type: 1,
+        onStart: true,
+        sprite: "terminal",
+        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
+        currentAnimation: "notWorking",
+        working: false,
+        name: z89.getLabel(12),
+        x: 3000,
         y: 644 - 48,
         interactive: true,
         offsetX: 50,
@@ -2273,11 +2621,39 @@ gameData.ingame.items = [
         checkIntersect: false
     },
     {
+        id: 8,
+        type: 1,
+        sprite: "bottle",
+        onStart: true,
+        name: z89.getLabel(142),
+        x: 490,
+        y: 606,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 9,
+        type: 1,
+        sprite: "floppy",
+        onStart: false,
+        name: z89.getLabel(145),
+        animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
+        currentAnimation: "small",
+        x: 1520,
+        y: 603,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
         id: 11,
         type: 1,
         sprite: "jukebox",
         name: z89.getLabel(88),
-        x: 2450,
+        x: 2300,
         y: 650 - 48,
         animations: [{ name: "idle", frames: [0], rate: 1, loop: false }, { name: "play", frames: [1, 2, 3, 4, 5, 6, 7, 2, 4, 6, 3, 1, 6, 3, 4, 6, 5, 7, 2, 5, 3, 4], rate: 14, loop: true }],
         currentAnimation: "play",
@@ -2292,11 +2668,70 @@ gameData.ingame.items = [
         type: 1,
         sprite: "woofer",
         name: z89.getLabel(92),
-        x: 2450,
+        x: 2300,
         y: 650 - 48,
         currentAnimation: "idle",
         onStart: true,
         interactive: false,
+        offsetX: 35,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 13,
+        type: 1,
+        sprite: "amazonPack",
+        name: "Cloak of Invisibility",
+        x: 1300,
+        y: 605,
+        currentAnimation: "",
+        onStart: false,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 14,
+        type: 1,
+        sprite: "arcade",
+        name: "Galaga clone",
+        x: 1920,
+        y: 602,
+        currentAnimation: "",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 15,
+        type: 1,
+        sprite: "phaser-logo",
+        name: "Phaser Arena",
+        x: 70,
+        y: 330,
+        alpha: .7,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1.5, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 28,
+        type: 1,
+        sprite: "photonstorm",
+        name: "Photonstorm",
+        x: 345,
+        y: 245,
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 4, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
         offsetX: 70,
         fixedToCamera: false,
         checkIntersect: false
@@ -2313,6 +2748,26 @@ gameData.ingame.logic = {
     // examine terminal
     EXAMINE_2: function (cs) {
         if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+            cs.player.showBaloon(z89.getLabel(82));
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(81));
+        }
+    },
+    EXAMINE_14: function (cs) {
+        cs.player.showBaloon(z89.getLabel(139));
+    },
+    //examine bottle
+    EXAMINE_8: function (cs) {
+        cs.player.showBaloon(z89.getLabel(143));
+    },
+    //examine floppy
+    EXAMINE_9: function (cs) {
+        cs.player.showBaloon(z89.getLabel(146));
+    },
+    // examine terminal2
+    EXAMINE_6: function (cs) {
+        if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
             cs.player.showBaloon(z89.getLabel(82));
         }
         else {
@@ -2372,6 +2827,10 @@ gameData.ingame.logic = {
     EXAMINE_19: function (cs) {
         cs.player.showBaloon(z89.getLabel(32));
     },
+    //examine cloak
+    EXAMINE_13: function (cs) {
+        cs.player.showBaloon(z89.getLabel(147));
+    },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2389,6 +2848,16 @@ gameData.ingame.logic = {
             cs.player.showBaloon(z89.getLabel(83));
         }
     },
+    // use terminal 2
+    USE_6: function (cs) {
+        if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
+            cs.Terminal.show(0);
+            cs.playerActions.hide();
+        }
+        else {
+            cs.player.showBaloon(z89.getLabel(83));
+        }
+    },
     // use coins on drink machine
     USE_25_1: function (cs) {
         console.log("coins on drink");
@@ -2399,6 +2868,32 @@ gameData.ingame.logic = {
             cs.gameItemsUtils.getItemById(3).itemObj.onStart = true;
             cs.saveGameObj.updateItems();
         });
+    },
+    // use bottle on trash
+    USE_8_4: function (cs) {
+        cs.playerBaloon.showBaloon(z89.getLabel(144));
+    },
+    // use bottle on trash2
+    USE_8_7: function (cs) {
+        cs.player.play("player-use");
+        cs.removeInventoryItems();
+        cs.gameUtils.addDelay(300, function () {
+            cs.gameItemsUtils.addItem(9);
+            cs.gameItemsUtils.getItemById(9).itemObj.onStart = true;
+            cs.saveGameObj.updateItems();
+        });
+        /*
+        
+        cs.player.play("player-use");
+         cs.removeInventoryItems();
+         cs.gameUtils.addDelay(1000, () => {
+     
+           cs.gameItemsUtils.addItem(3);
+           cs.gameItemsUtils.getItemById(3).itemObj.onStart=true;
+           cs.saveGameObj.updateItems();
+     
+         });
+     */
     },
     // use coins on drink machine
     /* USE_25: (cs: z89.GameCity) => {
@@ -2431,13 +2926,14 @@ gameData.ingame.logic = {
         cs.player.play("player-use");
         cs.removeInventoryItems();
         cs.gameUtils.addDelay(1000, function () {
-            cs.updateItemObject(23, "name", z89.getLabel(57));
             cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-            cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
             cs.gameItemsUtils.getItemById(22).start();
-            cs.updateItemObject(22, "isStarted", true);
-            cs.updateItemObject(19, "conversationStatus", 1);
-            cs.updateItemObject(2, "working", true);
+            //cs.updateItemObject(23, "name", z89.getLabel(57));
+            //cs.updateItemObject(23, "fixed", true);
+            //cs.updateItemObject(22, "isStarted", true);
+            //cs.updateItemObject(19, "conversationStatus", 1);
+            //cs.updateItemObject(2, "working", true);
+            cs.updateItemsObjects([23, 23, 22, 19, 2], ["name", "fixed", "isStarted", "conversationStatus", "working"], [z89.getLabel(57), true, true, 1, true]);
             cs.gameItemsUtils.getItemById(2).playAnim("2-working");
             cs.saveGameObj.updateItems();
             cs.chapterCompleted();
@@ -2448,6 +2944,10 @@ gameData.ingame.logic = {
         cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
         cs.removeInventoryItems();
         cs.addInventory(31, true);
+    },
+    USE_13: function (cs) {
+        cs.removeInventoryItems();
+        cs.player.setAlpha(0.5);
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2498,6 +2998,14 @@ gameData.ingame.logic = {
     PICKUP_24: function (cs) {
         cs.addInventoryItem(cs.gameItemsUtils.getItemById(24), false);
     },
+    //pickup floppy
+    PICKUP_9: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(9), false);
+    },
+    //pickup bottle
+    PICKUP_8: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(8), false);
+    },
     //pickup coke
     PICKUP_3: function (cs) {
         cs.addInventoryItem(cs.gameItemsUtils.getItemById(3), false);
@@ -2517,6 +3025,16 @@ gameData.ingame.logic = {
     //pickup jumper
     PICKUP_101: function (cs) {
         console.log("pickup jumper");
+        cs.player.play("player-use");
+    },
+    //pickup runner
+    PICKUP_102: function (cs) {
+        console.log("pickup runner");
+        cs.player.play("player-use");
+    },
+    //pickup camouflage
+    PICKUP_13: function (cs) {
+        cs.addInventoryItem(cs.gameItemsUtils.getItemById(13), false);
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2527,6 +3045,10 @@ gameData.ingame.logic = {
      */
     //drop scotch
     DROP_24: function (cs) {
+        cs.dropInventoryItem();
+    },
+    //drop bottle
+    DROP_8: function (cs) {
         cs.dropInventoryItem();
     },
     //drop scotch
@@ -2540,6 +3062,10 @@ gameData.ingame.logic = {
     //drop scotch
     DROP_32: function (cs) {
         cs.dropInventoryItem();
+    },
+    //drop scotch
+    DROP_13: function (cs) {
+        cs.playerBaloon.showBaloon("Not a good idea!");
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2559,6 +3085,24 @@ gameData.ingame.logic = {
     TALKTO_27: function (cs) {
         cs.conversationBaloon.setUpConversation({
             key: "TALKTO_27",
+            action: null,
+            inventory: null,
+            item: cs.currentItem
+        });
+    },
+    //chris
+    TALKTO_20: function (cs) {
+        cs.conversationBaloon.setUpConversation({
+            key: "HELP_GAME",
+            action: null,
+            inventory: null,
+            item: cs.currentItem
+        });
+    },
+    //sidney
+    TALKTO_21: function (cs) {
+        cs.conversationBaloon.setUpConversation({
+            key: "HELP_GAME",
             action: null,
             inventory: null,
             item: cs.currentItem
@@ -2740,7 +3284,9 @@ var z89;
             this.isSaved = false;
             this.firstChoice = null;
             this.current = 0;
+            this.tips = [];
             this.choice = null;
+            this.chapters = [];
             this.scene = scene;
             this.checkSaved();
             // this.game.time.events.repeat(5000, 10, this.updateItems, this);
@@ -2780,12 +3326,25 @@ var z89;
             return this.firstChoice;
         };
         saveGame.prototype.setCurrentChapter = function (current) {
-            console.log("setCurrentChapter");
+            //console.log("setCurrentChapter")
             this.current = current;
             this.updateSaveObj();
         };
         saveGame.prototype.setChoiceChapter = function (choice) {
             this.choice = choice;
+            this.updateSaveObj();
+        };
+        saveGame.prototype.setChapterCompleted = function (chapterIndex) {
+            this.chapters[chapterIndex] = true;
+            this.updateSaveObj();
+        };
+        saveGame.prototype.setTip = function (tip) {
+            this.lastTip = new Date();
+            this.tips.push(tip);
+            this.updateSaveObj();
+        };
+        saveGame.prototype.clearTips = function () {
+            this.tips = [];
             this.updateSaveObj();
         };
         saveGame.prototype.gameIsSaved = function () {
@@ -2815,6 +3374,9 @@ var z89;
                 this.firstChoice = this.savedObj.firstChoice;
                 this.current = this.savedObj.chapter.current;
                 this.choice = this.savedObj.chapter.choice;
+                this.chapters = this.savedObj.chapter.chapters;
+                this.lastTip = this.savedObj.tips.lastTip;
+                this.tips = this.savedObj.tips.tips;
             }
             else {
                 this.savedObj = null;
@@ -2828,7 +3390,8 @@ var z89;
                 inventory: this.inventory,
                 items: this.items,
                 firstChoice: this.firstChoice,
-                chapter: { current: this.current, choice: this.choice }
+                chapter: { current: this.current, choice: this.choice, chapters: this.chapters },
+                tips: { lastTip: this.lastTip, tips: this.tips }
             };
             //console.log(obj);
             this.setSaved(obj);
@@ -2924,19 +3487,22 @@ var z89;
                 _this.removeForks();
                 _this.baloonText.setY(0);
                 _this.isPlaying = false;
-                if (_this.baloonTarget != null) {
-                    _this.baloonX = _this.baloonTarget.x;
-                    _this.baloonY = _this.baloonTarget.y - _this.baloonTarget.height - 50;
-                    _this.showBaloon(z89.getLabel(39));
-                    _this.scene.time.addEvent({
-                        delay: 500,
-                        callback: function () {
-                            _this.hideBaloon();
-                        },
-                        callbackScope: _this,
-                        loop: false
-                    });
+                /*
+                if (this.baloonTarget != null) {
+                  this.baloonX = this.baloonTarget.x;
+                  this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
+                  this.showBaloon(z89.getLabel(39));
+        
+                  this.scene.time.addEvent({
+                    delay: 500,
+                    callback: () => {
+                      this.hideBaloon();
+                    },
+                    callbackScope: this,
+                    loop: false
+                  });
                 }
+                */
             });
         };
         conversationBaloon.prototype.setUpConversation = function (_actionObj) {
@@ -2956,7 +3522,7 @@ var z89;
         };
         conversationBaloon.prototype.setConversationObj = function (key) {
             if (gameData.ingame.conversation[key] != undefined)
-                this.conversationObj = gameData.ingame.conversation[key];
+                this.conversationObj = gameData.ingame.conversation[key](this.scene);
         };
         conversationBaloon.prototype.fixSize = function () {
             this.setX(this.baloonX);
@@ -3057,52 +3623,55 @@ var z89;
             var _btn;
             var _btnText;
             this.removeForks();
-            //console.log(_obj.options)
-            _obj.options.forEach(function (element, index) {
-                //console.log(index);
-                _btn = _this.scene.add.sprite(0, 0, "forkBtn");
-                _btn.setZ(index);
-                var _option = element;
-                var btn = _btn;
-                _btn
-                    .setOrigin(0.5, 1)
-                    .setInteractive()
-                    .on("pointerdown", function () {
-                    if (_option.goto != undefined) {
-                        _this.currentStep = _this.goToLabel(_option.goto);
+            console.log(_obj.options);
+            if (_obj.options != undefined) {
+                _obj.options.forEach(function (element, index) {
+                    //console.log(index);
+                    _btn = _this.scene.add.sprite(0, 0, "forkBtn");
+                    _btn.setZ(index);
+                    var _option = element;
+                    var btn = _btn;
+                    _btn
+                        .setOrigin(0.5, 1)
+                        .setInteractive()
+                        .on("pointerdown", function () {
+                        if (_option.goto != undefined) {
+                            _this.currentStep = _this.goToLabel(_option.goto);
+                        }
+                        if (_option.link != undefined) {
+                            _this.currentStep++;
+                            window.open(_option.link, "_blank");
+                        }
+                        if (_option.action != undefined) {
+                            _option.action(_this.scene, _this.baloonTarget);
+                            _this.hideBaloon();
+                            return;
+                        }
+                        _this.displayStep();
+                    }, _this).on("pointerover", function () {
+                        // console.log(btn.z);
+                        _this.scene.gameUtils.btnOverEffect(btn, _this.forkBtnsText[btn.z]);
+                    })
+                        .on("pointerout", function () {
+                        // console.log(btn.z);
+                        _this.scene.gameUtils.btnOutEffect(btn, _this.forkBtnsText[btn.z]);
+                    });
+                    _btnText = _this.scene.add.bitmapText(0, 80, "commodore", element.option, 20);
+                    _btnText.setOrigin(0.5, 1);
+                    if (_obj.isItem) {
+                        _btn.setTint(0x333333);
+                        _btnText.setTint(0xfefefe);
                     }
-                    if (_option.link != undefined) {
-                        _this.currentStep++;
-                        window.open(_option.link, "_blank");
+                    else {
+                        _btn.setTint(0x0f6c0f);
+                        _btnText.setTint(0xffffff);
                     }
-                    if (_option.action != undefined) {
-                        _option.action(_this.scene, _this.baloonTarget);
-                        _this.hideBaloon();
-                        return;
-                    }
-                    _this.displayStep();
-                }, _this).on("pointerover", function () {
-                    // console.log(btn.z);
-                    _this.scene.gameUtils.btnOverEffect(btn, _this.forkBtnsText[btn.z]);
-                })
-                    .on("pointerout", function () {
-                    // console.log(btn.z);
-                    _this.scene.gameUtils.btnOutEffect(btn, _this.forkBtnsText[btn.z]);
+                    _this.forkBtns.push(_btn);
+                    _this.forkBtnsText.push(_btnText);
+                    _this.add([_btn, _btnText]);
                 });
-                _btnText = _this.scene.add.bitmapText(0, 80, "commodore", element.option, 20);
-                _btnText.setOrigin(0.5, 1);
-                if (_obj.isItem) {
-                    _btn.setTint(0x333333);
-                    _btnText.setTint(0xfefefe);
-                }
-                else {
-                    _btn.setTint(0x0f6c0f);
-                    _btnText.setTint(0xffffff);
-                }
-                _this.forkBtns.push(_btn);
-                _this.forkBtnsText.push(_btnText);
-                _this.add([_btn, _btnText]);
-            });
+            }
+            ;
             this.displayItems();
             this.scene.tweens.add({
                 targets: this,
@@ -3236,9 +3805,10 @@ var z89;
                 _this.play(itemObj.id + "-" + itemObj.currentAnimation);
             }
             _this.setDepth(_this.y).setOrigin(0.5, 1).setX(itemObj.x);
-            ;
             if (itemObj.scale != undefined)
                 _this.setScale(itemObj.scale);
+            if (itemObj.alpha != undefined)
+                _this.setAlpha(itemObj.alpha);
             _this.id = itemObj.id;
             _this.itemObj = itemObj;
             _this.name = itemObj.name;
@@ -3277,7 +3847,8 @@ var z89;
      
                      this.scene.gameUtils.itemOutEffect(this);
      
-                 });*/
+                 });
+                 */
             }
             _this.scene.add.existing(_this);
             return _this;
@@ -3474,6 +4045,10 @@ var z89;
         }
         ItemsContent.prototype.start = function () {
             var _this = this;
+            if (!z89.isOnline()) {
+                this.displayOffline();
+                return;
+            }
             this.guruTween.stop();
             this.guru.destroy();
             this.itemObj.isStarted = true;
@@ -3543,8 +4118,15 @@ var z89;
         ItemsContent.prototype.isInteractive = function () {
             return this.interactive;
         };
+        ItemsContent.prototype.displayOffline = function () {
+        };
+        ;
         ItemsContent.prototype.hideContent = function () {
             var _this = this;
+            if (!z89.isOnline()) {
+                this.displayOffline();
+                return;
+            }
             this.isAnimating = true;
             this.scene.tweens.add({
                 targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.contentImage, this.btnGo, this.btnGoText],
@@ -3570,6 +4152,10 @@ var z89;
         };
         ItemsContent.prototype.showContent = function () {
             var _this = this;
+            if (!z89.isOnline()) {
+                this.displayOffline();
+                return;
+            }
             this.scene.tweens.add({ targets: this.spinner, alpha: 0, duration: 300 });
             var _title = "", _description = "", _date = "";
             if (this.contents[this.currentIndex].a != undefined) {
@@ -3674,7 +4260,7 @@ var z89;
             _this.distanceUpdate = true;
             _this.setAlpha(0);
             _this.playAnim(_this.itemObj.id + "-idle");
-            _this.movingTimer = _this.scene.time.delayedCall(500, function (scene) {
+            _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(0, 5000), function (scene) {
                 _this.beamIn();
             }, null, _this);
             return _this;
@@ -3974,6 +4560,13 @@ var z89;
             ];
             //this.setPipeline("testPipeline");
             //this.pipeline.setFloat2('uResolution', this.width, this.height);
+            _this.scene.input.keyboard.on('keyup', function (event) {
+                //console.log("player",event.key);
+                if (event.key == "p") {
+                    // console.log("punch");
+                    _this.play("player-punch");
+                }
+            });
             _this.scene = scene;
             var config = {
                 key: "player-idle",
@@ -4018,6 +4611,16 @@ var z89;
                 repeatDelay: 0
             };
             _this.anims.animationManager.create(config);
+            config = {
+                key: "player-punch",
+                frames: scene.anims.generateFrameNumbers("player", {
+                    frames: [12, 13, 14, 15]
+                }),
+                frameRate: 10,
+                repeat: 0,
+                repeatDelay: 0
+            };
+            _this.anims.animationManager.create(config);
             _this.on("animationcomplete", function () {
                 _this.play("player-idle");
             }, _this);
@@ -4037,7 +4640,7 @@ var z89;
                 .setScale(1)
                 .setY(608)
                 .setAlpha()
-                .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 126), Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown', function () {
+                .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 80), Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown', function () {
                 if (_this.scene.isInteractionDisabled())
                     return;
                 _this.scene.playerMenu.toggle();
@@ -4071,8 +4674,11 @@ var z89;
                 this.playerTween.stop();
             }
             else {
+                //if (_item!=null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)>40)
+                // { console.log(Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y));
                 this.play("player-walk");
             }
+            // else{}
             if (_item == undefined)
                 this.scene.currentItem = null;
             if (this.direction == PlayerDirection.NONE) {
@@ -4122,13 +4728,13 @@ var z89;
                 loop: 0,
                 onCompleteParams: [this.intersect],
                 onComplete: function () {
+                    //console.log(this.x,this.y);
                     _this.depth = _this.y;
                     _this.playerTween.stop();
                     _this.playerTween = null;
                     _this.scene.saveGameObj.updatePlayerPosition(_this.x, _this.y);
                     _this.play("player-idle");
-                    if (_item != null && Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) < 150) {
-                        //console.log("distance",)
+                    if (_item != null && (Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) < 150 || _item.itemObj.type != 6)) {
                         _this.scene.setCurrentItem(_item);
                         if (_this.x < _item.x) {
                             if (_this.direction == PlayerDirection.LEFT)
@@ -4139,6 +4745,7 @@ var z89;
                                 _this.changeDirection();
                         }
                         _this.scene.doActionSequence(_item);
+                        // console.log(_item);
                         if (_item.isInteractive())
                             _this.scene.playerActions.show();
                     }
@@ -4222,7 +4829,10 @@ var z89;
                         targets: _this,
                         alpha: 1,
                         duration: 300,
-                        repeat: 0
+                        repeat: 0,
+                        onComplete: function () {
+                            _this.scene.enableInteraction();
+                        }
                     });
                     _this.scene.tweens.add({
                         targets: beam,
@@ -4238,6 +4848,7 @@ var z89;
         };
         Player.prototype.beamOut = function (toX) {
             var _this = this;
+            this.scene.disableInteraction();
             var beam = this.scene.add.sprite(this.x, 0, "beam");
             beam
                 .setScale(0.5, this.beamH())
@@ -4560,22 +5171,36 @@ var z89;
         PlayerActions.prototype.show = function () {
             var _this = this;
             if (!this.isOpen) {
-                this.scene.disableInteraction();
-                this.scene.tweens.add({
-                    targets: this,
-                    x: -30,
-                    alpha: 1,
-                    duration: 400,
-                    ease: "Quad.easeInOut",
-                    onComplete: function () {
-                        _this.isOpen = true;
-                        _this.scene.enableInteraction();
-                    }
-                });
-                this.actionText.setAlpha(0).setX(280);
-                this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: 320, duration: 500, delay: 400, ease: "Quad.easeInOut",
-                    onComplete: function () {
-                    } });
+                // this.scene.disableInteraction();
+                if (this.scene.player.x < 400) {
+                    this.setX(1080);
+                    this.scene.tweens.add({
+                        targets: this,
+                        x: 780,
+                        alpha: 1,
+                        duration: 400,
+                        ease: "Quad.easeInOut",
+                        onComplete: function () {
+                            _this.isOpen = true;
+                        }
+                    });
+                    this.actionText.setAlpha(0).setX(-800);
+                    this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: -750, duration: 500, delay: 400, ease: "Quad.easeInOut", onComplete: function () { } });
+                }
+                else {
+                    this.scene.tweens.add({
+                        targets: this,
+                        x: -30,
+                        alpha: 1,
+                        duration: 400,
+                        ease: "Quad.easeInOut",
+                        onComplete: function () {
+                            _this.isOpen = true;
+                        }
+                    });
+                    this.actionText.setAlpha(0).setX(280);
+                    this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: 320, duration: 500, delay: 400, ease: "Quad.easeInOut", onComplete: function () { } });
+                }
             }
         };
         PlayerActions.prototype.cleanAction = function () {
@@ -4593,22 +5218,43 @@ var z89;
             var _this = this;
             if (!this.isOpen)
                 return;
-            this.scene.tweens.add({
-                targets: this,
-                x: -300,
-                alpha: 0,
-                duration: 400,
-                ease: "Quad.easeInOut",
-                onComplete: function () {
-                    _this.isOpen = false;
-                    _this.currentAction = -1;
-                    _this.deselectItems();
-                    _this.resetActions();
-                    _this.uncheckInventoryIcons();
-                    _this.scene.setActionObject(null);
-                    _this.setText("");
-                }
-            });
+            if (this.scene.player.x < 400) {
+                this.scene.tweens.add({
+                    targets: this,
+                    x: 1080,
+                    alpha: 0,
+                    duration: 400,
+                    ease: "Quad.easeInOut",
+                    onComplete: function () {
+                        _this.setX(-300);
+                        _this.isOpen = false;
+                        _this.currentAction = -1;
+                        _this.deselectItems();
+                        _this.resetActions();
+                        _this.uncheckInventoryIcons();
+                        _this.scene.setActionObject(null);
+                        _this.setText("");
+                    }
+                });
+            }
+            else {
+                this.scene.tweens.add({
+                    targets: this,
+                    x: -300,
+                    alpha: 0,
+                    duration: 400,
+                    ease: "Quad.easeInOut",
+                    onComplete: function () {
+                        _this.isOpen = false;
+                        _this.currentAction = -1;
+                        _this.deselectItems();
+                        _this.resetActions();
+                        _this.uncheckInventoryIcons();
+                        _this.scene.setActionObject(null);
+                        _this.setText("");
+                    }
+                });
+            }
             this.hideText();
         };
         PlayerActions.prototype.toogle = function () {
@@ -4704,7 +5350,7 @@ var z89;
             var _this = this;
             this.inventory.forEach(function (element, index) {
                 var _inv = _this.scene.add.sprite(35, 35, element.itemObj.sprite);
-                _inv.setOrigin(0.5).setScrollFactor(0);
+                _inv.setOrigin(0.5).setScrollFactor(0).setFrame(0);
                 Phaser.Display.Align.In.Center(_inv, _this.inventoryBtns[index]);
                 _this.inventoryBtnsItems.push(_inv);
                 _this.add(_inv);
@@ -4731,8 +5377,6 @@ var z89;
             });
             return match;
         };
-        PlayerActions.prototype.dropItem = function () { };
-        PlayerActions.prototype.update = function () { console.log("update"); };
         return PlayerActions;
     }(Phaser.GameObjects.Container));
     z89.PlayerActions = PlayerActions;
@@ -4976,7 +5620,7 @@ var z89;
             //Start buttons
             //+++++++++++++++++++++++++++++++++
             var introText = _this.scene.add
-                .text(0, 0, "Welcome to my adventure website experiment.\nComplete the quests to access the website sections... or explore the website without playing!", {
+                .text(0, 0, z89.getLabel(141), {
                 fontFamily: "Roboto",
                 fontSize: 20
             })
@@ -5106,7 +5750,7 @@ var z89;
             }
             this.menuBg.setAlpha(0.01);
             this.setVisible(true);
-            this.scene.disableInteraction();
+            //this.scene.disableInteraction();
             this.scene.tweens.add({
                 targets: this,
                 y: 0,
@@ -5146,7 +5790,7 @@ var z89;
                     _this.isOpen = false;
                     _this.setVisible(false);
                     _this.menuBgOptions.setScale(1);
-                    _this.scene.enableInteraction();
+                    //this.scene.enableInteraction();
                 }
             });
         };
@@ -5171,7 +5815,7 @@ var z89;
             //8 backspace
             //38 40 37 49 up down left right
             //private keys: Array<number> = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 13, 44, 32, 8, 38, 40, 37, 39, 188, 190];
-            _this.keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "*", "\"", ",", "."];
+            _this.keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "*", "\"", ",", ".", " ", "'"];
             _this.scene = scene;
             _this.setScrollFactor(0).setVisible(false).setAlpha(0);
             var terminalBg = _this.scene.add.sprite(0, 0, "terminalBg");
@@ -5184,7 +5828,7 @@ var z89;
                 _this.hide();
             }, _this);
             _this.scene.input.keyboard.on('keydown', function (event) {
-                //console.log(event.key);
+                console.log(event.key);
                 _this.addChar(event.key);
             });
             /*
@@ -5259,7 +5903,7 @@ var z89;
             this.scene.tweens.add({ targets: this, alpha: 0, duration: 400, onComplete: function () {
                     _this.setVisible(false);
                     _this.scene.enableInteraction();
-                    // this.destroy();
+                    _this.TerminalLogic.enableInput();
                 }
             });
         };
@@ -5446,12 +6090,14 @@ var z89;
         msgs[msgs["hit"] = 13] = "hit";
         msgs[msgs["processing"] = 14] = "processing";
         msgs[msgs["disconnecting"] = 15] = "disconnecting";
+        msgs[msgs["amazonLogin"] = 16] = "amazonLogin";
+        msgs[msgs["amazonOrder"] = 17] = "amazonOrder";
     })(msgs = z89.msgs || (z89.msgs = {}));
     var shell;
     (function (shell) {
         shell[shell["login"] = 0] = "login";
         shell[shell["gtw"] = 1] = "gtw";
-        shell[shell["call"] = 2] = "call";
+        shell[shell["atp"] = 2] = "atp";
     })(shell = z89.shell || (z89.shell = {}));
     var TerminalLogic = (function () {
         function TerminalLogic(scene, terminal, tint) {
@@ -5537,6 +6183,19 @@ var z89;
                 '              ##############            ',
                 '              # PROCESSING #            ',
                 'Disconnecting....                       ',
+                '# Welcome to Amazon Teleport Prime.    #',
+                '# Enter the ATP Product Code followed  #',
+                '0    "ATP"                         PRG  ',
+                '# by your Personal Id to purchase our  #',
+                '# products.   >:ProductId,yourID       #',
+                '########################################',
+                '# Dear Customer, thanks for your order #',
+                '# The product will be shipped in few   #',
+                '# seconds.                             #',
+                '# The ATP team.                        #',
+                '# For any questions or problems,       #',
+                '# contact our free h24 support.        #',
+                '#                                      #',
             ];
             this.msgs = [
                 [0, 1, 0, 2, 0, 3],
@@ -5544,7 +6203,7 @@ var z89;
                 [0, 8, 0, 9, 0, 10, 11, 10, 0, 12, 13, 0],
                 [0, 14, 5, 15, 16, 3],
                 [0, 17, 5, 18, 19, 20, 21, 22, 23, 3],
-                [0, 24, 25, 26, 27, 28, 29, 30, 31, 3],
+                [0, 24, 25, 26, 27, 28, 83, 29, 30, 31, 3],
                 [0, 33, 34],
                 [0, 10, 37, 10, 0, 38],
                 [0, 39, 40, 41, 42, 43, 44, 45, 0],
@@ -5555,6 +6214,8 @@ var z89;
                 [0, 10, 74, 10, 0, 3],
                 [0, 78, 79, 78, 0],
                 [80],
+                [0, 86, 93, 81, 93, 82, 84, 93, 85, 93, 86, 0],
+                [0, 86, 93, 87, 88, 89, 91, 92, 93, 90, 93, 86, 0] //amazon order 17
             ];
             this.emptyString = this.rows[0];
             this.readyString = this.rows[3];
@@ -5661,7 +6322,7 @@ var z89;
         };
         ;
         TerminalLogic.prototype.enableInput = function () { this.inputIsDisabled = false; this.showCursor(); };
-        TerminalLogic.prototype.disableInput = function () { this.inputIsDisabled = true; this.hideCursor(); };
+        TerminalLogic.prototype.disableInput = function () { console.log("disable"); this.inputIsDisabled = true; this.hideCursor(); };
         TerminalLogic.prototype.hideCursor = function () { this.cursor.alpha = 0; };
         TerminalLogic.prototype.showCursor = function () { this.cursor.alpha = 1; };
         TerminalLogic.prototype.returnStaticString = function (msg, delay) {
@@ -5686,6 +6347,7 @@ var z89;
             return _ready;
         };
         TerminalLogic.prototype.returnLogin = function () { return this.returnStaticString(msgs.loginError, 0); };
+        TerminalLogic.prototype.returnAtp = function () { return this.returnStaticString(msgs.amazonLogin, 0); };
         TerminalLogic.prototype.returnCommands = function () { return this.returnStaticString(msgs.commandList, 0); };
         TerminalLogic.prototype.returnGames = function () { return this.returnStaticString(msgs.gameList, 0); };
         TerminalLogic.prototype.returnVersion = function () { return this.returnStaticString(msgs.version, 0); };
@@ -5723,6 +6385,12 @@ var z89;
                 { text: this.rows[5], delay: 0 },
                 { text: this.rows[36], delay: 0 }
             ];
+        };
+        TerminalLogic.prototype.displayAtpShell = function (error) {
+            this.clear();
+            this.isShell = true;
+            this.shellType = shell.atp;
+            this.returnAtpShell(">:", error);
         };
         TerminalLogic.prototype.charUp = function () {
             if (this.isShell || this.inputIsDisabled)
@@ -5788,10 +6456,12 @@ var z89;
                 return;
             var col = this.getCursorCol();
             var row = this.getCursorRow();
-            if (this.isShell && (this.shellStart < col)) {
-                this.lettersObj[row].text = this.replaceAt(this.lettersObj[row].text, col - 1, " ");
-                this.cursor.x = this.setCursorX(col - 1);
-                this.login = this.login.substr(0, this.login.length - 1);
+            if (this.isShell) {
+                if (col > this.shellStart) {
+                    this.lettersObj[row].text = this.replaceAt(this.lettersObj[row].text, col - 1, " ");
+                    this.cursor.x = this.setCursorX(col - 1);
+                    this.login = this.login.substr(0, this.login.length - 1);
+                }
             }
             else {
                 this.lettersObj[row].text = this.replaceAt(this.lettersObj[row].text, col, " ");
@@ -5807,6 +6477,7 @@ var z89;
             }
         };
         TerminalLogic.prototype.addChar = function (key) {
+            console.log(this.inputIsDisabled);
             if (this.inputIsDisabled)
                 return;
             var col = this.getCursorCol();
@@ -5854,9 +6525,72 @@ var z89;
             this.isShellLogin = true;
             this.setCursor(shellString.length, this.returnLogin().length);
         };
+        TerminalLogic.prototype.returnAtpShell = function (shellString, error) {
+            if (error === void 0) { error = false; }
+            this.login = "";
+            this.clear();
+            this.writeMultiple(this.returnAtp());
+            this.write(this.returnReady(shellString), false);
+            this.setCursor(0, this.returnAtp().length + 1);
+            if (error)
+                this.writeMultiple(this.returnLoginError("ORDER NOT VALID!"));
+            this.isShell = true;
+            this.shellStart = shellString.length;
+            this.shellEnd = 20;
+            this.isShellLogin = false;
+            this.setCursor(shellString.length, this.returnAtp().length);
+        };
         TerminalLogic.prototype.returnLogged = function (error) {
             if (error === void 0) { error = false; }
         };
+        /*
+        _gamecity.Terminal.TerminalLogic.returnLogged=function(_this,_error){
+
+            _this.logged = true;
+            _this.login = '';
+            _this.clear();
+            _this.writeMultiple(_this.returnStaticString(2, 0));
+            _this.write(this.returnReady('>:'), false);
+            _this.setCursor(0, _this.returnStaticString(2, 0).length + 1);
+
+            if (_error) {
+                _this.writeMultiple(_this.returnLoginError('INVALID COORDINATES'));
+              };
+
+            _this.isShell = true;
+            _this.shellStart = 2;
+            _this.shellEnd = 7;
+            _this.shellType = 1;
+            _this.isShellLogin = false;
+            _this.setCursor(2, 12);
+          
+          };
+
+
+            _gamecity.Terminal.TerminalLogic.returnLogged(_gamecity.Terminal.TerminalLogic);
+        */
+        /* returnOrder(_this,_error){
+
+             _this.logged = true;
+             _this.login = '';
+             _this.clear();
+             _this.writeMultiple(_this.returnStaticString(2, 0));
+             _this.write(this.returnReady('>:'), false);
+             _this.setCursor(0, _this.returnStaticString(2, 0).length + 1);
+
+             if (_error) {
+                 _this.writeMultiple(_this.returnLoginError('INVALID ORDER'));
+               };
+
+             _this.isShell = true;
+             _this.shellStart = 2;
+             _this.shellEnd = 7;
+             _this.shellType = 1;
+             _this.isShellLogin = false;
+             _this.setCursor(2, 12);
+           
+           };
+*/
         TerminalLogic.prototype.checkCoordinates = function (coordinates) {
             if (coordinates == "quit")
                 return 0;
@@ -5870,6 +6604,20 @@ var z89;
                 return -1;
             return 1;
         };
+        TerminalLogic.prototype.checkOrder = function (order) {
+            //B071L9VDN4
+            if (order == "quit")
+                return 0;
+            if (order.length > 15)
+                return -1;
+            var _pos = order.indexOf(",");
+            if (_pos == -1 || _pos == 0 || _pos == order.length - 1)
+                return -1;
+            var _coo = order.split(",");
+            if (!this.checkNumber(_coo[1]))
+                return -1;
+            return 1;
+        };
         TerminalLogic.prototype.checkNumber = function (val) {
             var pattern = /^\d+$/;
             return pattern.test(val);
@@ -5879,6 +6627,19 @@ var z89;
             this.gameLoaded = "";
             this.writeMultiple([{ text: this.rows[77], delay: 0 }, { text: url, delay: 0 }]);
             this.write(this.returnReady());
+        };
+        TerminalLogic.prototype.sendOrder = function (itemId) {
+            var _this = this;
+            console.log(itemId);
+            this.clear();
+            this.clearShell();
+            this.writeMultiple(this.returnStaticString(msgs.amazonOrder, 0));
+            this.disableInput();
+            this.scene.time.delayedCall(4000, function () {
+                _this.terminal.hide();
+                _this.scene.gameItemsUtils.addItem(13);
+                _this.scene.gameItemsUtils.beamIn(_this.scene.gameItemsUtils.getItemById(13));
+            }, null, this);
         };
         TerminalLogic.prototype.hitTarget = function () {
             //this.terminal.currentState.shootFromHigh([17]);
@@ -5912,9 +6673,8 @@ var z89;
                 this.scrollDown();
                 this.cursor.y = this.setCursorY(row - 1);
             }
-            // console.log(command)
+            console.log("command: " + command, "login: " + this.login, "shelltype: " + this.shellType);
             if (this.isShell) {
-                // console.log(this.login)
                 switch (this.shellType) {
                     case 0:
                         switch (this.login) {
@@ -5943,6 +6703,19 @@ var z89;
                                 break;
                         }
                         break;
+                    case 2:
+                        switch (this.login) {
+                            case "quit":
+                                this.clear();
+                                this.write(this.returnReady());
+                                this.clearShell();
+                                break;
+                            default:
+                                console.log("atp default case");
+                                this.ajaxCall({ who: "order", order: this.login });
+                                break;
+                        }
+                        break;
                 }
             }
             else {
@@ -5956,7 +6729,7 @@ var z89;
                     case "run":
                         if (this.gameLoaded == "")
                             this.writeMultiple(this.returnError("NO GAME LOADED"));
-                        switch (this.gameLoaded) {
+                        switch (this.gameLoaded.toLowerCase()) {
                             case "bocconcini dev":
                                 this.openGame("http://bocconcinidev.zero89.it");
                                 break;
@@ -5994,6 +6767,10 @@ var z89;
                     case "load \"the wrong direction\"":
                         this.writeMultiple(this.returnLoading("THE WRONG DIRECTION"));
                         this.gameLoaded = "the wrong direction";
+                        break;
+                    case "load \"atp\"":
+                    case "load":
+                        this.displayAtpShell(false);
                         break;
                     case "load \"gtw\"":
                         //case "load":
@@ -6040,7 +6817,7 @@ var z89;
                 dataType: "script",
                 type: "GET",
                 data: data
-            }).done(function (data) { _this.enableInput(); }).fail(function (xhr) {
+            }).done(function (data) { }).fail(function (xhr) {
                 //console.log(xhr)
             });
         };

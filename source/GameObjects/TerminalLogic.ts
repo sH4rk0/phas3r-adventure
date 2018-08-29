@@ -16,12 +16,14 @@ module z89 {
         t1,
         hit,
         processing,
-        disconnecting
+        disconnecting,
+        amazonLogin,
+        amazonOrder
     }
     export enum shell {
         login,
         gtw,
-        call
+        atp
 
     }
 
@@ -110,7 +112,19 @@ module z89 {
             '              ##############            ', //78
             '              # PROCESSING #            ', //79
             'Disconnecting....                       ', //80
-
+            '# Welcome to Amazon Teleport Prime.    #', //81
+            '# Enter the ATP Product Code followed  #', //82
+            '0    "ATP"                         PRG  ', //83
+            '# by your Personal Id to purchase our  #', //84
+            '# products.   >:ProductId,yourID       #', //85
+            '########################################', //86
+            '# Dear Customer, thanks for your order #', //87
+            '# The product will be shipped in few   #', //88
+            '# seconds.                             #', //89
+            '# The ATP team.                        #', //90
+            '# For any questions or problems,       #', //91
+            '# contact our free h24 support.        #', //92
+            '#                                      #', //93
 
         ];
 
@@ -120,7 +134,7 @@ module z89 {
             [0, 8, 0, 9, 0, 10, 11, 10, 0, 12, 13, 0], //gtw //2
             [0, 14, 5, 15, 16, 3], //version //3
             [0, 17, 5, 18, 19, 20, 21, 22, 23, 3], //credits //4
-            [0, 24, 25, 26, 27, 28, 29, 30, 31, 3], //gamelist //5
+            [0, 24, 25, 26, 27, 28, 83, 29, 30, 31, 3], //gamelist //5
             [0, 33, 34], //loginError //6
             [0, 10, 37, 10, 0, 38], //targetAquired //7
             [0, 39, 40, 41, 42, 43, 44, 45, 0], //t5 //8
@@ -131,6 +145,8 @@ module z89 {
             [0, 10, 74, 10, 0, 3], //target hit //13
             [0, 78, 79, 78, 0], //processing //14
             [80], //disconnecting //15
+            [0,86,93,81,93,82,84,93,85,93,86,0], //amazon 16
+            [0,86,93,87,88,89,91,92,93,90,93,86,0]  //amazon order 17
 
         ];
 
@@ -284,7 +300,7 @@ module z89 {
 
 
         enableInput(): void { this.inputIsDisabled = false; this.showCursor(); }
-        disableInput(): void { this.inputIsDisabled = true; this.hideCursor(); }
+        disableInput(): void { console.log("disable"); this.inputIsDisabled = true; this.hideCursor(); }
         hideCursor(): void { this.cursor.alpha = 0; }
         showCursor(): void { this.cursor.alpha = 1; }
 
@@ -312,6 +328,7 @@ module z89 {
         }
 
         returnLogin(): any { return this.returnStaticString(msgs.loginError, 0); }
+        returnAtp(): any { return this.returnStaticString(msgs.amazonLogin, 0); }
         returnCommands(): any { return this.returnStaticString(msgs.commandList, 0); }
         returnGames(): any { return this.returnStaticString(msgs.gameList, 0); }
         returnVersion(): any { return this.returnStaticString(msgs.version, 0); }
@@ -364,6 +381,15 @@ module z89 {
 
         }
 
+        displayAtpShell(error:boolean){
+            this.clear();
+            this.isShell=true;
+            this.shellType = shell.atp;
+            this.returnAtpShell(">:",error);
+    
+    
+        }
+        
 
         charUp(): void {
             if (this.isShell || this.inputIsDisabled) return;
@@ -440,18 +466,24 @@ module z89 {
         }
 
         removeChar(): void {
+
+        
             if (this.inputIsDisabled) return;
             let col: number =  this.getCursorCol();
             let row: number = this.getCursorRow();
 
-            if (this.isShell && (this.shellStart < col)) {
-
+         
+            if (this.isShell) {
+               
+                if(col > this.shellStart){
                 this.lettersObj[row].text = this.replaceAt(this.lettersObj[row].text, col - 1, " ");
                 this.cursor.x = this.setCursorX(col-1);
                 this.login = this.login.substr(0, this.login.length - 1);
+                }   
+
 
             } else {
-
+               
                 this.lettersObj[row].text = this.replaceAt(this.lettersObj[row].text, col, " ");
                 if (col == 0) {
 
@@ -474,6 +506,7 @@ module z89 {
 
         addChar(key: string): void {
 
+            console.log(this.inputIsDisabled)
             if (this.inputIsDisabled) return;
 
             let col: number =  this.getCursorCol();
@@ -538,7 +571,81 @@ module z89 {
 
         }
 
+        returnAtpShell(shellString: string, error: boolean = false) {
+
+            this.login = "";
+            this.clear();
+            this.writeMultiple(this.returnAtp());
+            this.write(this.returnReady(shellString), false);
+            this.setCursor(0, this.returnAtp().length + 1);
+
+            if (error) this.writeMultiple(this.returnLoginError("ORDER NOT VALID!"));
+
+            this.isShell = true;
+            this.shellStart = shellString.length;
+            this.shellEnd = 20;
+            this.isShellLogin = false;
+            this.setCursor(shellString.length, this.returnAtp().length
+            );
+
+        }
+
           returnLogged(error: boolean = false): void {}
+
+          /*
+          _gamecity.Terminal.TerminalLogic.returnLogged=function(_this,_error){
+
+              _this.logged = true;
+              _this.login = ''; 
+              _this.clear(); 
+              _this.writeMultiple(_this.returnStaticString(2, 0)); 
+              _this.write(this.returnReady('>:'), false); 
+              _this.setCursor(0, _this.returnStaticString(2, 0).length + 1); 
+
+              if (_error) {
+                  _this.writeMultiple(_this.returnLoginError('INVALID COORDINATES'));
+                };
+
+              _this.isShell = true; 
+              _this.shellStart = 2; 
+              _this.shellEnd = 7; 
+              _this.shellType = 1; 
+              _this.isShellLogin = false;
+              _this.setCursor(2, 12); 
+            
+            };
+
+
+              _gamecity.Terminal.TerminalLogic.returnLogged(_gamecity.Terminal.TerminalLogic); 
+          */
+
+
+          
+         /* returnOrder(_this,_error){
+
+              _this.logged = true;
+              _this.login = ''; 
+              _this.clear(); 
+              _this.writeMultiple(_this.returnStaticString(2, 0)); 
+              _this.write(this.returnReady('>:'), false); 
+              _this.setCursor(0, _this.returnStaticString(2, 0).length + 1); 
+
+              if (_error) {
+                  _this.writeMultiple(_this.returnLoginError('INVALID ORDER'));
+                };
+
+              _this.isShell = true; 
+              _this.shellStart = 2; 
+              _this.shellEnd = 7; 
+              _this.shellType = 1; 
+              _this.isShellLogin = false;
+              _this.setCursor(2, 12); 
+            
+            };
+*/
+
+             
+
 
         checkCoordinates(coordinates: string): number {
 
@@ -548,6 +655,18 @@ module z89 {
             if (_pos == -1 || _pos == 0 || _pos == coordinates.length - 1) return -1;
             let _coo: Array<string> = coordinates.split(",");
             if (!this.checkNumber(_coo[0]) || !this.checkNumber(_coo[1])) return -1;
+
+            return 1;
+
+        }
+        checkOrder(order: string): number {
+            //B071L9VDN4
+            if (order == "quit") return 0;
+            if (order.length > 15) return -1;
+            let _pos: number = order.indexOf(",");
+            if (_pos == -1 || _pos == 0 || _pos == order.length - 1) return -1;
+            let _coo: Array<string> = order.split(",");
+            if (!this.checkNumber(_coo[1])) return -1;
 
             return 1;
 
@@ -565,6 +684,19 @@ module z89 {
             this.writeMultiple([{ text: this.rows[77], delay: 0 }, { text: url, delay: 0 }]);
             this.write(this.returnReady());
 
+        }
+
+        sendOrder(itemId:number):void{
+            console.log(itemId)
+            this.clear();
+            this.clearShell();
+            this.writeMultiple(this.returnStaticString(msgs.amazonOrder, 0));
+            this.disableInput();
+            this.scene.time.delayedCall(4000,()=>{
+                this.terminal.hide();
+                this.scene.gameItemsUtils.addItem(13);
+                this.scene.gameItemsUtils.beamIn(this.scene.gameItemsUtils.getItemById(13));
+            },null,this);
         }
 
         hitTarget(): void {
@@ -600,17 +732,19 @@ module z89 {
 
         submitCommand(): void {
 
+
+
             let row: number = this.getCursorRow();
             let command: string = this.lettersObj[row].text.toLowerCase().trim();
             this.cursor.y = this.setCursorY(row+1);
             row++;
             if (row > 24) { this.scrollDown(); this.cursor.y = this.setCursorY(row-1); }
 
-            // console.log(command)
+             console.log("command: " +command, "login: "+this.login, "shelltype: "+this.shellType)
 
             if (this.isShell) {
 
-                // console.log(this.login)
+               
 
                 switch (this.shellType) {
 
@@ -664,6 +798,28 @@ module z89 {
 
                         break;
 
+                        case 2: //atp
+
+                        switch (this.login) {
+
+
+                            case "quit":
+                                this.clear();
+                                this.write(this.returnReady());
+                                this.clearShell();
+
+                                break;
+
+                            default:
+
+                                console.log("atp default case");
+                                this.ajaxCall({ who: "order", order: this.login });
+                                break;
+
+                        }
+
+                        break;
+
                 }
 
 
@@ -684,7 +840,7 @@ module z89 {
                     case "run":
                         if (this.gameLoaded == "") this.writeMultiple(this.returnError("NO GAME LOADED"));
 
-                        switch (this.gameLoaded) {
+                        switch (this.gameLoaded.toLowerCase()) {
 
                             case "bocconcini dev":
                                 this.openGame("http://bocconcinidev.zero89.it");
@@ -701,6 +857,7 @@ module z89 {
                             case "the wrong direction":
                                 this.openGame("http://twd.zero89.it");
                                 break;
+
 
                         }
 
@@ -735,6 +892,14 @@ module z89 {
                         this.writeMultiple(this.returnLoading("THE WRONG DIRECTION"));
                         this.gameLoaded = "the wrong direction";
                         break;
+
+                    case "load \"atp\"":
+                        case "load":
+    
+                        this.displayAtpShell(false);
+    
+    
+                            break;
 
                     case "load \"gtw\"":
                     //case "load":
@@ -794,7 +959,7 @@ module z89 {
                 type: "GET",
                 data: data
 
-            }).done(function (data) { _this.enableInput(); }).fail(function (xhr) {
+            }).done(function (data) {  }).fail(function (xhr) {
 
 //console.log(xhr)
 

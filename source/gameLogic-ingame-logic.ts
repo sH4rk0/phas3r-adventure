@@ -14,6 +14,35 @@ gameData.ingame.logic = {
       cs.player.showBaloon(z89.getLabel(81));
     }
   },
+
+  EXAMINE_14: (cs: z89.GameCity) => {
+   
+      cs.player.showBaloon(z89.getLabel(139));
+   
+  },
+
+  //examine bottle
+  EXAMINE_8: (cs: z89.GameCity) => {
+   
+    cs.player.showBaloon(z89.getLabel(143));
+ 
+},
+
+ //examine floppy
+ EXAMINE_9: (cs: z89.GameCity) => {
+   
+  cs.player.showBaloon(z89.getLabel(146));
+
+},
+
+  // examine terminal2
+  EXAMINE_6: (cs: z89.GameCity) => {
+    if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
+      cs.player.showBaloon(z89.getLabel(82));
+    } else {
+      cs.player.showBaloon(z89.getLabel(81));
+    }
+  },
   //examine gerardo
   EXAMINE_16: (cs: z89.GameCity) => {
     cs.player.showBaloon(z89.getLabel(43));
@@ -77,6 +106,11 @@ gameData.ingame.logic = {
     cs.player.showBaloon(z89.getLabel(32));
   },
 
+   //examine cloak
+   EXAMINE_13: (cs: z89.GameCity) => {
+    cs.player.showBaloon(z89.getLabel(147));
+  },
+
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,6 +121,16 @@ gameData.ingame.logic = {
   // use terminal
   USE_2: (cs: z89.GameCity) => {
     if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+      cs.Terminal.show(0);
+      cs.playerActions.hide();
+    } else {
+      cs.player.showBaloon(z89.getLabel(83));
+    }
+  },
+
+   // use terminal 2
+   USE_6: (cs: z89.GameCity) => {
+    if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
       cs.Terminal.show(0);
       cs.playerActions.hide();
     } else {
@@ -110,6 +154,43 @@ gameData.ingame.logic = {
 
 
   },
+
+   // use bottle on trash
+   USE_8_4: (cs: z89.GameCity) => {
+    
+    cs.playerBaloon.showBaloon(z89.getLabel(144));
+  
+  },
+
+     // use bottle on trash2
+     USE_8_7: (cs: z89.GameCity) => {
+      cs.player.play("player-use");
+      cs.removeInventoryItems();
+
+
+      cs.gameUtils.addDelay(300, () => {
+  
+        cs.gameItemsUtils.addItem(9);
+        cs.gameItemsUtils.getItemById(9).itemObj.onStart=true;
+        cs.saveGameObj.updateItems();
+  
+      });
+
+
+     /* 
+     
+     cs.player.play("player-use");
+      cs.removeInventoryItems();
+      cs.gameUtils.addDelay(1000, () => {
+  
+        cs.gameItemsUtils.addItem(3);
+        cs.gameItemsUtils.getItemById(3).itemObj.onStart=true;
+        cs.saveGameObj.updateItems();
+  
+      });
+  */
+  
+    },
 
    // use coins on drink machine
   /* USE_25: (cs: z89.GameCity) => {
@@ -147,16 +228,18 @@ gameData.ingame.logic = {
     cs.player.play("player-use");
     cs.removeInventoryItems();
     cs.gameUtils.addDelay(1000, () => {
-      cs.updateItemObject(23, "name", z89.getLabel(57));
+      
 
       cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-      cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
       cs.gameItemsUtils.getItemById(22).start();
+      
+      //cs.updateItemObject(23, "name", z89.getLabel(57));
+      //cs.updateItemObject(23, "fixed", true);
+      //cs.updateItemObject(22, "isStarted", true);
+      //cs.updateItemObject(19, "conversationStatus", 1);
+      //cs.updateItemObject(2, "working", true);
+      cs.updateItemsObjects([23,23,22,19,2],["name","fixed","isStarted","conversationStatus","working"],[z89.getLabel(57),true,true,1,true]);
 
-      cs.updateItemObject(22, "isStarted", true);
-      cs.updateItemObject(19, "conversationStatus", 1);
-
-      cs.updateItemObject(2, "working", true);
       cs.gameItemsUtils.getItemById(2).playAnim("2-working");
 
       cs.saveGameObj.updateItems();
@@ -169,6 +252,11 @@ gameData.ingame.logic = {
     cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
     cs.removeInventoryItems();
     cs.addInventory(31, true);
+  },
+
+  USE_13: (cs: z89.GameCity) => {
+   cs.removeInventoryItems();
+   cs.player.setAlpha(0.5);
   },
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -220,6 +308,16 @@ gameData.ingame.logic = {
     cs.addInventoryItem(cs.gameItemsUtils.getItemById(24), false);
   },
 
+    //pickup floppy
+    PICKUP_9: (cs: z89.GameCity) => {
+      cs.addInventoryItem(cs.gameItemsUtils.getItemById(9), false);
+    },
+
+  //pickup bottle
+  PICKUP_8: (cs: z89.GameCity) => {
+    cs.addInventoryItem(cs.gameItemsUtils.getItemById(8), false);
+  },
+
    //pickup coke
    PICKUP_3: (cs: z89.GameCity) => {
     cs.addInventoryItem(cs.gameItemsUtils.getItemById(3), false);
@@ -242,7 +340,19 @@ gameData.ingame.logic = {
 
   //pickup jumper
   PICKUP_101: (cs: z89.GameCity) => {
-    console.log("pickup jumper")
+    console.log("pickup jumper");
+    cs.player.play("player-use");
+  },
+
+  //pickup runner
+  PICKUP_102: (cs: z89.GameCity) => {
+    console.log("pickup runner");
+    cs.player.play("player-use");
+  },
+
+   //pickup camouflage
+   PICKUP_13: (cs: z89.GameCity) => {
+    cs.addInventoryItem(cs.gameItemsUtils.getItemById(13), false);
   },
 
   /*
@@ -258,6 +368,12 @@ gameData.ingame.logic = {
     cs.dropInventoryItem();
   },
 
+   //drop bottle
+   DROP_8: (cs: z89.GameCity) => {
+    cs.dropInventoryItem();
+  },
+
+
   //drop scotch
   DROP_25: (cs: z89.GameCity) => {
     cs.dropInventoryItem();
@@ -272,6 +388,11 @@ gameData.ingame.logic = {
   DROP_32: (cs: z89.GameCity) => {
     cs.dropInventoryItem();
   },
+
+    //drop scotch
+  DROP_13: (cs: z89.GameCity) => {
+      cs.playerBaloon.showBaloon("Not a good idea!");
+    },
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -292,6 +413,28 @@ gameData.ingame.logic = {
   TALKTO_27: (cs: z89.GameCity) => {
     cs.conversationBaloon.setUpConversation({
       key: "TALKTO_27",
+      action: null,
+      inventory: null,
+      item: cs.currentItem
+    });
+  },
+//chris
+  TALKTO_20: (cs: z89.GameCity) => {
+
+
+    cs.conversationBaloon.setUpConversation({
+      key: "HELP_GAME",
+      action: null,
+      inventory: null,
+      item: cs.currentItem
+    });
+  },
+
+//sidney
+  TALKTO_21: (cs: z89.GameCity) => {
+
+    cs.conversationBaloon.setUpConversation({
+      key: "HELP_GAME",
       action: null,
       inventory: null,
       item: cs.currentItem

@@ -112,6 +112,7 @@ namespace z89 {
         this.baloonText.setY(0);
         this.isPlaying = false;
 
+        /*
         if (this.baloonTarget != null) {
           this.baloonX = this.baloonTarget.x;
           this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
@@ -126,6 +127,9 @@ namespace z89 {
             loop: false
           });
         }
+        */
+
+
       });
     }
 
@@ -144,9 +148,10 @@ namespace z89 {
     setConversationKey(key: string): void {
       this.conversationKey = key;
     }
+
     setConversationObj(key: string): void {
       if (gameData.ingame.conversation[key] != undefined)
-        this.conversationObj = gameData.ingame.conversation[key];
+        this.conversationObj = gameData.ingame.conversation[key](this.scene);
     }
 
     fixSize(): void {
@@ -263,7 +268,9 @@ namespace z89 {
       let _btnText: Phaser.GameObjects.BitmapText;
 
       this.removeForks();
-      //console.log(_obj.options)
+      console.log(_obj.options);
+
+      if(_obj.options!=undefined){
       _obj.options.forEach((element, index) => {
 
         //console.log(index);
@@ -332,6 +339,7 @@ namespace z89 {
         this.add([_btn, _btnText]);
       });
 
+    };
       this.displayItems();
 
       this.scene.tweens.add({

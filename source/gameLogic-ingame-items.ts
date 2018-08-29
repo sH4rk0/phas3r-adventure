@@ -20,7 +20,7 @@
 
         },
         {
-            id: 21,
+            id: 26,
             type: 1,
             onStart: true,
             animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
@@ -59,7 +59,24 @@
             sprite: "trash",
             name: z89.getLabel(16),
             x: 450,
-            y: 649-48,
+            y: 601,
+            interactive: true,
+            firstMessage: [z89.getLabel(18)],
+            offsetX: 50,
+            fixedToCamera: false,
+            checkIntersect: false,
+            moved:false
+
+        },
+
+        {
+            id: 7,
+            type: 1,
+            onStart: true,
+            sprite: "trash",
+            name: z89.getLabel(16),
+            x: 1520,
+            y: 601,
             interactive: true,
             firstMessage: [z89.getLabel(18)],
             offsetX: 50,
@@ -89,6 +106,46 @@
          
 
         },
+
+        {
+            id: 20,
+            type: 1,
+            onStart: true,
+            sprite: "chris",
+            animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }],
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: z89.getLabel(100),
+            x: 1860,
+            y: 603,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false
+           
+         
+
+        },
+        {
+            id: 21,
+            type: 1,
+            onStart: true,
+            sprite: "sidney",
+            animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
+            currentAnimation:"idle",
+            conversationStatus:null,
+            name: z89.getLabel(99),
+            x: 1980,
+            y: 603,
+            interactive: true,
+            offsetX: 80,
+            fixedToCamera: false,
+            checkIntersect: false,
+            turnLeft: true
+           
+         
+
+        },
       
         {
             id: 100,
@@ -99,7 +156,7 @@
 
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Bad guy",//z89.getLabel(31),
+            name: z89.getLabel(101),
             x: 1800,
             y: 700,
             interactive: true,
@@ -107,7 +164,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:100, behaviour:"idler", offsetY:30},
+            insight:{distance:70, behaviour:"idler", offsetY:10},
             walkRange:{start:100,end:3000,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:20
 
@@ -120,7 +177,7 @@
             animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true },{ name: "walking", frames: [24,25,26,27,28,29], rate: 5, loop: true },{ name: "running", frames: [30,31,32,33,34,35,36,37], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "The jumper",//z89.getLabel(31),
+            name: z89.getLabel(104),
             x: 1000,
             y: 700,
             interactive: true,
@@ -128,7 +185,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:300, behaviour:"jumper", offsetY:250},
+            insight:{distance:300, behaviour:"jumper", offsetY:300},
             walkRange:{start:100,end:3600,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:0
 
@@ -143,7 +200,7 @@
 
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "The runner",//z89.getLabel(31),
+            name: z89.getLabel(105),
             x: 2000,
             y: 700,
             interactive: true,
@@ -151,7 +208,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:200, behaviour:"runner", offsetY:50},
+            insight:{distance:200, behaviour:"runner", offsetY:200},
             walkRange:{start:0,end:3600,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:0
 
@@ -165,7 +222,7 @@
             animations: [{ name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true },{ name: "walking", frames: [64,65,66,67,68,69], rate: 5, loop: true },{ name: "running", frames: [70,71,72,73,74,75,76,77], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Bad guy", //z89.getLabel(31),
+            name: z89.getLabel(102),
             x: 2500,
             y: 610,
             interactive: true,
@@ -173,7 +230,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:100, behaviour:"idler", offsetY:30},
+            insight:{distance:70, behaviour:"idler", offsetY:10},
             walkRange:{start:100,end:3600,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:20
 
@@ -187,7 +244,7 @@
             animations: [{ name: "idle", frames: [80, 81, 82, 83], rate: 5, loop: true },{ name: "walking", frames: [84,85,86,87,88,89], rate: 5, loop: true },{ name: "running", frames: [90,91,92,93,94,95,96,97], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Bad guy", //z89.getLabel(31),
+            name: z89.getLabel(103),
             x: 1800,
             y: 700,
             interactive: true,
@@ -195,7 +252,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:100, behaviour:"idler", offsetY:30},
+            insight:{distance:70, behaviour:"idler", offsetY:10},
             walkRange:{start:100,end:3600,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:20
 
@@ -209,7 +266,7 @@
             animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true },{ name: "walking", frames: [104,105,106,107,108,109], rate: 5, loop: true },{ name: "running", frames: [110,111,112,113,114,115,116,117], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Informer", //z89.getLabel(31),
+            name: z89.getLabel(106),
             x: 500,
             y: 700,
             interactive: true,
@@ -217,7 +274,7 @@
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:100, behaviour:"idler", offsetY:30},
+            insight:{distance:70, behaviour:"idler", offsetY:10},
             walkRange:{start:100,end:3600,step:{min:200,max:500},idle:{min:1000,max:1500}},
             jumpChance:50
 
@@ -231,15 +288,15 @@
             animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true },{ name: "walking", frames: [104,105,106,107,108,109], rate: 5, loop: true },{ name: "running", frames: [110,111,112,113,114,115,116,117], rate: 8, loop: true }],
             currentAnimation:"idle",
             conversationStatus:null,
-            name: "Pasticciera", //z89.getLabel(31),
-            x: 1675,
+            name: z89.getLabel(107),
+            x: 1600,
             y: 610,
             interactive: true,
             interactiveArea:{x:35,y:20, w:80,h:130},
             offsetX: 80,
             fixedToCamera: false,
             checkIntersect: false,
-            insight:{distance:100, behaviour:"idler", offsetY:30},
+            insight:{distance:70, behaviour:"idler", offsetY:10},
             walkRange:{start:1600,end:1750,step:{min:50,max:80},idle:{min:3000,max:4000}},
             jumpChance:0
 
@@ -352,7 +409,7 @@
             type: 1,
             sprite: "bitcoin",
             onStart: false,
-            name: "bitcoin",//z89.getLabel(55),
+            name: z89.getLabel(52),
             x: 400,
             y: 700-48,
             interactive: true,
@@ -366,7 +423,7 @@
             type: 1,
             sprite: "blockchain",
             onStart: false,
-            name: "blockchain",//z89.getLabel(55),
+            name: z89.getLabel(50),
             x: 500,
             y: 700-48,
             interactive: true,
@@ -381,7 +438,7 @@
             type: 1,
             sprite: "invite",
             onStart: false,
-            name: "invite",//z89.getLabel(55),
+            name: z89.getLabel(108),
             x: 400,
             y: 648-48,
             interactive: true,
@@ -417,9 +474,26 @@
             sprite: "terminal",
             animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true },{ name: "working", frames: [5, 6], rate: 1, loop: true }],
             currentAnimation:"notWorking",
-            working:false,
+            working:true,
             name: z89.getLabel(12),
             x: 1214,
+            y: 644-48,
+            interactive: true,
+            offsetX: 50,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        },
+        {
+            id: 6,
+            type: 1,
+            onStart: true,
+            sprite: "terminal",
+            animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true },{ name: "working", frames: [5, 6], rate: 1, loop: true }],
+            currentAnimation:"notWorking",
+            working:false,
+            name: z89.getLabel(12),
+            x: 3000,
             y: 644-48,
             interactive: true,
             offsetX: 50,
@@ -480,13 +554,45 @@
 
         }, 
 
+        {
+            id: 8,
+            type: 1,
+            sprite: "bottle",
+            onStart: true,
+            name: z89.getLabel(142),
+            x: 490,
+            y: 606,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+
+        {
+            id: 9,
+            type: 1,
+            sprite: "floppy",
+            onStart: false,
+            name: z89.getLabel(145),
+            animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
+            currentAnimation:"small",
+            x: 1520,
+            y: 603,
+            interactive: true,
+            offsetX: 30,
+            fixedToCamera: false,
+            checkIntersect: false
+
+        }, 
+
 
         {
             id: 11,
             type: 1,
             sprite: "jukebox",
             name: z89.getLabel(88),
-            x: 2450,
+            x: 2300,
             y: 650-48,
             animations: [{ name: "idle", frames: [0], rate: 1, loop: false },{ name: "play", frames: [1,2,3,4,5,6,7,2,4,6,3,1,6,3,4,6,5,7,2,5,3,4], rate: 14, loop: true }],
             currentAnimation:"play",
@@ -503,17 +609,85 @@
          type: 1,
          sprite: "woofer",
          name: z89.getLabel(92),
-         x: 2450,
+         x: 2300,
          y: 650-48,
          currentAnimation:"idle",
          onStart: true,
          interactive: false,
-         offsetX: 70,
+         offsetX: 35,
          fixedToCamera: false,
          checkIntersect: false
  
  
-     }
+     },
+     {
+        id: 13,
+        type: 1,
+        sprite: "amazonPack",
+        name: "Cloak of Invisibility", //z89.getLabel(92),
+        x: 1300,
+        y: 605,
+        currentAnimation:"",
+        onStart: false,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+
+
+    },
+    {
+        id: 14,
+        type: 1,
+        sprite: "arcade",
+        name: "Galaga clone", //z89.getLabel(92),
+        x: 1920,
+        y: 602,
+        currentAnimation:"",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+
+
+    },
+    {
+        id: 15,
+        type: 1,
+        sprite: "phaser-logo",
+        name: "Phaser Arena", //z89.getLabel(92),
+        x: 70,
+        y: 330,
+        alpha:.7,
+        animations: [{ name: "idle", frames: [0,1], rate: 1.5, loop: true }],
+        currentAnimation:"idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+
+
+    }
+    ,
+    {
+        id: 28,
+        type: 1,
+        sprite: "photonstorm",
+        name: "Photonstorm", //z89.getLabel(92),
+        x: 345,
+        y: 245,
+       animations: [{ name: "idle", frames: [0,1,2,3], rate: 4, loop: true }],
+        currentAnimation:"idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+
+
+    }
 
 
 

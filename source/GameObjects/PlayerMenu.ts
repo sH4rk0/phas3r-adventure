@@ -335,7 +335,7 @@ namespace z89 {
         .text(
           0,
           0,
-          "Welcome to my adventure website experiment.\nComplete the quests to access the website sections... or explore the website without playing!",
+         z89.getLabel(141),
           {
             fontFamily: "Roboto",
             fontSize: 20
@@ -495,7 +495,7 @@ namespace z89 {
       }
       this.menuBg.setAlpha(0.01);
       this.setVisible(true);
-      this.scene.disableInteraction();
+      //this.scene.disableInteraction();
       this.scene.tweens.add({
         targets: this,
         y: 0,
@@ -545,7 +545,7 @@ namespace z89 {
           this.isOpen = false;
           this.setVisible(false);
           this.menuBgOptions.setScale(1);
-          this.scene.enableInteraction();
+          //this.scene.enableInteraction();
         }
       });
     }

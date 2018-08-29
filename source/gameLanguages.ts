@@ -99,6 +99,55 @@ let languages={
         "The GOVERNOR",//96
         "Hi!",//97
         "I'm the GOVERNOR... and you are nothing!",//98
+        "Sidney C64",//99
+        "Chris AGS guru",//100
+        "Bad guy 1",//101
+        "Bad guy 2",//102
+        "Bad guy 3",//103
+        "The Jumper",//104
+        "The Runner",//105
+        "Girl 1",//106
+        "Pastry",//107
+        "Invitation ticket",//108
+        "Come back later!",//109
+        "Already here? Try to use your brain sometimes! Come back later!",//110
+        "Already here? Have you lost all your neurons? Come back later!",//111
+        "No more to say!",//112
+        "You have all information to solve this quest!",//113
+        "Is this your first adventure? Play arond and come back later!",//114
+        "Yo bro! I need your help to solve the ENIGMA!", //115
+        "Yo bro! Do you have any clue on how to solve the quest?", //116
+        "Yo bro! I dont know how to go forward!", //117
+        "sugg 0_0", //118
+        "sugg 0_1", //119
+        "sugg 0_2", //120
+        "sugg 1_0", //121
+        "sugg 1_1", //122
+        "sugg 1_2", //123
+        "Do you want to restart the game?",//124
+        "YES",//125
+        "NO",//126
+        "LEAVE THE GAME",//127
+        "CREDITS", //128
+        "BACK", //129
+        "Nothing", //130
+        "Some 8bit Tune", //131
+        "Never played Zak McKracken and the Alien Mindbenders? Play it and come back later!", //132
+        "Day of the Tentacle sounds new for you? Play it and come back later!", //133
+        "You need to revise The Secret of Monkey Island! Play it and come back later!", //134
+        "Ok, i'll try to find the solution!",//135
+        "Ok, i'll be back!",//136
+        "Gotcha!",//137
+        "Good point!",//138,
+        "Galaga is the first game I played!",//139
+        "Mmmm, interesting...",//140
+        "Welcome to my personal adventure website experiment.\nComplete the quests to access the website sections... or explore the website without solving the quest!",//141
+        "Empty bottle",//142
+        "Someone has not thrown the bottle in the trash.", //143
+        "The trashbin is full!", //144
+        "Old floppy disk", //145
+        "WOW! It's an original copy of Zak McKracken... Should be worth a lot of $$$!!! ", //146
+        "WOW! A real Cloak of Invisibility",//147
         
     ]};
 
@@ -116,6 +165,16 @@ let gameData={
     assets:null,
     menuBlink:null,
     menuBtns:null,
+    tips:{
+        delay:10,
+        nomore:[112,113],
+        later:[114,110,111,132,133,134],
+        ok:[[118,119,120], [121,122,123]],
+        nomoreA:[135],
+        laterA:[136],
+        okA:[137,138,140]
+    },
+
     skills:[{s:"phaser",v:60},{s:"javascript",v:70},{s:"html",v:75},{s:"typescript",v:60},{s:"css",v:65},{s:".net",v:70},{s:"c#",v:65},{s:"gamedev",v:50},{s:"design",v:60},{s:"ux",v:65},{s:"clm",v:80},{s:"tsql",v:70},{s:"firebase",v:60}]
 }
 

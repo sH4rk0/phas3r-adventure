@@ -226,6 +226,10 @@ namespace z89 {
     }
 
     start(): void {
+
+      if(!isOnline()){ this.displayOffline(); return;}
+
+
       this.guruTween.stop();
       this.guru.destroy();
       this.itemObj.isStarted = true;
@@ -321,7 +325,16 @@ namespace z89 {
       return this.interactive;
     }
 
+
+   displayOffline():void{
+
+
+
+   };
+
     hideContent(): void {
+
+      if(!isOnline()){ this.displayOffline(); return;}
       this.isAnimating = true;
 
       this.scene.tweens.add({
@@ -351,7 +364,7 @@ namespace z89 {
     }
 
     showContent(): void {
-
+      if(!isOnline()){ this.displayOffline(); return;}
       this.scene.tweens.add({ targets: this.spinner, alpha: 0, duration: 300 });
       let _title:string="", _description="", _date="";
 

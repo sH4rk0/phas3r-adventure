@@ -41,7 +41,18 @@ namespace z89 {
 
       //this.setPipeline("testPipeline");
       //this.pipeline.setFloat2('uResolution', this.width, this.height);
-      
+      this.scene.input.keyboard.on('keyup', (event) =>{
+
+        //console.log("player",event.key);
+       if(event.key=="p"){
+
+       // console.log("punch");
+        this.play("player-punch");
+       }
+       
+
+    });
+
       this.scene = scene;
 
       let config: AnimationConfig = {
@@ -91,6 +102,17 @@ namespace z89 {
       };
       this.anims.animationManager.create(config);
 
+      config = {
+        key: "player-punch",
+        frames: scene.anims.generateFrameNumbers("player", {
+          frames: [12, 13, 14, 15]
+        }),
+        frameRate: 10,
+        repeat: 0,
+        repeatDelay: 0
+      };
+      this.anims.animationManager.create(config);
+
       this.on(
         "animationcomplete",
         () => {
@@ -118,7 +140,7 @@ namespace z89 {
         .setY(608)
         .setAlpha()
 
-      .setInteractive(new Phaser.Geom.Rectangle(33,0,60,126),Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown',()=>{
+      .setInteractive(new Phaser.Geom.Rectangle(33,0,60,80),Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown',()=>{
 
                 if(this.scene.isInteractionDisabled()) return;
                 this.scene.playerMenu.toggle();
@@ -172,8 +194,11 @@ namespace z89 {
 
         }else{
 
-          this.play("player-walk");
-        }
+          
+         //if (_item!=null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)>40)
+       // { console.log(Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y));
+         this.play("player-walk");}
+       // else{}
 
         if (_item == undefined) this.scene.currentItem = null;
 
@@ -224,16 +249,14 @@ namespace z89 {
           loop:0,
           onCompleteParams: [this.intersect],
           onComplete: () => {
+            //console.log(this.x,this.y);
             this.depth = this.y;
             this.playerTween.stop();
             this.playerTween=null;
             this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
             this.play("player-idle");
-
             
-            if (_item != null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)<150) {
-
-              //console.log("distance",)
+            if (_item != null  && (Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)<150 || _item.itemObj.type!=6) ) {
 
               this.scene.setCurrentItem(_item);
 
@@ -247,7 +270,9 @@ namespace z89 {
 
               this.scene.doActionSequence(_item);
 
+             // console.log(_item);
               if (_item.isInteractive()) this.scene.playerActions.show();
+
             }
 
             if (_intersect[0]) this.showBaloon(z89.getLabel(11));
@@ -363,11 +388,15 @@ namespace z89 {
         delay: 1000,
         repeat: 0,
         onComplete: () => {
+
           this.scene.tweens.add({
             targets: this,
             alpha: 1,
             duration: 300,
-            repeat: 0
+            repeat: 0,
+            onComplete:()=>{
+              this.scene.enableInteraction();
+            }
           });
           this.scene.tweens.add({
             targets: beam,
@@ -384,6 +413,7 @@ namespace z89 {
     }
 
     beamOut(toX: number) {
+      this.scene.disableInteraction();
       let beam: Phaser.GameObjects.Sprite = this.scene.add.sprite(
         this.x,
         0,

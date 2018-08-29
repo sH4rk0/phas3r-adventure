@@ -15,7 +15,7 @@ namespace z89 {
       this.playAnim(this.itemObj.id + "-idle");
 
       this.movingTimer = this.scene.time.delayedCall(
-        500,
+        Phaser.Math.RND.integerInRange(0,5000),
         scene => {
           this.beamIn();
         },
