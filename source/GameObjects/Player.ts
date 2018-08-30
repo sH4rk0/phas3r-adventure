@@ -482,8 +482,8 @@ namespace z89 {
       });
     }
 
-    public showBaloon(_text: string) {
-      this.scene.playerBaloon.showBaloon(_text);
+    public showBaloon(_text: string,_callback?:any) {
+      this.scene.playerBaloon.showBaloon(_text, _callback);
     }
     // public showBaloonExtra(_obj: any) { this.scene.playerBaloon.showBaloonExtra(_obj); }
     public hideBaloon() {

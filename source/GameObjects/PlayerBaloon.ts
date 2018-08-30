@@ -42,18 +42,22 @@ namespace z89 {
       this.scene.add.existing(this);
     }
 
-    public showBaloon(_text: string) {
+    public showBaloon(_text: string,_callback?:any) {
 
         
       if (_text == undefined) return;
       this.baloonText.setText(_text);
 
       this.fixSize();
+      this.setY(this.y);
       this.scene.tweens.add({
         targets: this,
         y: this.y + 10,
         alpha: 1,
-        duration: 500
+        duration: 500,
+        onComplete:()=>{
+          if(_callback!=undefined) _callback();
+        }
       });
     }
 

@@ -495,6 +495,9 @@ var z89;
                 });
             }
         };
+        GameCity.prototype.getItem = function (id) {
+            return this.gameItemsUtils.getItemById(id);
+        };
         GameCity.prototype.render = function () {
             //this.debug.cameraInfo(this.game.camera, 500, 232);
             //this.game.debug.spriteCoords(this.player, 32, 32);
@@ -1027,6 +1030,25 @@ var z89;
                 _explosion.destroy();
             });
         };
+        GameCity.prototype.showPlayerBaloon = function (textId, callback) {
+            this.player.showBaloon(z89.getLabel(textId), callback);
+        };
+        GameCity.prototype.addItem = function (id, randomId) {
+            this.gameItemsUtils.addItem(id, randomId);
+        };
+        GameCity.prototype.addDelay = function (delay, callback) {
+            this.gameUtils.addDelay(delay, callback);
+        };
+        GameCity.prototype.addTween = function (tweenObj) {
+            this.tweens.add(tweenObj);
+        };
+        GameCity.prototype.playerAnimation = function (animation) {
+            this.player.play(animation);
+        };
+        GameCity.prototype.setUpConversation = function (_actionObj) {
+            this.conversationBaloon.setUpConversation(_actionObj);
+        };
+        GameCity.prototype.updateItems = function () { this.saveGameObj.updateItems(); };
         GameCity.prototype.shootFromHigh = function (targets, shot, callback) {
             var _this = this;
             shot = {
@@ -1323,6 +1345,16 @@ var z89;
         return _ismobile;
     }
     z89.isMobile = isMobile;
+    function conversationObj(key, item) {
+        var _item = item;
+        return {
+            key: key,
+            action: null,
+            inventory: null,
+            item: _item
+        };
+    }
+    z89.conversationObj = conversationObj;
     function setDevice(isMobile) {
         _ismobile = isMobile;
     }
@@ -1555,9 +1587,9 @@ var languages = {
         "Seems to be not connected.",
         "Wow! It\'s connected.",
         "It\'not connected... maybe later!",
-        "This is an experimental website!\nI'm trying to mix the standard personal information website with and adventure game logic.\nDo you think it could work?",
+        "Hi! My name is Francesco Raimondo, Presentation Layer Architect @ Healthwareinternational.\nThis is an experimental website made using Phaz3r.js framework. Do you like it? :D",
         "DO YOU REALLY WANT TO RESTART?",
-        "I want to thanks Richard Davey author of Phaser Framework, PAUL ROBERTSON and JASON TAMMEMAGI for their unaware art contribution to this experiment.",
+        "I want to thanks Richard Davey author of Phaser Framework, PAUL ROBERTSON and JASON TAMMEMAGI for their unaware art contribution to this NON-COMMERCIAL experiment.",
         "Here some options!!",
         "Jukebox",
         "DEVDAY website",
@@ -1619,6 +1651,60 @@ var languages = {
         "Old floppy disk",
         "WOW! It's an original copy of Zak McKracken... Should be worth a lot of $$$!!! ",
         "WOW! A real Cloak of Invisibility",
+        "Screwdriver",
+        "A tool for every season!",
+        "Fixed!",
+        "I don't want to break something!",
+        "The door is open.",
+        "The door is closed.",
+        "No response!",
+        "I GOT DEVDAY PASS!",
+        "Damn! It's closed!",
+        "It's already closed!",
+        "Not a good idea!",
+        "TIPs I GOT!",
+        "Hi Chris! How are you.",
+        "Not bad Francesco. I' would like to play this arcade, but there is something that block the coinbox.",
+        "MMM... ok, but now I need your adventure GURU expertise to solve some puzzle. Could you help me?",
+        "Sure!...but I know you are a spare time Arcade master... so, if you help me to repair this Arcade, I'll help you to solve your quest.",
+        "OK! We have a deal! :D",
+        "Hi Francesco, any idea on how to fix the Arcade?",
+        "Not yet!",
+        "Who is???",
+        "Me!",
+        "Me who?",
+        "Me!! DADDY! Please Noemi.. Open the door!",
+        "OK...",
+        "Is open Now?",
+        "Let's try!",
+        "Ok Chris, the Arcade is fixed!",
+        "Wow!... Do you have also some coins??",
+        "NO!!!",
+        "OK.... I'll use mine! :D Come back later if you need some help!",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
     ]
 };
 var actions = {
@@ -1698,6 +1784,8 @@ gameData.assets = {
         { name: "phaser-logo", path: "assets/images/game/items/phaser-logo.png", width: 412, height: 93, frames: 2 },
         { name: "photonstorm", path: "assets/images/game/items/photonstorm.png", width: 50, height: 50, frames: 3 },
         { name: "floppy", path: "assets/images/game/items/floppy.png", width: 50, height: 50, frames: 2 },
+        { name: "screwdriver", path: "assets/images/game/items/screwdriver.png", width: 50, height: 50, frames: 2 },
+        { name: "interphone", path: "assets/images/game/items/interphone.png", width: 18, height: 27, frames: 2 },
     ],
     images: [
         { name: "bg-level0", path: "assets/images/game/bg-level0.png" },
@@ -1742,6 +1830,8 @@ gameData.assets = {
         { name: "bg-contact", path: "assets/images/game/buildings/contact.png" },
         { name: "arcade", path: "assets/images/game/items/arcade.png" },
         { name: "bottle", path: "assets/images/game/items/bottle.png" },
+        { name: "door", path: "assets/images/game/items/door.png" },
+        { name: "stairs", path: "assets/images/game/items/stairs.png" },
     ],
     sounds: [{ name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false }
     ],
@@ -1756,14 +1846,10 @@ gameData.chapters = [
         choice: null,
         complete: function (cs) {
             cs.removeItem(24);
-            cs.updateItemObject(23, "name", z89.getLabel(57));
             cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-            cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
             cs.gameItemsUtils.getItemById(22).start();
-            cs.updateItemObject(2, "working", true);
             cs.gameItemsUtils.getItemById(2).playAnim("2-working");
-            cs.updateItemObject(22, "isStarted", true);
-            cs.updateItemObject(19, "conversationStatus", 1);
+            cs.updateItemsObjects([23, 23, 22, 19, 2], ["name", "fixed", "isStarted", "conversationStatus", "working"], [z89.getLabel(57), true, true, 1, true]);
             cs.saveGameObj.updateItems();
         }
     },
@@ -1796,56 +1882,7 @@ gameData.ingame.conversation = {
         }
         return 0;
     },
-    /*
-    MANAGE_TIP: (cs: z89.GameCity) => {
-      console.log("MANAGE_TIP");
-      let tips: Array<String> = JSON.parse(
-        JSON.stringify(cs.saveGameObj.getSaved().tips.tips)
-      );
-  
-      
-      let nextTip: String = "";
-      let diff: number = gameData.ingame.conversation.CHECK_TIP_TIME(cs);
-  
-      if (diff < 60) {
-          nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([114,110,111,132,133,134]));
-          gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([136]));
-        }
-  
-        if (tips.length == 0) {
-          cs.saveGameObj.setTip(
-            gameData.ingame.conversation.TIPS[cs.currentChapter][0]
-          );
-          nextTip = gameData.ingame.conversation.TIPS[cs.currentChapter][0];
-          gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
-  
-        } else {
-  
-          if (diff != null && diff > 60) {
-          if (tips.length < gameData.ingame.conversation.TIPS[cs.currentChapter].length) {
-            gameData.ingame.conversation.TIPS[cs.currentChapter].forEach(
-              (alltips,index) => {
-                  
-                if (tips.indexOf(alltips) == -1 && nextTip == "") {
-                  cs.saveGameObj.setTip(alltips);
-                  nextTip = alltips;
-                  gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
-  
-                }
-              }
-            );
-          }else{
-              nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([112,113]));
-              gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([135]));
-          }
-        }
-  
-      }
-      //console.log("return",nextTip)
-      return nextTip;
-    },*/
     MANAGE_TIP: function (cs) {
-        console.log("MANAGE_TIP");
         var tips = JSON.parse(JSON.stringify(cs.saveGameObj.getSaved().tips.tips));
         var nextTip = "";
         var diff = gameData.ingame.conversation.CHECK_TIP_TIME(cs);
@@ -1910,7 +1947,7 @@ gameData.ingame.conversation = {
                 text: gameData.ingame.conversation.MANAGE_TIP_ANSWER,
                 isItem: false,
                 fork: true,
-                options: [{ option: "TIPs I GOT!", goto: "tiplist" }]
+                options: [{ option: z89.getLabel(159), goto: "tiplist" }]
             },
             {
                 label: "tiplist",
@@ -1980,7 +2017,14 @@ gameData.ingame.conversation = {
                 text: z89.getLabel(86),
                 isItem: false,
                 fork: true,
-                options: [{ option: z89.getLabel(129), goto: "info" }]
+                options: [
+                    { option: "PHASER.IO", link: "http://www.phaser.io" },
+                    {
+                        option: "PAUL WEBSITE",
+                        link: "http://probertson.tumblr.com/"
+                    },
+                    { option: "JASON WEBSITE", link: "http://jasontammemagi.com/" }
+                ]
             }
         ];
     },
@@ -2019,7 +2063,7 @@ gameData.ingame.conversation = {
                     {
                         option: z89.getLabel(130),
                         action: function (cs, target) {
-                            cs.gameUtils.addDelay(500, function () {
+                            cs.addDelay(500, function () {
                                 var _jukebox = cs.gameItemsUtils.getItemById(11);
                                 _jukebox.play("11-idle");
                                 cs.stopSound();
@@ -2027,21 +2071,21 @@ gameData.ingame.conversation = {
                                 // _woofer.tween.pause();
                             });
                             cs.conversationBaloon.hideBaloon();
-                            cs.player.play("player-use");
+                            cs.playerAnimation("player-use");
                         }
                     },
                     {
                         option: z89.getLabel(131),
                         action: function (cs, target) {
                             cs.playSound(0);
-                            cs.gameUtils.addDelay(500, function () {
+                            cs.addDelay(500, function () {
                                 var _jukebox = cs.gameItemsUtils.getItemById(11);
                                 _jukebox.play("11-play");
                                 // let _woofer=cs.gameItemsUtils.getItemById(12);
                                 // _woofer.tween.resume();
                             });
                             cs.conversationBaloon.hideBaloon();
-                            cs.player.play("player-use");
+                            cs.playerAnimation("player-use");
                         }
                     }
                 ]
@@ -2083,6 +2127,132 @@ gameData.ingame.conversation = {
                 text: z89.getLabel(67),
                 isItem: false,
                 end: true
+            }
+        ];
+    },
+    TALKTO_20_Null: function (cs) {
+        return [
+            {
+                text: z89.getLabel(160),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(161),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(162),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(163),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(164),
+                isItem: false,
+                end: true,
+                callback: function (cs) {
+                    cs.getItem(20).setConversationStatus(0);
+                }
+            }
+        ];
+    },
+    TALKTO_20_0: function (cs) {
+        return [
+            {
+                text: z89.getLabel(165),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(166),
+                isItem: false,
+                end: true
+            }
+        ];
+    },
+    DADDY: function (cs) {
+        return [
+            {
+                text: z89.getLabel(167),
+                isItem: true,
+                next: true,
+                delay: 1000
+            },
+            {
+                text: z89.getLabel(168),
+                isItem: false,
+                next: true,
+                delay: 1000
+            },
+            {
+                text: z89.getLabel(169),
+                isItem: true,
+                next: true,
+                delay: 1000
+            },
+            {
+                text: z89.getLabel(170),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(171),
+                isItem: true,
+                next: true,
+                delay: 1000,
+            },
+            {
+                text: z89.getLabel(172),
+                isItem: true,
+                next: true,
+                delay: 1000,
+                isSkippable: false,
+                callback: function (cs) {
+                    cs.getItem(34).itemObj.open = true;
+                    cs.updateItems();
+                }
+            },
+            {
+                text: z89.getLabel(173),
+                isItem: false,
+                end: true,
+                isSkippable: false,
+                callback: function (cs) {
+                    cs.enableInteraction();
+                }
+            }
+        ];
+    },
+    TALKTO_20_1: function (cs) {
+        return [
+            {
+                text: z89.getLabel(174),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(175),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(176),
+                isItem: false,
+                next: true
+            },
+            {
+                text: z89.getLabel(177),
+                isItem: true,
+                end: true,
+                callback: function (cs) {
+                    cs.getItem(20).setConversationStatus(2);
+                }
             }
         ];
     },
@@ -2140,48 +2310,48 @@ gameData.ingame.conversation = {
 /*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
 gameData.ingame.items = [
     {
-        id: 50,
-        type: 4,
+        id: 1,
+        type: 1,
+        sprite: "drink-machine",
+        name: z89.getLabel(0),
+        x: 800,
+        y: 680,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
+        currentAnimation: "idle",
         onStart: true,
-        sprite: "skills",
-        name: z89.getLabel(79),
-        x: 1161 + 174,
-        y: 4 + 215 - 48,
-        interactive: false,
-        offsetX: 0,
-        isStarted: false,
-        fixedToCamera: false,
-        checkIntersect: false,
-        working: false
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: true,
+        checkIntersect: true
     },
     {
-        id: 26,
+        id: 2,
         type: 1,
         onStart: true,
-        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
-        sprite: "devday",
-        currentAnimation: "idle",
-        name: z89.getLabel(61),
-        x: 869,
-        y: 218 - 48,
+        sprite: "terminal",
+        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
+        currentAnimation: "notWorking",
+        working: true,
+        name: z89.getLabel(12),
+        x: 1214,
+        y: 596,
         interactive: true,
-        offsetX: 0,
+        offsetX: 50,
         fixedToCamera: false,
         checkIntersect: false
     },
     {
-        id: 22,
-        type: 3,
-        onStart: true,
-        sprite: "newsbg",
-        name: z89.getLabel(76),
-        x: 866,
-        y: 291,
+        id: 3,
+        type: 1,
+        sprite: "coke",
+        onStart: false,
+        name: z89.getLabel(10),
+        x: 800,
+        y: 724 - 48,
         interactive: true,
-        offsetX: 0,
+        offsetX: 30,
         fixedToCamera: false,
-        isStarted: false,
-        contexts: ["devday"],
+        checkIntersect: false
     },
     {
         id: 4,
@@ -2199,6 +2369,37 @@ gameData.ingame.items = [
         moved: false
     },
     {
+        id: 5,
+        type: 1,
+        onStart: true,
+        sprite: "cake",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3, 4, 5, 6, 7, 8], rate: 10, loop: true }],
+        currentAnimation: "idle",
+        name: "cake",
+        x: 1679,
+        y: 290 - 48,
+        interactive: true,
+        offsetX: 50,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 6,
+        type: 1,
+        onStart: true,
+        sprite: "terminal",
+        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
+        currentAnimation: "notWorking",
+        working: false,
+        name: z89.getLabel(12),
+        x: 3000,
+        y: 644 - 48,
+        interactive: true,
+        offsetX: 50,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
         id: 7,
         type: 1,
         onStart: true,
@@ -2212,6 +2413,170 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         moved: false
+    },
+    {
+        id: 8,
+        type: 1,
+        sprite: "bottle",
+        onStart: true,
+        name: z89.getLabel(142),
+        x: 490,
+        y: 606,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 9,
+        type: 1,
+        sprite: "floppy",
+        onStart: false,
+        name: z89.getLabel(145),
+        animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
+        currentAnimation: "small",
+        x: 1520,
+        y: 603,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 10,
+        type: 1,
+        sprite: "screwdriver",
+        onStart: true,
+        name: z89.getLabel(148),
+        animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
+        currentAnimation: "small",
+        x: 100,
+        y: 680,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 11,
+        type: 1,
+        sprite: "jukebox",
+        name: z89.getLabel(88),
+        x: 2300,
+        y: 650 - 48,
+        animations: [{ name: "idle", frames: [0], rate: 1, loop: false }, { name: "play", frames: [1, 2, 3, 4, 5, 6, 7, 2, 4, 6, 3, 1, 6, 3, 4, 6, 5, 7, 2, 5, 3, 4], rate: 14, loop: true }],
+        currentAnimation: "play",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 12,
+        type: 1,
+        sprite: "woofer",
+        name: z89.getLabel(92),
+        x: 2300,
+        y: 650 - 48,
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: false,
+        offsetX: 35,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 13,
+        type: 1,
+        sprite: "amazonPack",
+        name: "Cloak of Invisibility",
+        x: 1300,
+        y: 605,
+        currentAnimation: "",
+        onStart: false,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 14,
+        type: 1,
+        sprite: "arcade",
+        name: "Galaga clone",
+        x: 1920,
+        y: 602,
+        fixed: false,
+        currentAnimation: "",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 15,
+        type: 1,
+        sprite: "phaser-logo",
+        name: "Phaser Arena",
+        x: 70,
+        y: 330,
+        alpha: .7,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1.5, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 16,
+        type: 1,
+        onStart: true,
+        sprite: "arete",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.2, loop: true }],
+        name: z89.getLabel(40),
+        currentAnimation: "idle",
+        x: 720,
+        y: 650 - 48,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+        turnLeft: true,
+    },
+    {
+        id: 17,
+        type: 1,
+        onStart: true,
+        sprite: "daniele",
+        animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
+        name: z89.getLabel(41),
+        currentAnimation: "idle",
+        x: 1040,
+        y: 650 - 48,
+        turnLeft: true,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+    },
+    {
+        id: 18,
+        type: 1,
+        onStart: true,
+        sprite: "davide",
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
+        name: z89.getLabel(42),
+        currentAnimation: "idle",
+        x: 950,
+        y: 650 - 48,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false
     },
     {
         id: 19,
@@ -2261,6 +2626,204 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         turnLeft: true
+    },
+    {
+        id: 22,
+        type: 3,
+        onStart: true,
+        sprite: "newsbg",
+        name: z89.getLabel(76),
+        x: 866,
+        y: 291,
+        interactive: true,
+        offsetX: 0,
+        fixedToCamera: false,
+        isStarted: false,
+        contexts: ["devday"],
+    },
+    {
+        id: 23,
+        type: 1,
+        sprite: "cable",
+        onStart: true,
+        name: z89.getLabel(56),
+        animations: [{ name: "fixed", frames: [9, 8, 7, 6, 5, 4, 3, 2, 1], rate: 15, loop: true }, { name: "broken", frames: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10], rate: 15, loop: true }],
+        currentAnimation: "broken",
+        x: 650,
+        y: 600 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false,
+        fixed: false
+    },
+    {
+        id: 24,
+        type: 1,
+        sprite: "scotch",
+        onStart: true,
+        name: z89.getLabel(55),
+        x: 450,
+        y: 648 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 25,
+        type: 1,
+        sprite: "coins",
+        onStart: true,
+        name: "coins",
+        x: 940,
+        y: 702,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: true,
+        checkIntersect: false
+    },
+    {
+        id: 26,
+        type: 1,
+        onStart: true,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
+        sprite: "devday",
+        currentAnimation: "idle",
+        name: z89.getLabel(61),
+        x: 869,
+        y: 218 - 48,
+        interactive: true,
+        offsetX: 0,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 27,
+        type: 1,
+        onStart: false,
+        sprite: "daniele",
+        animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
+        name: z89.getLabel(96),
+        currentAnimation: "idle",
+        x: 600,
+        y: 650 - 48,
+        turnLeft: true,
+        interactive: true,
+        offsetX: 80,
+        fixedToCamera: false,
+        checkIntersect: false,
+    },
+    {
+        id: 28,
+        type: 1,
+        sprite: "photonstorm",
+        name: "Photonstorm",
+        x: 345,
+        y: 245,
+        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 4, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 70,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 29,
+        type: 1,
+        sprite: "interphone",
+        name: "Interphone",
+        x: 1310,
+        y: 540,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 40,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 30,
+        type: 1,
+        sprite: "bitcoin",
+        onStart: false,
+        name: z89.getLabel(52),
+        x: 400,
+        y: 700 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 31,
+        type: 1,
+        sprite: "invite",
+        onStart: false,
+        name: z89.getLabel(108),
+        x: 400,
+        y: 648 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 32,
+        type: 1,
+        sprite: "blockchain",
+        onStart: false,
+        name: z89.getLabel(50),
+        x: 500,
+        y: 700 - 48,
+        interactive: true,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 33,
+        type: 1,
+        sprite: "stairs",
+        name: "Stairs",
+        x: 1360,
+        y: 592,
+        onStart: true,
+        interactive: true,
+        offsetX: 40,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 34,
+        type: 1,
+        sprite: "door",
+        name: "Door",
+        x: 1360,
+        y: 592,
+        open: true,
+        onStart: true,
+        interactive: true,
+        offsetX: 40,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 50,
+        type: 4,
+        onStart: true,
+        sprite: "skills",
+        name: z89.getLabel(79),
+        x: 1161 + 174,
+        y: 4 + 215 - 48,
+        interactive: false,
+        offsetX: 0,
+        isStarted: false,
+        fixedToCamera: false,
+        checkIntersect: false,
+        working: false
     },
     {
         id: 100,
@@ -2391,7 +2954,7 @@ gameData.ingame.items = [
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(107),
-        x: 1600,
+        x: 1400,
         y: 610,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
@@ -2402,340 +2965,6 @@ gameData.ingame.items = [
         walkRange: { start: 1600, end: 1750, step: { min: 50, max: 80 }, idle: { min: 3000, max: 4000 } },
         jumpChance: 0
     },
-    {
-        id: 17,
-        type: 1,
-        onStart: true,
-        sprite: "daniele",
-        animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
-        name: z89.getLabel(41),
-        currentAnimation: "idle",
-        x: 1040,
-        y: 650 - 48,
-        turnLeft: true,
-        interactive: true,
-        offsetX: 80,
-        fixedToCamera: false,
-        checkIntersect: false,
-    }, {
-        id: 27,
-        type: 1,
-        onStart: false,
-        sprite: "daniele",
-        animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
-        name: z89.getLabel(96),
-        currentAnimation: "idle",
-        x: 600,
-        y: 650 - 48,
-        turnLeft: true,
-        interactive: true,
-        offsetX: 80,
-        fixedToCamera: false,
-        checkIntersect: false,
-    },
-    {
-        id: 18,
-        type: 1,
-        onStart: true,
-        sprite: "davide",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
-        name: z89.getLabel(42),
-        currentAnimation: "idle",
-        x: 950,
-        y: 650 - 48,
-        interactive: true,
-        offsetX: 80,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 16,
-        type: 1,
-        onStart: true,
-        sprite: "arete",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.2, loop: true }],
-        name: z89.getLabel(40),
-        currentAnimation: "idle",
-        x: 720,
-        y: 650 - 48,
-        interactive: true,
-        offsetX: 80,
-        fixedToCamera: false,
-        checkIntersect: false,
-        turnLeft: true,
-    },
-    {
-        id: 23,
-        type: 1,
-        sprite: "cable",
-        onStart: true,
-        name: z89.getLabel(56),
-        animations: [{ name: "fixed", frames: [9, 8, 7, 6, 5, 4, 3, 2, 1], rate: 15, loop: true }, { name: "broken", frames: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10], rate: 15, loop: true }],
-        currentAnimation: "broken",
-        x: 650,
-        y: 600 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false,
-        fixed: false
-    },
-    {
-        id: 24,
-        type: 1,
-        sprite: "scotch",
-        onStart: true,
-        name: z89.getLabel(55),
-        x: 450,
-        y: 648 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 30,
-        type: 1,
-        sprite: "bitcoin",
-        onStart: false,
-        name: z89.getLabel(52),
-        x: 400,
-        y: 700 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 32,
-        type: 1,
-        sprite: "blockchain",
-        onStart: false,
-        name: z89.getLabel(50),
-        x: 500,
-        y: 700 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 31,
-        type: 1,
-        sprite: "invite",
-        onStart: false,
-        name: z89.getLabel(108),
-        x: 400,
-        y: 648 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 25,
-        type: 1,
-        sprite: "coins",
-        onStart: true,
-        name: "coins",
-        x: 940,
-        y: 740 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: true,
-        checkIntersect: false
-    },
-    {
-        id: 2,
-        type: 1,
-        onStart: true,
-        sprite: "terminal",
-        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
-        currentAnimation: "notWorking",
-        working: true,
-        name: z89.getLabel(12),
-        x: 1214,
-        y: 644 - 48,
-        interactive: true,
-        offsetX: 50,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 6,
-        type: 1,
-        onStart: true,
-        sprite: "terminal",
-        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
-        currentAnimation: "notWorking",
-        working: false,
-        name: z89.getLabel(12),
-        x: 3000,
-        y: 644 - 48,
-        interactive: true,
-        offsetX: 50,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 5,
-        type: 1,
-        onStart: true,
-        sprite: "cake",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3, 4, 5, 6, 7, 8], rate: 10, loop: true }],
-        currentAnimation: "idle",
-        name: "cake",
-        x: 1679,
-        y: 290 - 48,
-        interactive: true,
-        offsetX: 50,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 1,
-        type: 1,
-        sprite: "drink-machine",
-        name: z89.getLabel(0),
-        x: 800,
-        y: 680,
-        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
-        currentAnimation: "idle",
-        onStart: true,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: true,
-        checkIntersect: true
-    },
-    {
-        id: 3,
-        type: 1,
-        sprite: "coke",
-        onStart: false,
-        name: z89.getLabel(10),
-        x: 800,
-        y: 724 - 48,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 8,
-        type: 1,
-        sprite: "bottle",
-        onStart: true,
-        name: z89.getLabel(142),
-        x: 490,
-        y: 606,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 9,
-        type: 1,
-        sprite: "floppy",
-        onStart: false,
-        name: z89.getLabel(145),
-        animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
-        currentAnimation: "small",
-        x: 1520,
-        y: 603,
-        interactive: true,
-        offsetX: 30,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 11,
-        type: 1,
-        sprite: "jukebox",
-        name: z89.getLabel(88),
-        x: 2300,
-        y: 650 - 48,
-        animations: [{ name: "idle", frames: [0], rate: 1, loop: false }, { name: "play", frames: [1, 2, 3, 4, 5, 6, 7, 2, 4, 6, 3, 1, 6, 3, 4, 6, 5, 7, 2, 5, 3, 4], rate: 14, loop: true }],
-        currentAnimation: "play",
-        onStart: true,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 12,
-        type: 1,
-        sprite: "woofer",
-        name: z89.getLabel(92),
-        x: 2300,
-        y: 650 - 48,
-        currentAnimation: "idle",
-        onStart: true,
-        interactive: false,
-        offsetX: 35,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 13,
-        type: 1,
-        sprite: "amazonPack",
-        name: "Cloak of Invisibility",
-        x: 1300,
-        y: 605,
-        currentAnimation: "",
-        onStart: false,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 14,
-        type: 1,
-        sprite: "arcade",
-        name: "Galaga clone",
-        x: 1920,
-        y: 602,
-        currentAnimation: "",
-        onStart: true,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 15,
-        type: 1,
-        sprite: "phaser-logo",
-        name: "Phaser Arena",
-        x: 70,
-        y: 330,
-        alpha: .7,
-        animations: [{ name: "idle", frames: [0, 1], rate: 1.5, loop: true }],
-        currentAnimation: "idle",
-        onStart: true,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: false,
-        checkIntersect: false
-    },
-    {
-        id: 28,
-        type: 1,
-        sprite: "photonstorm",
-        name: "Photonstorm",
-        x: 345,
-        y: 245,
-        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 4, loop: true }],
-        currentAnimation: "idle",
-        onStart: true,
-        interactive: true,
-        offsetX: 70,
-        fixedToCamera: false,
-        checkIntersect: false
-    }
 ];
 gameData.ingame.logic = {
     /*
@@ -2747,89 +2976,102 @@ gameData.ingame.logic = {
      */
     // examine terminal
     EXAMINE_2: function (cs) {
-        if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
-            cs.player.showBaloon(z89.getLabel(82));
+        if (cs.getItem(2).itemObj.working) {
+            cs.showPlayerBaloon(82);
         }
         else {
-            cs.player.showBaloon(z89.getLabel(81));
+            cs.showPlayerBaloon(81);
         }
     },
     EXAMINE_14: function (cs) {
-        cs.player.showBaloon(z89.getLabel(139));
+        cs.showPlayerBaloon(139);
+    },
+    //examine screwdriver
+    EXAMINE_10: function (cs) {
+        cs.showPlayerBaloon(149);
     },
     //examine bottle
     EXAMINE_8: function (cs) {
-        cs.player.showBaloon(z89.getLabel(143));
+        cs.showPlayerBaloon(143);
     },
     //examine floppy
     EXAMINE_9: function (cs) {
-        cs.player.showBaloon(z89.getLabel(146));
+        cs.showPlayerBaloon(146);
     },
     // examine terminal2
     EXAMINE_6: function (cs) {
-        if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
-            cs.player.showBaloon(z89.getLabel(82));
+        if (cs.getItem(6).itemObj.working) {
+            cs.showPlayerBaloon(82);
         }
         else {
-            cs.player.showBaloon(z89.getLabel(81));
+            cs.showPlayerBaloon(81);
         }
     },
     //examine gerardo
     EXAMINE_16: function (cs) {
-        cs.player.showBaloon(z89.getLabel(43));
+        cs.showPlayerBaloon(43);
     },
     // examine coins
     EXAMINE_3: function (cs) {
-        cs.player.showBaloon(z89.getLabel(26));
+        cs.showPlayerBaloon(26);
     },
     // examine coins
     EXAMINE_25: function (cs) {
-        cs.player.showBaloon(z89.getLabel(27));
+        cs.showPlayerBaloon(27);
     },
     // examine drink machine
     EXAMINE_1: function (cs) {
-        cs.player.showBaloon(z89.getLabel(6));
+        cs.showPlayerBaloon(6);
     },
     // devday palace
     EXAMINE_21: function (cs) {
-        cs.player.showBaloon(z89.getLabel(38));
+        cs.showPlayerBaloon(38);
     },
     // devday screen
     EXAMINE_22: function (cs) {
-        cs.player.showBaloon(z89.getLabel(75));
+        cs.showPlayerBaloon(75);
     },
     //examine garbage
     EXAMINE_4: function (cs) {
-        cs.player.showBaloon(z89.getLabel(62));
+        cs.showPlayerBaloon(62);
     },
     //examine scotch tape
     EXAMINE_24: function (cs) {
-        cs.player.showBaloon(z89.getLabel(58));
+        cs.showPlayerBaloon(58);
     },
     //examine energy box
     EXAMINE_23: function (cs) {
-        if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
-            cs.player.showBaloon(z89.getLabel(60));
+        if (cs.getItem(23).itemObj.fixed) {
+            cs.showPlayerBaloon(60);
         }
         else {
-            cs.player.showBaloon(z89.getLabel(59));
+            cs.showPlayerBaloon(59);
         }
     },
     //examine daniele
     EXAMINE_17: function (cs) {
-        cs.player.showBaloon(z89.getLabel(63));
+        cs.showPlayerBaloon(63);
     },
     //examine davide
     EXAMINE_18: function (cs) {
-        cs.player.showBaloon(z89.getLabel(64));
+        cs.showPlayerBaloon(64);
     },
     //examine michele
     EXAMINE_19: function (cs) {
-        cs.player.showBaloon(z89.getLabel(32));
+        cs.showPlayerBaloon(32);
     },
     //examine cloak
     EXAMINE_13: function (cs) {
-        cs.player.showBaloon(z89.getLabel(147));
+        cs.showPlayerBaloon(147);
+    },
+    //examine cloak
+    EXAMINE_34: function (cs) {
+        if (cs.getItem(34).itemObj.open) {
+            cs.showPlayerBaloon(153);
+        }
+        else {
+            cs.showPlayerBaloon(153);
+        }
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2840,114 +3082,126 @@ gameData.ingame.logic = {
      */
     // use terminal
     USE_2: function (cs) {
-        if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+        if (cs.getItem(2).itemObj.working) {
             cs.Terminal.show(0);
             cs.playerActions.hide();
         }
         else {
-            cs.player.showBaloon(z89.getLabel(83));
+            cs.showPlayerBaloon(83);
         }
     },
     // use terminal 2
     USE_6: function (cs) {
-        if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
+        if (cs.getItem(6).itemObj.working) {
             cs.Terminal.show(0);
             cs.playerActions.hide();
         }
         else {
-            cs.player.showBaloon(z89.getLabel(83));
+            cs.showPlayerBaloon(83);
         }
     },
     // use coins on drink machine
     USE_25_1: function (cs) {
-        console.log("coins on drink");
-        cs.player.play("player-use");
+        cs.playerAnimation("player-use");
         cs.removeInventoryItems();
-        cs.gameUtils.addDelay(1000, function () {
-            cs.gameItemsUtils.addItem(3);
-            cs.gameItemsUtils.getItemById(3).itemObj.onStart = true;
-            cs.saveGameObj.updateItems();
+        cs.addDelay(1000, function () {
+            cs.addItem(3);
+            cs.getItem(3).itemObj.onStart = true;
+            cs.updateItems();
         });
     },
     // use bottle on trash
     USE_8_4: function (cs) {
-        cs.playerBaloon.showBaloon(z89.getLabel(144));
+        cs.showPlayerBaloon(144);
     },
     // use bottle on trash2
     USE_8_7: function (cs) {
-        cs.player.play("player-use");
+        cs.playerAnimation("player-use");
         cs.removeInventoryItems();
-        cs.gameUtils.addDelay(300, function () {
-            cs.gameItemsUtils.addItem(9);
-            cs.gameItemsUtils.getItemById(9).itemObj.onStart = true;
-            cs.saveGameObj.updateItems();
+        cs.addDelay(300, function () {
+            cs.addItem(9);
+            cs.getItem(9).itemObj.onStart = true;
+            cs.updateItems();
         });
-        /*
-        
-        cs.player.play("player-use");
-         cs.removeInventoryItems();
-         cs.gameUtils.addDelay(1000, () => {
-     
-           cs.gameItemsUtils.addItem(3);
-           cs.gameItemsUtils.getItemById(3).itemObj.onStart=true;
-           cs.saveGameObj.updateItems();
-     
-         });
-     */
     },
-    // use coins on drink machine
-    /* USE_25: (cs: z89.GameCity) => {
-      console.log("use coin test");
-   
-   
-    },*/
     //use devday
     USE_21: function (cs) {
-        var convObj = {
-            key: "TALKTO_devday",
-            action: null,
-            inventory: null,
-            item: null
-        };
-        cs.conversationBaloon.setUpConversation(convObj);
+        cs.setUpConversation(z89.conversationObj("TALKTO_devday"));
     },
     //use jukoxeb
     USE_11: function (cs) {
-        var convObj = {
-            key: "USE_jukebox",
-            action: null,
-            inventory: null,
-            item: null
-        };
-        cs.conversationBaloon.setUpConversation(convObj);
+        cs.setUpConversation(z89.conversationObj("USE_jukebox"));
+    },
+    //use interphone
+    USE_29: function (cs) {
+        cs.playerAnimation("player-use");
+        if (cs.currentChapter == 0) {
+            cs.disableInteraction();
+            cs.addDelay(2000, function () {
+                cs.showPlayerBaloon(154, function () { cs.enableInteraction(); });
+            });
+        }
+        if (cs.currentChapter == 1) {
+            cs.disableInteraction();
+            cs.addDelay(2000, function () {
+                cs.setUpConversation(z89.conversationObj("DADDY", cs.currentItem));
+            });
+        }
+        else {
+        }
+    },
+    //use jukoxeb
+    USE_10_14: function (cs) {
+        if (cs.getItem(20).getConversationStatus() == 0) {
+            cs.playerAnimation("player-use");
+            cs.updateItemObject(14, "fixed", true);
+            cs.getItem(20).setConversationStatus(1);
+            cs.showPlayerBaloon(150);
+        }
+        else {
+            cs.showPlayerBaloon(151);
+        }
     },
     //use scotch on broken cable
     USE_24_23: function (cs) {
-        cs.player.play("player-use");
+        cs.playerAnimation("player-use");
         cs.removeInventoryItems();
-        cs.gameUtils.addDelay(1000, function () {
-            cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-            cs.gameItemsUtils.getItemById(22).start();
-            //cs.updateItemObject(23, "name", z89.getLabel(57));
-            //cs.updateItemObject(23, "fixed", true);
-            //cs.updateItemObject(22, "isStarted", true);
-            //cs.updateItemObject(19, "conversationStatus", 1);
-            //cs.updateItemObject(2, "working", true);
+        cs.addDelay(1000, function () {
+            cs.getItem(23).playAnim("23-fixed");
+            cs.getItem(22).start();
+            cs.getItem(2).playAnim("2-working");
             cs.updateItemsObjects([23, 23, 22, 19, 2], ["name", "fixed", "isStarted", "conversationStatus", "working"], [z89.getLabel(57), true, true, 1, true]);
-            cs.gameItemsUtils.getItemById(2).playAnim("2-working");
-            cs.saveGameObj.updateItems();
+            cs.updateItems();
             cs.chapterCompleted();
         });
     },
     USE_30_32: function (cs) {
-        console.log("bitcoin on blockchain");
-        cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
+        //console.log("bitcoin on blockchain");
+        cs.showPlayerBaloon(155);
         cs.removeInventoryItems();
         cs.addInventory(31, true);
     },
     USE_13: function (cs) {
         cs.removeInventoryItems();
         cs.player.setAlpha(0.5);
+    },
+    //use door
+    USE_33: function (cs) {
+        cs.disableInteraction();
+        cs.addDelay(500, function () {
+            cs.addTween({ targets: cs.player, alpha: 0 });
+            cs.getItem(50).start();
+            cs.addDelay(2500, function () {
+                cs.addTween({ targets: cs.player, alpha: 1, duration: 500, onComplete: function () {
+                        cs.enableInteraction();
+                        cs.chapterCompleted();
+                    } });
+                var _item = cs.getItem(34);
+                cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
+                _item.itemObj.open = false;
+                cs.updateItems();
+            });
+        });
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2958,12 +3212,12 @@ gameData.ingame.logic = {
      */
     //push garbage
     PUSH_4: function (cs) {
-        var item = cs.gameItemsUtils.getItemById(4);
+        var item = cs.getItem(4);
         if (!item.itemObj.moved) {
-            cs.player.play("player-use");
+            cs.playerAnimation("player-use");
             item.itemObj.moved = true;
             if (cs.player.x < 450) {
-                cs.tweens.add({
+                cs.addTween({
                     targets: item,
                     x: 500,
                     duration: 500,
@@ -2973,7 +3227,7 @@ gameData.ingame.logic = {
                 item.updateItemObj("x", 500);
             }
             else {
-                cs.tweens.add({
+                cs.addTween({
                     targets: item,
                     x: 400,
                     duration: 500,
@@ -2984,7 +3238,41 @@ gameData.ingame.logic = {
             }
         }
         else {
-            cs.player.showBaloon(z89.getLabel(93));
+            cs.showPlayerBaloon(93);
+        }
+    },
+    /*
+     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     OPEN
+     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      */
+    OPEN_34: function (cs) {
+        cs.playerAnimation("player-use");
+        var _item = cs.getItem(34);
+        if (_item.itemObj.open) {
+            cs.addDelay(500, function () { cs.addTween({ targets: _item, x: _item.x + 76, ease: "Quad.easeOut" }); });
+        }
+        else {
+            cs.showPlayerBaloon(156);
+        }
+    },
+    /*
+      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      CLOSE
+      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       */
+    CLOSE_34: function (cs) {
+        cs.playerAnimation("player-use");
+        var _item = cs.getItem(34);
+        if (_item.itemObj.open) {
+            cs.addDelay(500, function () { cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" }); });
+        }
+        else {
+            cs.showPlayerBaloon(157);
         }
     },
     /*
@@ -2996,45 +3284,49 @@ gameData.ingame.logic = {
      */
     //pickup scotch
     PICKUP_24: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(24), false);
+        cs.addInventoryItem(cs.getItem(24), false);
     },
     //pickup floppy
     PICKUP_9: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(9), false);
+        cs.addInventoryItem(cs.getItem(9), false);
+    },
+    //pickup screwdriver
+    PICKUP_10: function (cs) {
+        cs.addInventoryItem(cs.getItem(10), false);
     },
     //pickup bottle
     PICKUP_8: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(8), false);
+        cs.addInventoryItem(cs.getItem(8), false);
     },
     //pickup coke
     PICKUP_3: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(3), false);
+        cs.addInventoryItem(cs.getItem(3), false);
     },
     //pickup coins
     PICKUP_25: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(25), false);
+        cs.addInventoryItem(cs.getItem(25), false);
     },
     //pickup bitcoin
     PICKUP_30: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(30), false);
+        cs.addInventoryItem(cs.getItem(30), false);
     },
     //pickup blockchain
     PICKUP_32: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(32), false);
+        cs.addInventoryItem(cs.getItem(32), false);
     },
     //pickup jumper
     PICKUP_101: function (cs) {
         console.log("pickup jumper");
-        cs.player.play("player-use");
+        cs.playerAnimation("player-use");
     },
     //pickup runner
     PICKUP_102: function (cs) {
         console.log("pickup runner");
-        cs.player.play("player-use");
+        cs.playerAnimation("player-use");
     },
     //pickup camouflage
     PICKUP_13: function (cs) {
-        cs.addInventoryItem(cs.gameItemsUtils.getItemById(13), false);
+        cs.addInventoryItem(cs.getItem(13), false);
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3051,6 +3343,10 @@ gameData.ingame.logic = {
     DROP_8: function (cs) {
         cs.dropInventoryItem();
     },
+    //drop screwdriver
+    DROP_10: function (cs) {
+        cs.dropInventoryItem();
+    },
     //drop scotch
     DROP_25: function (cs) {
         cs.dropInventoryItem();
@@ -3065,7 +3361,7 @@ gameData.ingame.logic = {
     },
     //drop scotch
     DROP_13: function (cs) {
-        cs.playerBaloon.showBaloon("Not a good idea!");
+        cs.showPlayerBaloon(158);
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3075,191 +3371,48 @@ gameData.ingame.logic = {
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
     TALKTO_16: function (cs) {
-        cs.conversationBaloon.setUpConversation({
-            key: "TALKTO_16",
-            action: null,
-            inventory: null,
-            item: cs.currentItem
-        });
+        cs.setUpConversation(z89.conversationObj("TALKTO_16", cs.currentItem));
     },
     TALKTO_27: function (cs) {
-        cs.conversationBaloon.setUpConversation({
-            key: "TALKTO_27",
-            action: null,
-            inventory: null,
-            item: cs.currentItem
-        });
-    },
-    //chris
-    TALKTO_20: function (cs) {
-        cs.conversationBaloon.setUpConversation({
-            key: "HELP_GAME",
-            action: null,
-            inventory: null,
-            item: cs.currentItem
-        });
+        cs.setUpConversation(z89.conversationObj("TALKTO_27", cs.currentItem));
     },
     //sidney
     TALKTO_21: function (cs) {
-        cs.conversationBaloon.setUpConversation({
-            key: "HELP_GAME",
-            action: null,
-            inventory: null,
-            item: cs.currentItem
-        });
+        var item = cs.getItem(20);
+        cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
+    },
+    //chris
+    TALKTO_20: function (cs) {
+        switch (cs.getItem(20).getConversationStatus()) {
+            case null:
+                cs.setUpConversation(z89.conversationObj("TALKTO_20_Null", cs.currentItem));
+                break;
+            case 0:
+                cs.setUpConversation(z89.conversationObj("TALKTO_20_0", cs.currentItem));
+                break;
+            case 1:
+                cs.setUpConversation(z89.conversationObj("TALKTO_20_1", cs.currentItem));
+                break;
+            case 2:
+                cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
+                break;
+        }
     },
     //talkto michele
     TALKTO_19: function (cs) {
-        var item = cs.gameItemsUtils.getItemById(19);
-        var convObj = {
-            key: "",
-            action: null,
-            inventory: null,
-            item: cs.currentItem
-        };
-        //console.log(item.itemObj.conversationStatus)
-        switch (item.itemObj.conversationStatus) {
+        switch (cs.getItem(19).getConversationStatus()) {
             case null:
-                convObj.key = "TALKTO_19_null";
+                cs.setUpConversation(z89.conversationObj("TALKTO_19_null", cs.currentItem));
                 break;
             case 0:
-                convObj.key = "TALKTO_19_0";
+                cs.setUpConversation(z89.conversationObj("TALKTO_19_0", cs.currentItem));
                 break;
             case 1:
-                convObj.key = "TALKTO_19_1";
+                cs.setUpConversation(z89.conversationObj("TALKTO_19_1", cs.currentItem));
                 break;
         }
-        cs.conversationBaloon.setUpConversation(convObj);
-    },
-};
-/*
-
-gameData.ingame.logic =
-
-    {
-
-        // devday palace
-        EXAMINE_21: (cs: z89.GameCity) => {
-
-            cs.player.showBaloon(z89.getLabel(38));
-        },
-        USE_21: (cs: z89.GameCity) => {
-
-            cs.conversationBaloon.setUpConversation({
-                key: "TALKTO_devday",
-                action: null,
-                inventory: null,
-                item: null
-            });
-
-            cs.player.showBaloon(z89.getLabel(38));
-        },
-
-        // scotch tape
-        EXAMINE_24: (cs: z89.GameCity) => {
-
-            cs.player.showBaloon(z89.getLabel(58));
-        },
-
-        //broken energy box
-        EXAMINE_23: (cs: z89.GameCity) => {
-
-            if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
-
-                cs.player.showBaloon(z89.getLabel(60));
-            } else {
-                cs.player.showBaloon(z89.getLabel(59));
-
-            }
-
-
-        },
-
-        PICKUP_24: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(24)); },
-        DROP_24: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
-
-        USE_24_23: (cs: z89.GameCity) => {
-
-            cs.player.play("use");
-            cs.removeInventoryItems();
-            cs.gameUtils.addDelay(1000, () => {
-                cs.gameItemsUtils.getItemById(23).updateItemObj("name", z89.getLabel(57));
-                cs.gameItemsUtils.getItemById(23).playAnim("fixed");
-                cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
-                cs.gameItemsUtils.getItemById(22).start();
-                cs.saveGameObj.updateItems();
-
-            });
-
-        },
-
-        //use money on drink machine
-        USE_8_1: (cs: z89.GameCity) => {
-            cs.player.play("use");
-            cs.removeInventoryItems();
-            cs.gameUtils.addDelay(2000, () => { cs.gameItemsUtils.addItem(7); });
-
-        },
-
-        //use coin o coin
-        USE_8_15: (cs: z89.GameCity) => {
-            console.log("coin on coins");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(7);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(7));
-
-        },
-
-        //use block on chain
-        USE_8_28: (cs: z89.GameCity) => {
-            console.log("block on chain");
-            cs.playerBaloon.showBaloon("I GOT BLOCKCHAIN!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(30);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(30));
-
-        },
-        //use bit o coin
-        USE_29_15: (cs: z89.GameCity) => {
-            console.log("bit on coin");
-            cs.playerBaloon.showBaloon("I GOT A BITCOIN!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(32);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(32));
-
-        },
-        USE_30_32: (cs: z89.GameCity) => {
-            console.log("bitcoin on blockchain");
-            cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(31);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(31));
-
-        },
-
-        GIVE_31_13: (cs: z89.GameCity) => {
-            console.log("pass to daniele");
-            cs.player.play("use");
-            cs.removeInventoryItems();
-
-            let convObj: any = {
-                key: "TALKTO_custom",
-                action: null,
-                inventory: null,
-                item: cs.currentItem
-            }
-            cs.gameUtils.addDelay(1000, () => {
-
-                cs.conversationBaloon.setUpConversation(convObj);
-
-            });
-
-
-        }
-
     }
-
-*/
+};
 gameData.menuBlink = [
     { name: "HOME", frame: 0, to: 100, x: 0, y: 30 },
     { name: "DEVDAY", frame: 4, to: 875, x: 0, y: 140 },
@@ -3415,9 +3568,8 @@ var z89;
             _this.baloonBg
                 .setOrigin(0.5, 1)
                 .setAlpha(0.8)
-                .on("pointerdown", function () {
-                _this.skip();
-            }, _this);
+                .setInteractive()
+                .on("pointerdown", function () { _this.skip(); }, _this);
             _this.baloonBorder = _this.scene.add.image(0, 20, "baloonBorder");
             _this.baloonBorder.setOrigin(0.5, 1);
             _this.baloonPin = _this.scene.add.image(0, 30, "baloonPin");
@@ -3447,15 +3599,15 @@ var z89;
             this.timeEvent.remove(false);
             this.currentStep++;
             var _obj = this.conversationObj[this.currentStep];
-            if (_obj != undefined) {
-                this.displayStep();
-            }
-            else {
-                this.isPlaying = false;
-            }
-            if (_obj.next != undefined) {
-                this.displayStep();
-            }
+            (_obj != undefined && (_obj.next != undefined || _obj.end)) ? this.displayStep() : this.isPlaying = false;
+            /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
+               this.displayStep();
+             } else {
+               this.isPlaying = false;
+             }*/
+            /* if (_obj.next != undefined) {
+               this.displayStep();
+             }*/
         };
         conversationBaloon.prototype.showBaloon = function (_text) {
             if (_text == undefined)
@@ -3549,6 +3701,7 @@ var z89;
         };
         conversationBaloon.prototype.displayStep = function () {
             var _this = this;
+            var _delay = 0;
             this.removeForks();
             this.baloonText.setY(0);
             this.isSkippable = true;
@@ -3556,6 +3709,8 @@ var z89;
                 return;
             }
             var _obj = this.conversationObj[this.currentStep];
+            if (_obj.isSkippable != undefined)
+                this.isSkippable = _obj.isSkippable;
             if (_obj == undefined) {
                 this.hideBaloon();
                 return;
@@ -3575,8 +3730,10 @@ var z89;
                 this.baloonY = this.scene.player.y - this.scene.player.height - 50;
             }
             if (_obj.next != undefined) {
+                if (_obj.delay != undefined)
+                    _delay = _obj.delay;
                 this.timeEvent = this.scene.time.addEvent({
-                    delay: this.getTime(_obj.text.length),
+                    delay: this.getTime(_obj.text.length) + _delay,
                     callback: function () {
                         _this.currentStep++;
                         _this.displayStep();
@@ -3586,8 +3743,10 @@ var z89;
                 });
             }
             if (_obj.end != undefined) {
+                if (_obj.delay != undefined)
+                    _delay = _obj.delay;
                 this.timeEvent = this.scene.time.addEvent({
-                    delay: this.getTime(_obj.text.length),
+                    delay: this.getTime(_obj.text.length) + _delay,
                     callback: function () {
                         _this.currentStep = 0;
                         _this.hideBaloon();
@@ -3781,8 +3940,15 @@ var z89;
         function Items(scene, itemObj) {
             var _this = _super.call(this, scene, itemObj.x, itemObj.y, itemObj.sprite) || this;
             _this._isIdle = true;
+            _this._conversationStatus = null;
             _this.scene = scene;
-            var config;
+            _this.itemObj = itemObj;
+            var config = {
+                key: null,
+                frames: null,
+                frameRate: null,
+                repeat: null
+            };
             var repeat = -1;
             //console.log(itemObj.sprite)
             if (itemObj.animations != undefined) {
@@ -3793,31 +3959,27 @@ var z89;
                     else {
                         repeat = -1;
                     }
-                    // console.log(element,repeat);
-                    config = {
-                        key: itemObj.id + "-" + element.name,
-                        frames: scene.anims.generateFrameNumbers(itemObj.sprite, { frames: element.frames }),
-                        frameRate: element.rate,
-                        repeat: repeat
-                    };
+                    config.key = itemObj.id + "-" + element.name;
+                    config.frames = scene.anims.generateFrameNumbers(itemObj.sprite, { frames: element.frames });
+                    config.frameRate = element.rate;
+                    config.repeat = repeat;
                     _this.anims.animationManager.create(config);
                 });
                 _this.play(itemObj.id + "-" + itemObj.currentAnimation);
             }
             _this.setDepth(_this.y).setOrigin(0.5, 1).setX(itemObj.x);
-            if (itemObj.scale != undefined)
-                _this.setScale(itemObj.scale);
-            if (itemObj.alpha != undefined)
-                _this.setAlpha(itemObj.alpha);
-            _this.id = itemObj.id;
-            _this.itemObj = itemObj;
-            _this.name = itemObj.name;
-            _this._isInteractive = itemObj.interactive;
-            if (itemObj.turnLeft != undefined)
+            _this.id = _this.itemObj.id;
+            _this.name = _this.itemObj.name;
+            _this._isInteractive = _this.itemObj.interactive;
+            _this.itemObj.scale != undefined ? _this.setScale(_this.itemObj.scale) : _this.setScale(1);
+            _this.itemObj.alpha != undefined ? _this.setAlpha(_this.itemObj.alpha) : _this.setAlpha(1);
+            if (_this.itemObj.conversationStatus != undefined)
+                _this.setConversationStatus(_this.itemObj.conversationStatus);
+            if (_this.itemObj.turnLeft != undefined)
                 _this.turnLeft();
             if (_this.isInteractive()) {
                 if (_this.itemObj.interactiveArea != undefined) {
-                    _this.setInteractive(new Phaser.Geom.Rectangle(itemObj.interactiveArea.x, itemObj.interactiveArea.y, itemObj.interactiveArea.w, itemObj.interactiveArea.h), Phaser.Geom.Rectangle.Contains);
+                    _this.setInteractive(new Phaser.Geom.Rectangle(_this.itemObj.interactiveArea.x, itemObj.interactiveArea.y, _this.itemObj.interactiveArea.w, itemObj.interactiveArea.h), Phaser.Geom.Rectangle.Contains);
                 }
                 else {
                     _this.setInteractive();
@@ -3858,6 +4020,13 @@ var z89;
             if (this.y > 660 && this.isIdle()) {
                 this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x);
             }
+        };
+        Items.prototype.getConversationStatus = function () {
+            return this.itemObj.conversationStatus;
+        };
+        Items.prototype.setConversationStatus = function (value) {
+            this.itemObj.conversationStatus = this._conversationStatus = value;
+            this.scene.saveGameObj.updateItems();
         };
         Items.prototype.isInteractive = function () {
             return this._isInteractive;
@@ -4174,11 +4343,11 @@ var z89;
                     _date = _json.date;
             }
             //console.log(_title,_description,_date)
-            this.contentTextTitle.setText(_title);
+            this.contentTextTitle.setText(_title).setColor("#ffffff").setFontSize(30);
             Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this, null, -20);
-            this.contentTextDescription.setText(_description);
+            this.contentTextDescription.setText(_description).setFontSize(20);
             Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle, null, 10);
-            this.contentTextDate.setText(_date);
+            this.contentTextDate.setText(_date).setColor("#ffffff");
             Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription, null, 20);
             this.scene.tweens.add({
                 targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],
@@ -4907,8 +5076,8 @@ var z89;
                 }
             });
         };
-        Player.prototype.showBaloon = function (_text) {
-            this.scene.playerBaloon.showBaloon(_text);
+        Player.prototype.showBaloon = function (_text, _callback) {
+            this.scene.playerBaloon.showBaloon(_text, _callback);
         };
         // public showBaloonExtra(_obj: any) { this.scene.playerBaloon.showBaloonExtra(_obj); }
         Player.prototype.hideBaloon = function () {
@@ -5190,7 +5359,7 @@ var z89;
                 else {
                     this.scene.tweens.add({
                         targets: this,
-                        x: -30,
+                        x: 0,
                         alpha: 1,
                         duration: 400,
                         ease: "Quad.easeInOut",
@@ -5409,16 +5578,21 @@ var z89;
             _this.scene.add.existing(_this);
             return _this;
         }
-        PlayerBaloon.prototype.showBaloon = function (_text) {
+        PlayerBaloon.prototype.showBaloon = function (_text, _callback) {
             if (_text == undefined)
                 return;
             this.baloonText.setText(_text);
             this.fixSize();
+            this.setY(this.y);
             this.scene.tweens.add({
                 targets: this,
                 y: this.y + 10,
                 alpha: 1,
-                duration: 500
+                duration: 500,
+                onComplete: function () {
+                    if (_callback != undefined)
+                        _callback();
+                }
             });
         };
         PlayerBaloon.prototype.hideBaloon = function () {

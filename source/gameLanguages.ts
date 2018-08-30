@@ -84,9 +84,9 @@ let languages={
         "Seems to be not connected.",//81
         "Wow! It\'s connected.",//82
         "It\'not connected... maybe later!",//83
-        "This is an experimental website!\nI'm trying to mix the standard personal information website with and adventure game logic.\nDo you think it could work?",//84
+        "Hi! My name is Francesco Raimondo, Presentation Layer Architect @ Healthwareinternational.\nThis is an experimental website made using Phaz3r.js framework. Do you like it? :D",//84
         "DO YOU REALLY WANT TO RESTART?",//85
-        "I want to thanks Richard Davey author of Phaser Framework, PAUL ROBERTSON and JASON TAMMEMAGI for their unaware art contribution to this experiment.",//86
+        "I want to thanks Richard Davey author of Phaser Framework, PAUL ROBERTSON and JASON TAMMEMAGI for their unaware art contribution to this NON-COMMERCIAL experiment.",//86
         "Here some options!!",//87
         "Jukebox",//88
         "DEVDAY website",//89
@@ -148,6 +148,61 @@ let languages={
         "Old floppy disk", //145
         "WOW! It's an original copy of Zak McKracken... Should be worth a lot of $$$!!! ", //146
         "WOW! A real Cloak of Invisibility",//147
+        "Screwdriver",//148
+        "A tool for every season!",//149
+        "Fixed!",//150
+        "I don't want to break something!",//151
+        "The door is open.",//152
+        "The door is closed.",//153
+        "No response!",//154
+        "I GOT DEVDAY PASS!",//155
+        "Damn! It's closed!",//156
+        "It's already closed!",//157
+        "Not a good idea!",//158
+        "TIPs I GOT!",//159
+        "Hi Chris! How are you.",//160
+        "Not bad Francesco. I' would like to play this arcade, but there is something that block the coinbox.",//161
+        "MMM... ok, but now I need your adventure GURU expertise to solve some puzzle. Could you help me?",//162
+        "Sure!...but I know you are a spare time Arcade master... so, if you help me to repair this Arcade, I'll help you to solve your quest.",//163
+        "OK! We have a deal! :D",//164
+        "Hi Francesco, any idea on how to fix the Arcade?",//165
+        "Not yet!",//166
+        "Who is???",//167
+        "Me!",//168
+        "Me who?",//169
+        "Me!! DADDY! Please Noemi.. Open the door!",//170
+        "OK...",//171
+        "Is open Now?",//172
+        "Let's try!",//173
+        "Ok Chris, the Arcade is fixed!",//174
+        "Wow!... Do you have also some coins??",//175
+        "NO!!!",//176
+        "OK.... I'll use mine! :D Come back later if you need some help!",//177
+        "",//178
+        "",//179
+        "",//180
+        "",//181
+        "",//182
+        "",//183
+        "",//184
+        "",//185
+        "",//186
+        "",//187
+        "",//188
+        "",//189
+        "",//190
+        "",//191
+        "",//192
+        "",//193
+        "",//194
+        "",//195
+        "",//196
+        "",//197
+        "",//198
+        "",//199
+        "",//200
+        "",//201
+
         
     ]};
 

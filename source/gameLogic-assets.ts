@@ -30,6 +30,8 @@
             { name: "photonstorm", path: "assets/images/game/items/photonstorm.png" ,width: 50, height: 50, frames: 3},
 
             { name: "floppy", path: "assets/images/game/items/floppy.png",width: 50, height: 50, frames: 2 },
+            { name: "screwdriver", path: "assets/images/game/items/screwdriver.png", width: 50, height: 50, frames: 2 },
+            { name: "interphone", path: "assets/images/game/items/interphone.png", width: 18, height: 27, frames: 2 },
            
             
 
@@ -90,7 +92,9 @@
 
             { name: "arcade", path: "assets/images/game/items/arcade.png" },
             { name: "bottle", path: "assets/images/game/items/bottle.png" },
-           
+            { name: "door", path: "assets/images/game/items/door.png" },
+            { name: "stairs", path: "assets/images/game/items/stairs.png" },
+
             
 
         ],

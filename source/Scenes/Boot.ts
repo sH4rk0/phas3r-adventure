@@ -98,6 +98,8 @@ namespace z89 {
       graphics.generateTexture("chapterTitleBg", 1080, 200);
       graphics.clear();
 
+      
+
       var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
       graphics2.fillRect(0, 0, 50, 126);
       graphics2.generateTexture("playerHitArea", 50, 126);

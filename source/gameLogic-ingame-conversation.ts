@@ -16,57 +16,8 @@ gameData.ingame.conversation = {
   },
 
 
-  /*
   MANAGE_TIP: (cs: z89.GameCity) => {
-    console.log("MANAGE_TIP");
-    let tips: Array<String> = JSON.parse(
-      JSON.stringify(cs.saveGameObj.getSaved().tips.tips)
-    );
-
     
-    let nextTip: String = "";
-    let diff: number = gameData.ingame.conversation.CHECK_TIP_TIME(cs);
-
-    if (diff < 60) {
-        nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([114,110,111,132,133,134]));
-        gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([136]));
-      }
-
-      if (tips.length == 0) {
-        cs.saveGameObj.setTip(
-          gameData.ingame.conversation.TIPS[cs.currentChapter][0]
-        );
-        nextTip = gameData.ingame.conversation.TIPS[cs.currentChapter][0];
-        gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
-
-      } else {
-
-        if (diff != null && diff > 60) {
-        if (tips.length < gameData.ingame.conversation.TIPS[cs.currentChapter].length) {
-          gameData.ingame.conversation.TIPS[cs.currentChapter].forEach(
-            (alltips,index) => {
-                
-              if (tips.indexOf(alltips) == -1 && nextTip == "") {
-                cs.saveGameObj.setTip(alltips);
-                nextTip = alltips;
-                gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([137,138,140]));
-
-              }
-            }
-          );
-        }else{
-            nextTip = z89.getLabel(Phaser.Utils.Array.GetRandom([112,113]));
-            gameData.ingame.conversation.MANAGE_TIP_ANSWER = z89.getLabel(Phaser.Utils.Array.GetRandom([135]));
-        }
-      }
-
-    }
-    //console.log("return",nextTip)
-    return nextTip;
-  },*/
-
-  MANAGE_TIP: (cs: z89.GameCity) => {
-    console.log("MANAGE_TIP");
     let tips: Array<String> = JSON.parse(
       JSON.stringify(cs.saveGameObj.getSaved().tips.tips)
     );
@@ -155,7 +106,7 @@ _return=_return+z89.getLabel(element)+"\n\n"
         text: gameData.ingame.conversation.MANAGE_TIP_ANSWER,
         isItem: false,
         fork: true,
-        options: [{ option: "TIPs I GOT!", goto: "tiplist" }]
+        options: [{ option: z89.getLabel(159), goto: "tiplist" }]
       },
 
       {
@@ -234,7 +185,16 @@ _return=_return+z89.getLabel(element)+"\n\n"
         text: z89.getLabel(86),
         isItem: false,
         fork: true,
-        options: [{ option: z89.getLabel(129), goto: "info" }]
+        options: [
+          { option: "PHASER.IO", link: "http://www.phaser.io" },
+          {
+            option: "PAUL WEBSITE",
+            link: "http://probertson.tumblr.com/"
+          },
+          { option: "JASON WEBSITE", link: "http://jasontammemagi.com/" }
+         
+        
+        ]
       }
     ];
   },
@@ -277,7 +237,7 @@ _return=_return+z89.getLabel(element)+"\n\n"
           {
             option: z89.getLabel(130),
             action: (cs: z89.GameCity, target: z89.Items) => {
-              cs.gameUtils.addDelay(500, () => {
+              cs.addDelay(500, () => {
                 let _jukebox = cs.gameItemsUtils.getItemById(11);
                 _jukebox.play("11-idle");
                 cs.stopSound();
@@ -285,14 +245,14 @@ _return=_return+z89.getLabel(element)+"\n\n"
                 // _woofer.tween.pause();
               });
               cs.conversationBaloon.hideBaloon();
-              cs.player.play("player-use");
+              cs.playerAnimation("player-use");
             }
           },
           {
             option: z89.getLabel(131),
             action: (cs: z89.GameCity, target: z89.Items) => {
               cs.playSound(0);
-              cs.gameUtils.addDelay(500, () => {
+              cs.addDelay(500, () => {
                 let _jukebox = cs.gameItemsUtils.getItemById(11);
                 _jukebox.play("11-play");
                 // let _woofer=cs.gameItemsUtils.getItemById(12);
@@ -300,7 +260,7 @@ _return=_return+z89.getLabel(element)+"\n\n"
               });
 
               cs.conversationBaloon.hideBaloon();
-              cs.player.play("player-use");
+              cs.playerAnimation("player-use");
             }
           }
         ]
@@ -352,6 +312,148 @@ _return=_return+z89.getLabel(element)+"\n\n"
     ];
   },
 
+  TALKTO_20_Null: (cs: z89.GameCity) => {
+    return [
+      {
+        text: z89.getLabel(160),
+        isItem: false,
+        next: true
+      },
+      {
+        text: z89.getLabel(161),
+        isItem: true,
+        next: true
+      },
+      {
+        text: z89.getLabel(162),
+        isItem: false,
+        next: true
+        
+      },
+      {
+        text: z89.getLabel(163),
+        isItem: true,
+        next: true
+
+      },
+      {
+        text: z89.getLabel(164),
+        isItem: false,
+        end: true,
+        callback: (cs: z89.GameCity) => {
+          cs.getItem(20).setConversationStatus(0)
+        }
+      }
+
+    ];
+  },
+
+  TALKTO_20_0: (cs: z89.GameCity) => {
+    return [
+      {
+        text: z89.getLabel(165),
+        isItem: true,
+        next: true
+      },
+      {
+        text: z89.getLabel(166),
+        isItem: false,
+        end: true
+      }
+
+    ];
+  },
+
+  DADDY: (cs: z89.GameCity) => {
+    return [
+      {
+        text: z89.getLabel(167),
+        isItem: true,
+        next: true,
+        delay: 1000
+      },
+      {
+        text: z89.getLabel(168),
+        isItem: false,
+        next: true,
+        delay: 1000
+      },
+      {
+        text: z89.getLabel(169),
+        isItem: true,
+        next: true,
+        delay: 1000
+      },
+      {
+        text: z89.getLabel(170),
+        isItem: false,
+        next: true
+      },
+      {
+        text: z89.getLabel(171),
+        isItem: true,
+        next: true,
+        delay: 1000,
+     
+      },
+      {
+        text: z89.getLabel(172),
+        isItem: true,
+        next: true,
+        delay: 1000,
+        isSkippable: false,
+        callback: (cs: z89.GameCity) => {
+
+              cs.getItem(34).itemObj.open=true;
+              cs.updateItems();
+        }
+      },
+    
+      {
+        text: z89.getLabel(173),
+        isItem: false,
+        end: true,
+        isSkippable: false,
+        callback: (cs: z89.GameCity) => {
+          cs.enableInteraction();
+        }
+      }
+
+    ];
+  },
+
+
+  TALKTO_20_1: (cs: z89.GameCity) => {
+    return [
+      {
+        text: z89.getLabel(174),
+        isItem: false,
+        next: true
+      },
+      {
+        text: z89.getLabel(175),
+        isItem: true,
+        next: true
+      },
+      {
+        text: z89.getLabel(176),
+        isItem: false,
+        next: true
+      },
+      {
+        text: z89.getLabel(177),
+        isItem: true,
+        end: true,
+      callback: (cs: z89.GameCity) => {
+        cs.getItem(20).setConversationStatus(2)
+      }
+      }
+
+    ];
+  },
+
+  
+
   TALKTO_19_null: (cs: z89.GameCity) => {
     return [
       {
@@ -370,6 +472,7 @@ _return=_return+z89.getLabel(element)+"\n\n"
         isItem: false,
         end: true,
         callback: (cs: z89.GameCity) => {
+         
           cs.updateItemObject(19, "conversationStatus", 0);
         }
       }

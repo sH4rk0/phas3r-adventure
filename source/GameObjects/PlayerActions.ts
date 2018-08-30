@@ -249,7 +249,7 @@ namespace z89 {
 
         this.scene.tweens.add({
           targets: this,
-          x: -30,
+          x: 0,
           alpha:1,
           duration: 400,
           ease: "Quad.easeInOut",

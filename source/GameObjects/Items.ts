@@ -11,6 +11,7 @@ module z89 {
         public tween: Phaser.Tweens.Tween;
         private _isInteractive:boolean;
         private _isIdle:boolean=true;
+        private _conversationStatus:number=null
       
 
         constructor(scene: GameCity, itemObj: any) {
@@ -18,8 +19,15 @@ module z89 {
             
             super(scene, itemObj.x, itemObj.y, itemObj.sprite);
             this.scene=scene;
+            this.itemObj = itemObj;
 
-            let config:AnimationConfig;
+            const config:AnimationConfig={
+                key: null,
+                frames: null,
+                frameRate: null,
+                repeat:null
+            };
+
             let repeat:number=-1;
 
             //console.log(itemObj.sprite)
@@ -30,14 +38,10 @@ module z89 {
                    
                     if(!element.loop){ repeat=0} else { repeat=-1;}
 
-                   // console.log(element,repeat);
-                    config={
-                        key: itemObj.id+"-"+element.name,
-                        
-                        frames: scene.anims.generateFrameNumbers(itemObj.sprite,{ frames:element.frames  }),
-                        frameRate: element.rate,
-                        repeat:repeat
-                    };
+                   config.key=itemObj.id+"-"+element.name;
+                   config.frames=scene.anims.generateFrameNumbers(itemObj.sprite,{ frames:element.frames  });
+                   config.frameRate=element.rate;
+                   config.repeat=repeat;
 
                     this.anims.animationManager.create(config);
 
@@ -50,19 +54,17 @@ module z89 {
             
             this.setDepth(this.y).setOrigin(0.5, 1).setX(itemObj.x);
 
-            if (itemObj.scale != undefined) this.setScale(itemObj.scale);
-            if (itemObj.alpha != undefined) this.setAlpha(itemObj.alpha);
-            
-            this.id = itemObj.id;
-            this.itemObj = itemObj;
-            this.name = itemObj.name;
-            this._isInteractive = itemObj.interactive;
-
-            if(itemObj.turnLeft!=undefined) this.turnLeft();
+            this.id = this.itemObj.id;
+            this.name = this.itemObj.name;
+            this._isInteractive = this.itemObj.interactive;
+            this.itemObj.scale != undefined ? this.setScale(this.itemObj.scale) : this.setScale(1)
+            this.itemObj.alpha != undefined ? this.setAlpha(this.itemObj.alpha) : this.setAlpha(1)
+            if(this.itemObj.conversationStatus != undefined) this.setConversationStatus(this.itemObj.conversationStatus)
+            if(this.itemObj.turnLeft!=undefined) this.turnLeft();
 
             if(this.isInteractive()){
                 if(this.itemObj.interactiveArea!=undefined){
-                    this.setInteractive(new Phaser.Geom.Rectangle(itemObj.interactiveArea.x,itemObj.interactiveArea.y,itemObj.interactiveArea.w,itemObj.interactiveArea.h),Phaser.Geom.Rectangle.Contains)
+                    this.setInteractive(new Phaser.Geom.Rectangle(this.itemObj.interactiveArea.x,itemObj.interactiveArea.y,this.itemObj.interactiveArea.w,itemObj.interactiveArea.h),Phaser.Geom.Rectangle.Contains)
                 }else{
                     this.setInteractive()
                 }
@@ -70,7 +72,7 @@ module z89 {
             this.on("pointerdown",() => {
             
                 if(this.scene.isInteractionDisabled()) return;
-                let _currentItem: Items = this.scene.getCurrentItem();
+                const _currentItem: Items = this.scene.getCurrentItem();
 
                if (this.scene.playerActions.IsOpen() && _currentItem != undefined && _currentItem.id != this.id) this.scene.playerActions.hide();
 
@@ -120,6 +122,18 @@ module z89 {
            
         }
 
+        getConversationStatus(){
+
+            return this.itemObj.conversationStatus;
+        }
+
+        setConversationStatus(value:number){
+
+          this.itemObj.conversationStatus = this._conversationStatus = value;
+          this.scene.saveGameObj.updateItems();
+            
+        }
+
         isInteractive(): boolean {
 
             return this._isInteractive;
@@ -129,7 +143,6 @@ module z89 {
         setIdle(value:boolean):void{
 
             this._isIdle=value;
-          
 
         }
 

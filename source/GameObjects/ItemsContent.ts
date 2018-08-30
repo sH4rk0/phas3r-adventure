@@ -392,13 +392,13 @@ namespace z89 {
 
       //console.log(_title,_description,_date)
 
-      this.contentTextTitle.setText(_title);
+      this.contentTextTitle.setText(_title).setColor("#ffffff").setFontSize(30);
       Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this,null, -20);
 
-      this.contentTextDescription.setText(_description);
+      this.contentTextDescription.setText(_description).setFontSize(20);
       Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle,null,10);
 
-      this.contentTextDate.setText(_date);
+      this.contentTextDate.setText(_date).setColor("#ffffff");
       Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription,null,20);
 
       this.scene.tweens.add({

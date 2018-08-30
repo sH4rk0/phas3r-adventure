@@ -8,108 +8,134 @@ gameData.ingame.logic = {
    */
   // examine terminal
   EXAMINE_2: (cs: z89.GameCity) => {
-    if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
-      cs.player.showBaloon(z89.getLabel(82));
+    if (cs.getItem(2).itemObj.working) {
+
+      cs.showPlayerBaloon(82);
     } else {
-      cs.player.showBaloon(z89.getLabel(81));
+      cs.showPlayerBaloon(81);
     }
   },
 
   EXAMINE_14: (cs: z89.GameCity) => {
    
-      cs.player.showBaloon(z89.getLabel(139));
+    cs.showPlayerBaloon(139);
    
+  },
+
+//examine screwdriver
+  EXAMINE_10: (cs: z89.GameCity) => {
+
+    cs.showPlayerBaloon(149);
+
   },
 
   //examine bottle
   EXAMINE_8: (cs: z89.GameCity) => {
    
-    cs.player.showBaloon(z89.getLabel(143));
+    cs.showPlayerBaloon(143);
  
 },
 
  //examine floppy
  EXAMINE_9: (cs: z89.GameCity) => {
    
-  cs.player.showBaloon(z89.getLabel(146));
+   cs.showPlayerBaloon(146);
 
 },
 
   // examine terminal2
   EXAMINE_6: (cs: z89.GameCity) => {
-    if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
-      cs.player.showBaloon(z89.getLabel(82));
+
+    if (cs.getItem(6).itemObj.working) {
+      cs.showPlayerBaloon(82);
     } else {
-      cs.player.showBaloon(z89.getLabel(81));
+      cs.showPlayerBaloon(81);
     }
   },
   //examine gerardo
   EXAMINE_16: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(43));
+    cs.showPlayerBaloon(43);
   },
   // examine coins
   EXAMINE_3: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(26));
+    cs.showPlayerBaloon(26);
   },
 
   // examine coins
   EXAMINE_25: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(27));
+    cs.showPlayerBaloon(27);
   },
 
   // examine drink machine
   EXAMINE_1: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(6));
+    cs.showPlayerBaloon(6);
   },
 
   // devday palace
   EXAMINE_21: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(38));
+    cs.showPlayerBaloon(38);
   },
 
   // devday screen
   EXAMINE_22: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(75));
+    cs.showPlayerBaloon(75);
   },
 
   //examine garbage
   EXAMINE_4: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(62));
+    cs.showPlayerBaloon(62);
   },
 
   //examine scotch tape
   EXAMINE_24: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(58));
+    cs.showPlayerBaloon(58);
   },
 
   //examine energy box
   EXAMINE_23: (cs: z89.GameCity) => {
-    if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
-      cs.player.showBaloon(z89.getLabel(60));
+    if (cs.getItem(23).itemObj.fixed) {
+      cs.showPlayerBaloon(60);
     } else {
-      cs.player.showBaloon(z89.getLabel(59));
+      cs.showPlayerBaloon(59);
     }
   },
 
   //examine daniele
   EXAMINE_17: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(63));
+    cs.showPlayerBaloon(63);
   },
 
   //examine davide
   EXAMINE_18: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(64));
+    cs.showPlayerBaloon(64);
   },
 
   //examine michele
   EXAMINE_19: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(32));
+    cs.showPlayerBaloon(32);
   },
 
    //examine cloak
    EXAMINE_13: (cs: z89.GameCity) => {
-    cs.player.showBaloon(z89.getLabel(147));
+     cs.showPlayerBaloon(147);
   },
+
+  //examine cloak
+  EXAMINE_34: (cs: z89.GameCity) => {
+
+    if (cs.getItem(34).itemObj.open) {
+
+      cs.showPlayerBaloon(153);
+
+    }else{
+
+      cs.showPlayerBaloon(153);
+
+    }
+   
+  },
+
+  
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -120,34 +146,34 @@ gameData.ingame.logic = {
    */
   // use terminal
   USE_2: (cs: z89.GameCity) => {
-    if (cs.gameItemsUtils.getItemById(2).itemObj.working) {
+    if (cs.getItem(2).itemObj.working) {
       cs.Terminal.show(0);
       cs.playerActions.hide();
     } else {
-      cs.player.showBaloon(z89.getLabel(83));
+      cs.showPlayerBaloon(83);
     }
   },
 
    // use terminal 2
    USE_6: (cs: z89.GameCity) => {
-    if (cs.gameItemsUtils.getItemById(6).itemObj.working) {
+    if (cs.getItem(6).itemObj.working) {
       cs.Terminal.show(0);
       cs.playerActions.hide();
     } else {
-      cs.player.showBaloon(z89.getLabel(83));
+      cs.showPlayerBaloon(83);
     }
   },
 
   // use coins on drink machine
   USE_25_1: (cs: z89.GameCity) => {
-    console.log("coins on drink");
-    cs.player.play("player-use");
+    
+    cs.playerAnimation("player-use");
     cs.removeInventoryItems();
-    cs.gameUtils.addDelay(1000, () => {
+    cs.addDelay(1000, () => {
 
-      cs.gameItemsUtils.addItem(3);
-      cs.gameItemsUtils.getItemById(3).itemObj.onStart=true;
-      cs.saveGameObj.updateItems();
+      cs.addItem(3);
+      cs.getItem(3).itemObj.onStart=true;
+      cs.updateItems();
     
     
     });
@@ -158,98 +184,103 @@ gameData.ingame.logic = {
    // use bottle on trash
    USE_8_4: (cs: z89.GameCity) => {
     
-    cs.playerBaloon.showBaloon(z89.getLabel(144));
+     cs.showPlayerBaloon(144);
   
   },
 
      // use bottle on trash2
      USE_8_7: (cs: z89.GameCity) => {
-      cs.player.play("player-use");
+      cs.playerAnimation("player-use");
       cs.removeInventoryItems();
 
-
-      cs.gameUtils.addDelay(300, () => {
+      cs.addDelay(300, () => {
   
-        cs.gameItemsUtils.addItem(9);
-        cs.gameItemsUtils.getItemById(9).itemObj.onStart=true;
-        cs.saveGameObj.updateItems();
+        cs.addItem(9);
+        cs.getItem(9).itemObj.onStart=true;
+        cs.updateItems();
   
       });
 
-
-     /* 
-     
-     cs.player.play("player-use");
-      cs.removeInventoryItems();
-      cs.gameUtils.addDelay(1000, () => {
-  
-        cs.gameItemsUtils.addItem(3);
-        cs.gameItemsUtils.getItemById(3).itemObj.onStart=true;
-        cs.saveGameObj.updateItems();
-  
-      });
-  */
   
     },
 
-   // use coins on drink machine
-  /* USE_25: (cs: z89.GameCity) => {
-    console.log("use coin test");
  
- 
-  },*/
 
   //use devday
   USE_21: (cs: z89.GameCity) => {
-    let convObj: any = {
-      key: "TALKTO_devday",
-      action: null,
-      inventory: null,
-      item: null
-    };
-
-    cs.conversationBaloon.setUpConversation(convObj);
+    cs.setUpConversation(z89.conversationObj("TALKTO_devday"));
   },
 
   //use jukoxeb
   USE_11: (cs: z89.GameCity) => {
-    let convObj: any = {
-      key: "USE_jukebox",
-      action: null,
-      inventory: null,
-      item: null
-    };
+  
+    cs.setUpConversation(z89.conversationObj("USE_jukebox"));
+  },
 
-    cs.conversationBaloon.setUpConversation(convObj);
+  //use interphone
+  USE_29: (cs: z89.GameCity) => {
+
+    cs.playerAnimation("player-use");
+
+    if(cs.currentChapter==0){
+      
+      cs.disableInteraction();
+      cs.addDelay(2000, () => {
+        cs.showPlayerBaloon(154, () => { cs.enableInteraction();})
+      });
+
+    } if (cs.currentChapter == 1){
+
+      cs.disableInteraction();
+      cs.addDelay(2000, () => {
+      cs.setUpConversation(z89.conversationObj("DADDY",cs.currentItem));
+      });
+    }
+    
+    else{
+ 
+    }
+    
+  },
+
+  //use jukoxeb
+  USE_10_14: (cs: z89.GameCity) => {
+
+
+    if (cs.getItem(20).getConversationStatus()==0){
+
+      cs.playerAnimation("player-use");
+      cs.updateItemObject(14, "fixed", true);
+      cs.getItem(20).setConversationStatus(1);
+      cs.showPlayerBaloon(150);
+
+    }else{
+
+      cs.showPlayerBaloon(151);
+
+    }
+    
+  
   },
 
   //use scotch on broken cable
   USE_24_23: (cs: z89.GameCity) => {
-    cs.player.play("player-use");
+    cs.playerAnimation("player-use");
     cs.removeInventoryItems();
-    cs.gameUtils.addDelay(1000, () => {
+    cs.addDelay(1000, () => {
       
-
-      cs.gameItemsUtils.getItemById(23).playAnim("23-fixed");
-      cs.gameItemsUtils.getItemById(22).start();
-      
-      //cs.updateItemObject(23, "name", z89.getLabel(57));
-      //cs.updateItemObject(23, "fixed", true);
-      //cs.updateItemObject(22, "isStarted", true);
-      //cs.updateItemObject(19, "conversationStatus", 1);
-      //cs.updateItemObject(2, "working", true);
+      cs.getItem(23).playAnim("23-fixed");
+      cs.getItem(22).start();
+      cs.getItem(2).playAnim("2-working");
       cs.updateItemsObjects([23,23,22,19,2],["name","fixed","isStarted","conversationStatus","working"],[z89.getLabel(57),true,true,1,true]);
-
-      cs.gameItemsUtils.getItemById(2).playAnim("2-working");
-
-      cs.saveGameObj.updateItems();
-
+      cs.updateItems();
       cs.chapterCompleted();
+
     });
   },
   USE_30_32: (cs: z89.GameCity) => {
-    console.log("bitcoin on blockchain");
-    cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
+    //console.log("bitcoin on blockchain");
+    cs.showPlayerBaloon(155);
     cs.removeInventoryItems();
     cs.addInventory(31, true);
   },
@@ -258,6 +289,39 @@ gameData.ingame.logic = {
    cs.removeInventoryItems();
    cs.player.setAlpha(0.5);
   },
+
+  //use door
+  USE_33: (cs: z89.GameCity) => {
+    
+
+    cs.disableInteraction();
+
+    cs.addDelay(500, () => {  
+
+      cs.addTween({targets:cs.player,alpha:0});
+      cs.getItem(50).start();
+
+      cs.addDelay(2500, () => {  
+
+        cs.addTween({ targets: cs.player, alpha: 1, duration:500, onComplete:()=>{
+
+          cs.enableInteraction();
+          cs.chapterCompleted();
+        }  });
+        const _item = cs.getItem(34);
+        cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
+        _item.itemObj.open=false;
+        cs.updateItems();
+
+      });
+
+
+    });
+
+
+  },
+
+
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -267,12 +331,12 @@ gameData.ingame.logic = {
    */
   //push garbage
   PUSH_4: (cs: z89.GameCity) => {
-    let item: any = cs.gameItemsUtils.getItemById(4);
+    let item: any = cs.getItem(4);
     if (!item.itemObj.moved) {
-      cs.player.play("player-use");
+      cs.playerAnimation("player-use");
       item.itemObj.moved = true;
       if (cs.player.x < 450) {
-        cs.tweens.add({
+        cs.addTween({
           targets: item,
           x: 500,
           duration: 500,
@@ -281,8 +345,9 @@ gameData.ingame.logic = {
         });
 
         item.updateItemObj("x", 500);
+
       } else {
-        cs.tweens.add({
+        cs.addTween({
           targets: item,
           x: 400,
           duration: 500,
@@ -292,9 +357,60 @@ gameData.ingame.logic = {
         item.updateItemObj("x", 400);
       }
     } else {
-      cs.player.showBaloon(z89.getLabel(93));
+      cs.showPlayerBaloon(93);
     }
   },
+ /*
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  OPEN
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   */
+
+ OPEN_34: (cs: z89.GameCity) => {
+
+
+   cs.playerAnimation("player-use");
+   const _item = cs.getItem(34);
+
+   if (_item.itemObj.open) {
+
+     cs.addDelay(500, () => {  cs.addTween({ targets: _item, x: _item.x + 76, ease:"Quad.easeOut"}); });
+
+  }else{
+
+     cs.showPlayerBaloon(156);
+  }
+
+  
+  },
+/*
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  CLOSE
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   */
+
+  CLOSE_34: (cs: z89.GameCity) => {
+
+
+    cs.playerAnimation("player-use");
+    const _item = cs.getItem(34);
+
+    if (_item.itemObj.open) {
+
+      cs.addDelay(500, () => { cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" }); });
+     
+    } else {
+
+      cs.showPlayerBaloon(157);
+    }
+
+
+  },
+
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -305,54 +421,59 @@ gameData.ingame.logic = {
    */
   //pickup scotch
   PICKUP_24: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(24), false);
+    cs.addInventoryItem(cs.getItem(24), false);
   },
 
     //pickup floppy
     PICKUP_9: (cs: z89.GameCity) => {
-      cs.addInventoryItem(cs.gameItemsUtils.getItemById(9), false);
+      cs.addInventoryItem(cs.getItem(9), false);
+    },
+
+    //pickup screwdriver
+    PICKUP_10: (cs: z89.GameCity) => {
+      cs.addInventoryItem(cs.getItem(10), false);
     },
 
   //pickup bottle
   PICKUP_8: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(8), false);
+    cs.addInventoryItem(cs.getItem(8), false);
   },
 
    //pickup coke
    PICKUP_3: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(3), false);
+    cs.addInventoryItem(cs.getItem(3), false);
   },
 
   //pickup coins
   PICKUP_25: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(25), false);
+    cs.addInventoryItem(cs.getItem(25), false);
   },
 
   //pickup bitcoin
   PICKUP_30: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(30), false);
+    cs.addInventoryItem(cs.getItem(30), false);
   },
 
   //pickup blockchain
   PICKUP_32: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(32), false);
+    cs.addInventoryItem(cs.getItem(32), false);
   },
 
   //pickup jumper
   PICKUP_101: (cs: z89.GameCity) => {
     console.log("pickup jumper");
-    cs.player.play("player-use");
+    cs.playerAnimation("player-use");
   },
 
   //pickup runner
   PICKUP_102: (cs: z89.GameCity) => {
     console.log("pickup runner");
-    cs.player.play("player-use");
+    cs.playerAnimation("player-use");
   },
 
    //pickup camouflage
    PICKUP_13: (cs: z89.GameCity) => {
-    cs.addInventoryItem(cs.gameItemsUtils.getItemById(13), false);
+    cs.addInventoryItem(cs.getItem(13), false);
   },
 
   /*
@@ -370,6 +491,11 @@ gameData.ingame.logic = {
 
    //drop bottle
    DROP_8: (cs: z89.GameCity) => {
+    cs.dropInventoryItem();
+  },
+
+  //drop screwdriver
+  DROP_10: (cs: z89.GameCity) => {
     cs.dropInventoryItem();
   },
 
@@ -391,7 +517,7 @@ gameData.ingame.logic = {
 
     //drop scotch
   DROP_13: (cs: z89.GameCity) => {
-      cs.playerBaloon.showBaloon("Not a good idea!");
+      cs.showPlayerBaloon(158);
     },
 
   /*
@@ -403,200 +529,75 @@ gameData.ingame.logic = {
    */
 
   TALKTO_16: (cs: z89.GameCity) => {
-    cs.conversationBaloon.setUpConversation({
-      key: "TALKTO_16",
-      action: null,
-      inventory: null,
-      item: cs.currentItem
-    });
+    cs.setUpConversation(z89.conversationObj("TALKTO_16",cs.currentItem));
   },
   TALKTO_27: (cs: z89.GameCity) => {
-    cs.conversationBaloon.setUpConversation({
-      key: "TALKTO_27",
-      action: null,
-      inventory: null,
-      item: cs.currentItem
-    });
+
+    cs.setUpConversation(z89.conversationObj("TALKTO_27",cs.currentItem));
   },
-//chris
-  TALKTO_20: (cs: z89.GameCity) => {
-
-
-    cs.conversationBaloon.setUpConversation({
-      key: "HELP_GAME",
-      action: null,
-      inventory: null,
-      item: cs.currentItem
-    });
-  },
-
 //sidney
+
   TALKTO_21: (cs: z89.GameCity) => {
 
-    cs.conversationBaloon.setUpConversation({
-      key: "HELP_GAME",
-      action: null,
-      inventory: null,
-      item: cs.currentItem
-    });
+    const item: any = cs.getItem(20);
+
+    cs.setUpConversation(z89.conversationObj("HELP_GAME",cs.currentItem));
+
+  },
+
+//chris
+  TALKTO_20: (cs: z89.GameCity) => {
+  
+   
+  switch (cs.getItem(20).getConversationStatus()) {
+
+    case null:
+  
+      cs.setUpConversation(z89.conversationObj("TALKTO_20_Null", cs.currentItem));
+
+    break;
+
+    case 0:
+
+      cs.setUpConversation(z89.conversationObj("TALKTO_20_0", cs.currentItem));
+
+      break;
+
+    case 1:
+
+      cs.setUpConversation(z89.conversationObj("TALKTO_20_1", cs.currentItem));
+      break;
+
+      case 2:
+      
+      cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
+
+      break;
+
+  }
+
   },
 
   //talkto michele
   TALKTO_19: (cs: z89.GameCity) => {
-    let item: any = cs.gameItemsUtils.getItemById(19);
-    let convObj: any = {
-      key: "",
-      action: null,
-      inventory: null,
-      item: cs.currentItem
-    };
+    
+    switch (cs.getItem(19).getConversationStatus()) {
 
-    //console.log(item.itemObj.conversationStatus)
-    switch (item.itemObj.conversationStatus) {
       case null:
-        convObj.key = "TALKTO_19_null";
+        cs.setUpConversation(z89.conversationObj("TALKTO_19_null",cs.currentItem));
         break;
 
       case 0:
-        convObj.key = "TALKTO_19_0";
+        cs.setUpConversation(z89.conversationObj("TALKTO_19_0",cs.currentItem));
         break;
 
       case 1:
-        convObj.key = "TALKTO_19_1";
+        cs.setUpConversation(z89.conversationObj("TALKTO_19_1",cs.currentItem));
         break;
     }
 
-    cs.conversationBaloon.setUpConversation(convObj);
-  },
+ 
+  }
 
   
 };
-
-/*
-
-gameData.ingame.logic =
-
-    {
-
-        // devday palace
-        EXAMINE_21: (cs: z89.GameCity) => {
-
-            cs.player.showBaloon(z89.getLabel(38));
-        },
-        USE_21: (cs: z89.GameCity) => {
-
-            cs.conversationBaloon.setUpConversation({
-                key: "TALKTO_devday",
-                action: null,
-                inventory: null,
-                item: null
-            });
-
-            cs.player.showBaloon(z89.getLabel(38));
-        },
-
-        // scotch tape
-        EXAMINE_24: (cs: z89.GameCity) => {
-
-            cs.player.showBaloon(z89.getLabel(58));
-        },
-
-        //broken energy box
-        EXAMINE_23: (cs: z89.GameCity) => {
-
-            if (cs.gameItemsUtils.getItemById(23).itemObj.fixed) {
-
-                cs.player.showBaloon(z89.getLabel(60));
-            } else {
-                cs.player.showBaloon(z89.getLabel(59));
-
-            }
-
-
-        },
-
-        PICKUP_24: (cs: z89.GameCity) => { cs.addInventoryItem(cs.gameItemsUtils.getItemById(24)); },
-        DROP_24: (cs: z89.GameCity) => { cs.dropInventoryItem(); },
-
-        USE_24_23: (cs: z89.GameCity) => {
-
-            cs.player.play("use");
-            cs.removeInventoryItems();
-            cs.gameUtils.addDelay(1000, () => {
-                cs.gameItemsUtils.getItemById(23).updateItemObj("name", z89.getLabel(57));
-                cs.gameItemsUtils.getItemById(23).playAnim("fixed");
-                cs.gameItemsUtils.getItemById(23).itemObj.fixed = true;
-                cs.gameItemsUtils.getItemById(22).start();
-                cs.saveGameObj.updateItems();
-
-            });
-
-        },
-
-        //use money on drink machine
-        USE_8_1: (cs: z89.GameCity) => {
-            cs.player.play("use");
-            cs.removeInventoryItems();
-            cs.gameUtils.addDelay(2000, () => { cs.gameItemsUtils.addItem(7); });
-
-        },
-
-        //use coin o coin
-        USE_8_15: (cs: z89.GameCity) => {
-            console.log("coin on coins");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(7);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(7));
-
-        },
-
-        //use block on chain
-        USE_8_28: (cs: z89.GameCity) => {
-            console.log("block on chain");
-            cs.playerBaloon.showBaloon("I GOT BLOCKCHAIN!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(30);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(30));
-
-        },
-        //use bit o coin
-        USE_29_15: (cs: z89.GameCity) => {
-            console.log("bit on coin");
-            cs.playerBaloon.showBaloon("I GOT A BITCOIN!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(32);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(32));
-
-        },
-        USE_30_32: (cs: z89.GameCity) => {
-            console.log("bitcoin on blockchain");
-            cs.playerBaloon.showBaloon("I GOT DEVDAY PASS!");
-            cs.removeInventoryItems();
-            cs.gameItemsUtils.addItem(31);
-            cs.addInventoryItem(cs.gameItemsUtils.getItemById(31));
-
-        },
-
-        GIVE_31_13: (cs: z89.GameCity) => {
-            console.log("pass to daniele");
-            cs.player.play("use");
-            cs.removeInventoryItems();
-
-            let convObj: any = {
-                key: "TALKTO_custom",
-                action: null,
-                inventory: null,
-                item: cs.currentItem
-            }
-            cs.gameUtils.addDelay(1000, () => {
-
-                cs.conversationBaloon.setUpConversation(convObj);
-
-            });
-
-
-        }
-
-    }
-
-*/

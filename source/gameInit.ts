@@ -32,6 +32,18 @@ namespace z89 {
     return _ismobile;
 }
 
+export function conversationObj(key:string,item?:Items): any {
+
+  const _item:Items = item
+  return {
+      key: key,
+      action: null,
+      inventory: null,
+      item: _item
+    }
+  
+}
+
 export function setDevice(isMobile: boolean): void {
 
     _ismobile = isMobile;

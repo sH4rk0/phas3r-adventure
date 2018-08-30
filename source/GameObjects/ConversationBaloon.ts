@@ -21,7 +21,7 @@ namespace z89 {
     constructor(scene: GameCity, x: number, y: number) {
       super(scene);
 
-      this.setAlpha(0);
+      this.setAlpha(0)
       this.isSkippable = true;
       this.isPlaying = false;
 
@@ -29,11 +29,10 @@ namespace z89 {
       this.baloonBg
         .setOrigin(0.5, 1)
         .setAlpha(0.8)
+        .setInteractive()
         .on(
           "pointerdown",
-          () => {
-            this.skip();
-          },
+          () => { this.skip(); },
           this
         );
 
@@ -69,16 +68,19 @@ namespace z89 {
       this.hideBaloon();
       this.timeEvent.remove(false);
       this.currentStep++;
-      let _obj = this.conversationObj[this.currentStep];
-      if (_obj != undefined) {
+      const _obj = this.conversationObj[this.currentStep];
+
+      (_obj!=undefined && (_obj.next != undefined || _obj.end)) ?  this.displayStep() : this.isPlaying = false
+      
+     /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
         this.displayStep();
       } else {
         this.isPlaying = false;
-      }
+      }*/
 
-      if (_obj.next != undefined) {
+     /* if (_obj.next != undefined) {
         this.displayStep();
-      }
+      }*/
     }
 
     public showBaloon(_text: string): void {
@@ -182,14 +184,19 @@ namespace z89 {
     }
 
     displayStep(): void {
+      let _delay:number=0;
       this.removeForks();
       this.baloonText.setY(0);
+
       this.isSkippable = true;
+
       if (!this.isPlaying) {
         return;
       }
 
       let _obj = this.conversationObj[this.currentStep];
+
+      if (_obj.isSkippable != undefined) this.isSkippable = _obj.isSkippable;
       if (_obj == undefined) {
         this.hideBaloon();
         return;
@@ -211,8 +218,10 @@ namespace z89 {
       }
 
       if (_obj.next != undefined) {
+        
+        if (_obj.delay != undefined) _delay = _obj.delay
         this.timeEvent = this.scene.time.addEvent({
-          delay: this.getTime(_obj.text.length),
+          delay: this.getTime(_obj.text.length) + _delay,
           callback: () => {
             this.currentStep++;
             this.displayStep();
@@ -223,8 +232,9 @@ namespace z89 {
       }
 
       if (_obj.end != undefined) {
+        if (_obj.delay != undefined) _delay = _obj.delay
         this.timeEvent = this.scene.time.addEvent({
-          delay: this.getTime(_obj.text.length),
+          delay: this.getTime(_obj.text.length) + _delay,
           callback: () => {
             this.currentStep = 0;
             this.hideBaloon();

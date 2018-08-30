@@ -379,6 +379,15 @@ namespace z89 {
       }
     }
 
+
+    getItem(id:number){
+
+      return this.gameItemsUtils.getItemById(id);
+
+    }
+
+
+
     render() {
       //this.debug.cameraInfo(this.game.camera, 500, 232);
       //this.game.debug.spriteCoords(this.player, 32, 32);
@@ -1024,6 +1033,43 @@ namespace z89 {
         _explosion.destroy();
       });
     }
+
+    showPlayerBaloon(textId:number,callback?:any):void{
+
+      this.player.showBaloon(z89.getLabel(textId),callback)
+
+    }
+
+    addItem(id: number, randomId?: boolean): void{
+
+      this.gameItemsUtils.addItem(id,randomId);
+    }
+
+    addDelay(delay: number, callback: any): void {
+
+      this.gameUtils.addDelay(delay,callback);
+
+    }
+
+    addTween(tweenObj:any): void {
+
+      this.tweens.add(tweenObj);
+
+    }
+
+    playerAnimation(animation:string):void{
+
+      this.player.play(animation);
+
+    }
+
+    setUpConversation(_actionObj: any): void {
+
+      this.conversationBaloon.setUpConversation(_actionObj);
+
+    }
+
+    updateItems():void{ this.saveGameObj.updateItems();}
 
     shootFromHigh(targets: Array<number>, shot?: any, callback?: any): void {
       shot = {
