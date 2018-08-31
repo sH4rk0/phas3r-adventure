@@ -57010,7 +57010,7 @@ declare namespace Phaser {
              * [description]
              * @param dispatchCallback [description]
              */
-            remove(dispatchCallback: Function): void;
+            remove(dispatchCallback: boolean): void;
 
             /**
              * [description]

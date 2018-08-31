@@ -183,12 +183,13 @@ namespace z89 {
         .on(
           "pointerdown",
           pointer => {
-            this.scene.conversationBaloon.setUpConversation({
+            this.scene.setUpConversation({
               key: "RESTART",
               action: null,
               inventory: null,
               item: null
             });
+
             this.hide();
           },
           this
@@ -233,7 +234,6 @@ namespace z89 {
         .on(
           "pointerdown",
           pointer => {
-
             //console.log("info")
             this.scene.conversationBaloon.setUpConversation({
               key: "INFO",
@@ -287,9 +287,7 @@ namespace z89 {
         .on(
           "pointerdown",
           pointer => {
-
             //console.log("option")
-
             /*
             this.scene.conversationBaloon.setUpConversation({
               key: "OPTIONS",
@@ -300,7 +298,16 @@ namespace z89 {
 
             this.hide();*/
 
-            this.showMenu();
+            this.scene.setUpConversation({
+              key: "LANGUAGE",
+              action: null,
+              inventory: null,
+              item: null
+            });
+
+            this.hide();
+
+            //this.showMenu();
           },
           this
         )
@@ -332,15 +339,10 @@ namespace z89 {
       //Start buttons
       //+++++++++++++++++++++++++++++++++
       let introText: Phaser.GameObjects.Text = this.scene.add
-        .text(
-          0,
-          0,
-         z89.getLabel(141),
-          {
-            fontFamily: "Roboto",
-            fontSize: 20
-          }
-        )
+        .text(0, 0, z89.getLabel(141), {
+          fontFamily: "Roboto",
+          fontSize: 20
+        })
         .setWordWrapWidth(280)
         .setTint(0xffffff)
         .setOrigin(0.5)
@@ -487,7 +489,6 @@ namespace z89 {
     }
 
     show() {
-      
       if (this.isOpenOnStart) {
         this.showState("start");
       } else {
@@ -511,25 +512,27 @@ namespace z89 {
       });
     }
 
-
-    showMenu(){
-
-
-      this.getAll().forEach((element: Phaser.GameObjects.Sprite,index) => {
-
+    showMenu() {
+      this.getAll().forEach((element: Phaser.GameObjects.Sprite, index) => {
         if (element.name == "iconsBtn") {
-
-          this.scene.tweens.add({targets:element,duration:100, y:element.y+20, alpha:0, onComplete:()=>{
-
-            element.setY(element.y-20);
-
-          }});
-
-        } 
+          this.scene.tweens.add({
+            targets: element,
+            duration: 100,
+            y: element.y + 20,
+            alpha: 0,
+            onComplete: () => {
+              element.setY(element.y - 20);
+            }
+          });
+        }
       }, this);
 
-      this.scene.tweens.add({targets:this.menuBgOptions, scaleY:22, duration:1000, ease:"Bounce.easeOut"})
-
+      this.scene.tweens.add({
+        targets: this.menuBgOptions,
+        scaleY: 22,
+        duration: 1000,
+        ease: "Bounce.easeOut"
+      });
     }
 
     hide() {

@@ -9,7 +9,7 @@ namespace z89 {
     currentItem: Items;
     Terminal: Terminal;
 
-    private gameCompleted:boolean=false;
+    private gameCompleted: boolean = false;
 
     public mainCamera: Phaser.Cameras.Scene2D.Camera;
     private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
@@ -236,26 +236,28 @@ namespace z89 {
         this
       );
 
-      this.chapterTitleBg = this.add.image(0,100,"chapterTitleBg");
-      this.chapterTitleBg.setScrollFactor(0)
-      .setOrigin(0)
-      .setAlpha(0)
-      .setDepth(909).setVisible(false);
+      this.chapterTitleBg = this.add.image(0, 100, "chapterTitleBg");
+      this.chapterTitleBg
+        .setScrollFactor(0)
+        .setOrigin(0)
+        .setAlpha(0)
+        .setDepth(909)
+        .setVisible(false);
 
       this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
       this.chapterTitle
         .setScrollFactor(0)
         .setOrigin(0)
         .setAlpha(0)
-        .setDepth(910).setVisible(false);
+        .setDepth(910)
+        .setVisible(false);
 
       playSound(gameSound.intro);
-
 
       //add an Items on scene && a copy of the same item with randomized id
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       //this.gameItemsUtils.addItem(100);
-    /* this.gameItemsUtils.addItem(100,true);
+      /* this.gameItemsUtils.addItem(100,true);
       this.gameItemsUtils.addItem(100,true);
       this.gameItemsUtils.addItem(100,true);
       this.gameItemsUtils.addItem(100,true);
@@ -265,13 +267,12 @@ namespace z89 {
       this.gameItemsUtils.addItem(100,true);
       */
 
-
       //get an item and add directly to the inventory
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
       // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-      // this.addInventoryItem(this.gameItemsUtils.getItemById(30));
-      // this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+      //this.gameItemsUtils.addItem(35);
+      //this.addInventoryItem(this.gameItemsUtils.getItemById(35));
 
       //beam out existing Items
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -288,16 +289,10 @@ namespace z89 {
 
       //accessible global instance for backend ajax call
       _gamecity = this;
-
-      
     }
 
-
-
-    setGameCompleted():void{
-
-      this.gameCompleted=true;
-
+    setGameCompleted(): void {
+      this.gameCompleted = true;
     }
 
     stopSound(): void {
@@ -379,14 +374,9 @@ namespace z89 {
       }
     }
 
-
-    getItem(id:number){
-
+    getItem(id: number) {
       return this.gameItemsUtils.getItemById(id);
-
     }
-
-
 
     render() {
       //this.debug.cameraInfo(this.game.camera, 500, 232);
@@ -430,7 +420,7 @@ namespace z89 {
           );
           */
       } else {
-       /* console.log("doillogic");
+        /* console.log("doillogic");
 
         console.log(
           _actionObj.key,
@@ -534,7 +524,7 @@ namespace z89 {
         returnObj.key = "noAction";
       }
 
-     // console.log(returnObj);
+      // console.log(returnObj);
       this.logicCombination = returnObj;
 
       //return this.logicCombination;
@@ -574,9 +564,7 @@ namespace z89 {
           //console.log(_actionObj.inventory.length)
           if (_actionObj.inventory.length == 1) {
             _actionText =
-              this.getCurrentActionLabel() +
-              " " +
-              _actionObj.inventory[0].name //+ _destText;
+              this.getCurrentActionLabel() + " " + _actionObj.inventory[0].name; //+ _destText;
           } else if (_actionObj.inventory.length == 2) {
             _actionText =
               this.getCurrentActionLabel() +
@@ -788,12 +776,12 @@ namespace z89 {
     }
 
     disableInteraction(): void {
-      console.log("disableInteraction")
+      console.log("disableInteraction");
       this.gameInteraction = false;
     }
 
     enableInteraction(): void {
-      console.log("enableInteraction")
+      console.log("enableInteraction");
       this.gameInteraction = true;
     }
 
@@ -847,15 +835,14 @@ namespace z89 {
       this.gameItemsUtils.getItemById(itemId).updateItemObj(key, value);
     }
 
-    updateItemsObjects(items: Array<number>, keys: Array<string>, values: Array<any>): void {
-     
-      items.forEach((element,index)=>{
-
-        this.updateItemObject(element,keys[index],values[index]);
-
+    updateItemsObjects(
+      items: Array<number>,
+      keys: Array<string>,
+      values: Array<any>
+    ): void {
+      items.forEach((element, index) => {
+        this.updateItemObject(element, keys[index], values[index]);
       });
-
-
     }
 
     removeInventoryItems(): void {
@@ -902,10 +889,8 @@ namespace z89 {
       this.saveGameObj.updateItems();
     }
 
-    isChapterCompleted(chapterIndex:number):boolean{
-
+    isChapterCompleted(chapterIndex: number): boolean {
       return this.saveGameObj.getSaved().chapter.chapters[chapterIndex];
-
     }
 
     chapterCompleted(): void {
@@ -925,14 +910,14 @@ namespace z89 {
     }
 
     displayChapterOptions(): void {
-      console.log("displayChapterOptions")
+      console.log("displayChapterOptions");
       this.conversationBaloon.setUpConversation({
         key: "CHAPTER_COMPLETED",
         action: null,
         inventory: null,
         item: null
       });
-     
+
       this.playerMenu.hide();
       this.playerActions.hide();
       this.playerBaloon.hideBaloon();
@@ -951,7 +936,7 @@ namespace z89 {
       this.playerActions.hide();
       this.playerBaloon.hideBaloon();
       this.conversationBaloon.hideBaloon();
-      
+
       this.enableInteraction();
     }
 
@@ -960,15 +945,15 @@ namespace z89 {
       this.chapterTitle.setVisible(true);
       this.chapterTitleBg.setVisible(true);
       this.chapterTitle.text = gameData.chapters[this.currentChapter].title;
-      Phaser.Display.Align.In.Center(this.chapterTitle,this.chapterTitleBg);
+      Phaser.Display.Align.In.Center(this.chapterTitle, this.chapterTitleBg);
       this.tweens.add({
-        targets: [this.chapterTitle,this.chapterTitleBg],
+        targets: [this.chapterTitle, this.chapterTitleBg],
         duration: 1000,
         alpha: 1,
         yoyo: true,
         loop: 0,
         hold: 2000,
-        onComplete:()=>{
+        onComplete: () => {
           this.chapterTitle.setVisible(false);
           this.chapterTitleBg.setVisible(false);
         }
@@ -1034,42 +1019,37 @@ namespace z89 {
       });
     }
 
-    showPlayerBaloon(textId:number,callback?:any):void{
-
-      this.player.showBaloon(z89.getLabel(textId),callback)
-
+    showPlayerBaloon(textId: number, callback?: any): void {
+      this.player.showBaloon(z89.getLabel(textId), callback);
     }
 
-    addItem(id: number, randomId?: boolean): void{
+    setLanguage(language: string): void {
+      z89.setLanguage(language);
+    }
 
-      this.gameItemsUtils.addItem(id,randomId);
+    addItem(id: number, randomId?: boolean): void {
+      this.gameItemsUtils.addItem(id, randomId);
     }
 
     addDelay(delay: number, callback: any): void {
-
-      this.gameUtils.addDelay(delay,callback);
-
+      this.gameUtils.addDelay(delay, callback);
     }
 
-    addTween(tweenObj:any): void {
-
+    addTween(tweenObj: any): void {
       this.tweens.add(tweenObj);
-
     }
 
-    playerAnimation(animation:string):void{
-
+    playerAnimation(animation: string): void {
       this.player.play(animation);
-
     }
 
     setUpConversation(_actionObj: any): void {
-
       this.conversationBaloon.setUpConversation(_actionObj);
-
     }
 
-    updateItems():void{ this.saveGameObj.updateItems();}
+    updateItems(): void {
+      this.saveGameObj.updateItems();
+    }
 
     shootFromHigh(targets: Array<number>, shot?: any, callback?: any): void {
       shot = {

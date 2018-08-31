@@ -9,7 +9,6 @@ gameData.ingame.logic = {
   // examine terminal
   EXAMINE_2: (cs: z89.GameCity) => {
     if (cs.getItem(2).itemObj.working) {
-
       cs.showPlayerBaloon(82);
     } else {
       cs.showPlayerBaloon(81);
@@ -17,35 +16,30 @@ gameData.ingame.logic = {
   },
 
   EXAMINE_14: (cs: z89.GameCity) => {
-   
     cs.showPlayerBaloon(139);
-   
   },
 
-//examine screwdriver
+  EXAMINE_29: (cs: z89.GameCity) => {
+    cs.showPlayerBaloon(181);
+  },
+
+  //examine screwdriver
   EXAMINE_10: (cs: z89.GameCity) => {
-
     cs.showPlayerBaloon(149);
-
   },
 
   //examine bottle
   EXAMINE_8: (cs: z89.GameCity) => {
-   
     cs.showPlayerBaloon(143);
- 
-},
+  },
 
- //examine floppy
- EXAMINE_9: (cs: z89.GameCity) => {
-   
-   cs.showPlayerBaloon(146);
-
-},
+  //examine floppy
+  EXAMINE_9: (cs: z89.GameCity) => {
+    cs.showPlayerBaloon(146);
+  },
 
   // examine terminal2
   EXAMINE_6: (cs: z89.GameCity) => {
-
     if (cs.getItem(6).itemObj.working) {
       cs.showPlayerBaloon(82);
     } else {
@@ -115,27 +109,19 @@ gameData.ingame.logic = {
     cs.showPlayerBaloon(32);
   },
 
-   //examine cloak
-   EXAMINE_13: (cs: z89.GameCity) => {
-     cs.showPlayerBaloon(147);
+  //examine cloak
+  EXAMINE_13: (cs: z89.GameCity) => {
+    cs.showPlayerBaloon(147);
   },
 
   //examine cloak
   EXAMINE_34: (cs: z89.GameCity) => {
-
     if (cs.getItem(34).itemObj.open) {
-
       cs.showPlayerBaloon(153);
-
-    }else{
-
+    } else {
       cs.showPlayerBaloon(153);
-
     }
-   
   },
-
-  
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -154,8 +140,8 @@ gameData.ingame.logic = {
     }
   },
 
-   // use terminal 2
-   USE_6: (cs: z89.GameCity) => {
+  // use terminal 2
+  USE_6: (cs: z89.GameCity) => {
     if (cs.getItem(6).itemObj.working) {
       cs.Terminal.show(0);
       cs.playerActions.hide();
@@ -166,45 +152,31 @@ gameData.ingame.logic = {
 
   // use coins on drink machine
   USE_25_1: (cs: z89.GameCity) => {
-    
     cs.playerAnimation("player-use");
     cs.removeInventoryItems();
     cs.addDelay(1000, () => {
-
       cs.addItem(3);
-      cs.getItem(3).itemObj.onStart=true;
+      cs.getItem(3).itemObj.onStart = true;
       cs.updateItems();
-    
-    
     });
-
-
   },
 
-   // use bottle on trash
-   USE_8_4: (cs: z89.GameCity) => {
-    
-     cs.showPlayerBaloon(144);
-  
+  // use bottle on trash
+  USE_8_4: (cs: z89.GameCity) => {
+    cs.showPlayerBaloon(144);
   },
 
-     // use bottle on trash2
-     USE_8_7: (cs: z89.GameCity) => {
-      cs.playerAnimation("player-use");
-      cs.removeInventoryItems();
+  // use bottle on trash2
+  USE_8_7: (cs: z89.GameCity) => {
+    cs.playerAnimation("player-use");
+    cs.removeInventoryItems();
 
-      cs.addDelay(300, () => {
-  
-        cs.addItem(9);
-        cs.getItem(9).itemObj.onStart=true;
-        cs.updateItems();
-  
-      });
-
-  
-    },
-
- 
+    cs.addDelay(300, () => {
+      cs.addItem(9);
+      cs.getItem(9).itemObj.onStart = true;
+      cs.updateItems();
+    });
+  },
 
   //use devday
   USE_21: (cs: z89.GameCity) => {
@@ -213,54 +185,40 @@ gameData.ingame.logic = {
 
   //use jukoxeb
   USE_11: (cs: z89.GameCity) => {
-  
     cs.setUpConversation(z89.conversationObj("USE_jukebox"));
   },
 
   //use interphone
   USE_29: (cs: z89.GameCity) => {
-
     cs.playerAnimation("player-use");
 
-    if(cs.currentChapter==0){
-      
+    if (cs.currentChapter == 0) {
       cs.disableInteraction();
       cs.addDelay(2000, () => {
-        cs.showPlayerBaloon(154, () => { cs.enableInteraction();})
+        cs.showPlayerBaloon(154, () => {
+          cs.enableInteraction();
+        });
       });
-
-    } if (cs.currentChapter == 1){
-
+    }
+    if (cs.currentChapter == 1) {
       cs.disableInteraction();
       cs.addDelay(2000, () => {
-      cs.setUpConversation(z89.conversationObj("DADDY",cs.currentItem));
+        cs.setUpConversation(z89.conversationObj("DADDY", cs.currentItem));
       });
+    } else {
     }
-    
-    else{
- 
-    }
-    
   },
 
   //use jukoxeb
   USE_10_14: (cs: z89.GameCity) => {
-
-
-    if (cs.getItem(20).getConversationStatus()==0){
-
+    if (cs.getItem(20).getConversationStatus() == 0) {
       cs.playerAnimation("player-use");
       cs.updateItemObject(14, "fixed", true);
       cs.getItem(20).setConversationStatus(1);
       cs.showPlayerBaloon(150);
-
-    }else{
-
+    } else {
       cs.showPlayerBaloon(151);
-
     }
-    
-  
   },
 
   //use scotch on broken cable
@@ -268,14 +226,16 @@ gameData.ingame.logic = {
     cs.playerAnimation("player-use");
     cs.removeInventoryItems();
     cs.addDelay(1000, () => {
-      
       cs.getItem(23).playAnim("23-fixed");
       cs.getItem(22).start();
       cs.getItem(2).playAnim("2-working");
-      cs.updateItemsObjects([23,23,22,19,2],["name","fixed","isStarted","conversationStatus","working"],[z89.getLabel(57),true,true,1,true]);
+      cs.updateItemsObjects(
+        [23, 23, 22, 19, 2],
+        ["name", "fixed", "isStarted", "conversationStatus", "working"],
+        [z89.getLabel(57), true, true, 1, true]
+      );
       cs.updateItems();
       cs.chapterCompleted();
-
     });
   },
   USE_30_32: (cs: z89.GameCity) => {
@@ -286,41 +246,35 @@ gameData.ingame.logic = {
   },
 
   USE_13: (cs: z89.GameCity) => {
-   cs.removeInventoryItems();
-   cs.player.setAlpha(0.5);
+    cs.removeInventoryItems();
+    cs.player.setAlpha(0.5);
   },
 
   //use door
   USE_33: (cs: z89.GameCity) => {
-    
-
     cs.disableInteraction();
 
-    cs.addDelay(500, () => {  
-
-      cs.addTween({targets:cs.player,alpha:0});
+    cs.addDelay(500, () => {
+      cs.addTween({ targets: cs.player, alpha: 0 });
       cs.getItem(50).start();
 
-      cs.addDelay(2500, () => {  
-
-        cs.addTween({ targets: cs.player, alpha: 1, duration:500, onComplete:()=>{
-
-          cs.enableInteraction();
-          cs.chapterCompleted();
-        }  });
+      cs.addDelay(2500, () => {
+        cs.addTween({
+          targets: cs.player,
+          alpha: 1,
+          duration: 500,
+          onComplete: () => {
+            cs.enableInteraction();
+            cs.chapterCompleted();
+          }
+        });
         const _item = cs.getItem(34);
         cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
-        _item.itemObj.open=false;
+        _item.itemObj.open = false;
         cs.updateItems();
-
       });
-
-
     });
-
-
   },
-
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -345,7 +299,6 @@ gameData.ingame.logic = {
         });
 
         item.updateItemObj("x", 500);
-
       } else {
         cs.addTween({
           targets: item,
@@ -360,7 +313,28 @@ gameData.ingame.logic = {
       cs.showPlayerBaloon(93);
     }
   },
- /*
+
+  /*
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  GIVE
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   */
+
+  GIVE_9_21: (cs: z89.GameCity) => {
+    cs.playerAnimation("player-use");
+    cs.removeInventoryItems();
+
+    cs.addDelay(500, () => {
+      cs.disableInteraction();
+      cs.setUpConversation(
+        z89.conversationObj("TALKTO_21_GAME", cs.currentItem)
+      );
+    });
+  },
+
+  /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   OPEN
@@ -368,24 +342,19 @@ gameData.ingame.logic = {
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    */
 
- OPEN_34: (cs: z89.GameCity) => {
+  OPEN_34: (cs: z89.GameCity) => {
+    cs.playerAnimation("player-use");
+    const _item = cs.getItem(34);
 
-
-   cs.playerAnimation("player-use");
-   const _item = cs.getItem(34);
-
-   if (_item.itemObj.open) {
-
-     cs.addDelay(500, () => {  cs.addTween({ targets: _item, x: _item.x + 76, ease:"Quad.easeOut"}); });
-
-  }else{
-
-     cs.showPlayerBaloon(156);
-  }
-
-  
+    if (_item.itemObj.open) {
+      cs.addDelay(500, () => {
+        cs.addTween({ targets: _item, x: _item.x + 76, ease: "Quad.easeOut" });
+      });
+    } else {
+      cs.showPlayerBaloon(156);
+    }
   },
-/*
+  /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   CLOSE
@@ -394,23 +363,17 @@ gameData.ingame.logic = {
    */
 
   CLOSE_34: (cs: z89.GameCity) => {
-
-
     cs.playerAnimation("player-use");
     const _item = cs.getItem(34);
 
     if (_item.itemObj.open) {
-
-      cs.addDelay(500, () => { cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" }); });
-     
+      cs.addDelay(500, () => {
+        cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
+      });
     } else {
-
       cs.showPlayerBaloon(157);
     }
-
-
   },
-
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -424,23 +387,23 @@ gameData.ingame.logic = {
     cs.addInventoryItem(cs.getItem(24), false);
   },
 
-    //pickup floppy
-    PICKUP_9: (cs: z89.GameCity) => {
-      cs.addInventoryItem(cs.getItem(9), false);
-    },
+  //pickup floppy
+  PICKUP_9: (cs: z89.GameCity) => {
+    cs.addInventoryItem(cs.getItem(9), false);
+  },
 
-    //pickup screwdriver
-    PICKUP_10: (cs: z89.GameCity) => {
-      cs.addInventoryItem(cs.getItem(10), false);
-    },
+  //pickup screwdriver
+  PICKUP_10: (cs: z89.GameCity) => {
+    cs.addInventoryItem(cs.getItem(10), false);
+  },
 
   //pickup bottle
   PICKUP_8: (cs: z89.GameCity) => {
     cs.addInventoryItem(cs.getItem(8), false);
   },
 
-   //pickup coke
-   PICKUP_3: (cs: z89.GameCity) => {
+  //pickup coke
+  PICKUP_3: (cs: z89.GameCity) => {
     cs.addInventoryItem(cs.getItem(3), false);
   },
 
@@ -471,8 +434,8 @@ gameData.ingame.logic = {
     cs.playerAnimation("player-use");
   },
 
-   //pickup camouflage
-   PICKUP_13: (cs: z89.GameCity) => {
+  //pickup camouflage
+  PICKUP_13: (cs: z89.GameCity) => {
     cs.addInventoryItem(cs.getItem(13), false);
   },
 
@@ -489,8 +452,8 @@ gameData.ingame.logic = {
     cs.dropInventoryItem();
   },
 
-   //drop bottle
-   DROP_8: (cs: z89.GameCity) => {
+  //drop bottle
+  DROP_8: (cs: z89.GameCity) => {
     cs.dropInventoryItem();
   },
 
@@ -498,7 +461,6 @@ gameData.ingame.logic = {
   DROP_10: (cs: z89.GameCity) => {
     cs.dropInventoryItem();
   },
-
 
   //drop scotch
   DROP_25: (cs: z89.GameCity) => {
@@ -515,10 +477,10 @@ gameData.ingame.logic = {
     cs.dropInventoryItem();
   },
 
-    //drop scotch
+  //drop scotch
   DROP_13: (cs: z89.GameCity) => {
-      cs.showPlayerBaloon(158);
-    },
+    cs.showPlayerBaloon(158);
+  },
 
   /*
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -529,75 +491,90 @@ gameData.ingame.logic = {
    */
 
   TALKTO_16: (cs: z89.GameCity) => {
-    cs.setUpConversation(z89.conversationObj("TALKTO_16",cs.currentItem));
+    cs.setUpConversation(z89.conversationObj("TALKTO_16", cs.currentItem));
   },
-  TALKTO_27: (cs: z89.GameCity) => {
 
-    cs.setUpConversation(z89.conversationObj("TALKTO_27",cs.currentItem));
+  TALKTO_106: (cs: z89.GameCity) => {
+    if (cs.currentChapter == 2) {
+      //cake thief
+    } else {
+      cs.setUpConversation(z89.conversationObj("TALKTO_106", cs.currentItem));
+    }
   },
-//sidney
+
+  TALKTO_27: (cs: z89.GameCity) => {
+    cs.setUpConversation(z89.conversationObj("TALKTO_27", cs.currentItem));
+  },
+  //sidney
 
   TALKTO_21: (cs: z89.GameCity) => {
-
     const item: any = cs.getItem(20);
+    console.log(cs.getItem(21).getConversationStatus());
+    switch (cs.getItem(21).getConversationStatus()) {
+      case null:
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_21_Null", cs.currentItem)
+        );
+        break;
 
-    cs.setUpConversation(z89.conversationObj("HELP_GAME",cs.currentItem));
-
+      case 0:
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_21_0", cs.currentItem)
+        );
+        break;
+    }
   },
 
-//chris
+  //chris
   TALKTO_20: (cs: z89.GameCity) => {
-  
-   
-  switch (cs.getItem(20).getConversationStatus()) {
+    switch (cs.getItem(20).getConversationStatus()) {
+      case null:
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_20_Null", cs.currentItem)
+        );
 
-    case null:
-  
-      cs.setUpConversation(z89.conversationObj("TALKTO_20_Null", cs.currentItem));
+        break;
 
-    break;
+      case 0:
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_20_0", cs.currentItem)
+        );
 
-    case 0:
+        break;
 
-      cs.setUpConversation(z89.conversationObj("TALKTO_20_0", cs.currentItem));
-
-      break;
-
-    case 1:
-
-      cs.setUpConversation(z89.conversationObj("TALKTO_20_1", cs.currentItem));
-      break;
+      case 1:
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_20_1", cs.currentItem)
+        );
+        break;
 
       case 2:
-      
-      cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
+        cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
 
-      break;
-
-  }
-
+        break;
+    }
   },
 
   //talkto michele
   TALKTO_19: (cs: z89.GameCity) => {
-    
     switch (cs.getItem(19).getConversationStatus()) {
-
       case null:
-        cs.setUpConversation(z89.conversationObj("TALKTO_19_null",cs.currentItem));
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_19_null", cs.currentItem)
+        );
         break;
 
       case 0:
-        cs.setUpConversation(z89.conversationObj("TALKTO_19_0",cs.currentItem));
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_19_0", cs.currentItem)
+        );
         break;
 
       case 1:
-        cs.setUpConversation(z89.conversationObj("TALKTO_19_1",cs.currentItem));
+        cs.setUpConversation(
+          z89.conversationObj("TALKTO_19_1", cs.currentItem)
+        );
         break;
     }
-
- 
   }
-
-  
 };

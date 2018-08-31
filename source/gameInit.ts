@@ -23,31 +23,31 @@ namespace z89 {
     return _089Data;
   }
 
+  export function setLanguage(language: string): void {
+    currentLang = language;
+  }
+
   export function isOnline(): any {
     return navigator.onLine;
   }
 
   export function isMobile(): boolean {
-
     return _ismobile;
-}
+  }
 
-export function conversationObj(key:string,item?:Items): any {
-
-  const _item:Items = item
-  return {
+  export function conversationObj(key: string, item?: Items): any {
+    const _item: Items = item;
+    return {
       key: key,
       action: null,
       inventory: null,
       item: _item
-    }
-  
-}
+    };
+  }
 
-export function setDevice(isMobile: boolean): void {
-
+  export function setDevice(isMobile: boolean): void {
     _ismobile = isMobile;
-}
+  }
 
   export const _config = {
     type: Phaser.AUTO,
@@ -56,7 +56,7 @@ export function setDevice(isMobile: boolean): void {
     parent: "my-game",
     width: 1080,
     height: 720,
-    scene: [Boot, Preloader, GameCity],
+    scene: [Boot, Preloader, GameCity]
     /*callbacks: {
       postBoot: (game) => {
           game.renderer.addPipeline(
@@ -109,62 +109,47 @@ export function setDevice(isMobile: boolean): void {
   }
 
   export function pushSound(_sound: Phaser.Sound.BaseSound): void {
-
-     _gameSounds.push(_sound)
-
-}
+    _gameSounds.push(_sound);
+  }
 
   export function getSound(_sound: gameSound): Phaser.Sound.BaseSound {
-
     return _gameSounds[_sound];
+  }
 
-}
-
-export function playSound(_sound: gameSound): void {
-
+  export function playSound(_sound: gameSound): void {
     _gameSounds[_sound].play();
+  }
 
-}
-
-export function stopSound(_sound: gameSound): void {
-
+  export function stopSound(_sound: gameSound): void {
     _gameSounds[_sound].stop();
+  }
 
-}
+  export function stopSoundAll(): void {
+    _gameSounds.forEach(sound => {
+      sound.stop();
+    });
+  }
 
-export function stopSoundAll(): void {
-
-    _gameSounds.forEach((sound)=>{
-        sound.stop();
-
-    })
-  
-
-}
-
-
-
-export function pauseSound(_sound: gameSound): void {
-
+  export function pauseSound(_sound: gameSound): void {
     _gameSounds[_sound].stop();
+  }
 
-}
-
-export function setSoundVolume(_sound: gameSound, _volume: number): void {
-
-    _gameSounds[_sound].volume = _volume;
-
-}
+  export function setSoundVolume(_sound: gameSound, _volume: number): void {
+    // _gameSounds[_sound].volume = _volume;
+  }
 
   export class initGame {
     private config: GameConfig;
 
     constructor(config: GameConfig) {
       this.config = config;
-      
-     // console.log(navigator.onLine);
-      if(isOnline()){this.getContents()}else{ this.startLoading()}
-    
+
+      // console.log(navigator.onLine);
+      if (isOnline()) {
+        this.getContents();
+      } else {
+        this.startLoading();
+      }
     }
 
     startLoading() {
@@ -195,32 +180,24 @@ export function setSoundVolume(_sound: gameSound, _volume: number): void {
     }
 
     resize() {
-
-        var canvas = document.querySelector("canvas");
-        var windowWidth = window.innerWidth;
-        var windowHeight = window.innerHeight;
-        var windowRatio = windowWidth / windowHeight;
-        var gameRatio = z89._config.width / z89._config.height;
-        if (windowRatio < gameRatio) {
-            canvas.style.width = windowWidth + "px";
-            canvas.style.height = (windowWidth / gameRatio) + "px";
-        } else {
-            canvas.style.width = (windowHeight * gameRatio) + "px";
-            canvas.style.height = windowHeight + "px";
-        }
-    
+      var canvas = document.querySelector("canvas");
+      var windowWidth = window.innerWidth;
+      var windowHeight = window.innerHeight;
+      var windowRatio = windowWidth / windowHeight;
+      var gameRatio = z89._config.width / z89._config.height;
+      if (windowRatio < gameRatio) {
+        canvas.style.width = windowWidth + "px";
+        canvas.style.height = windowWidth / gameRatio + "px";
+      } else {
+        canvas.style.width = windowHeight * gameRatio + "px";
+        canvas.style.height = windowHeight + "px";
       }
-
-
+    }
   }
-
-
 }
 
 window.onresize = () => {
-
-   _initGame.resize();
-
+  _initGame.resize();
 };
 
 window.onload = () => {

@@ -385,35 +385,38 @@ var z89;
                 _this.player.goTo(_this.input.x + _this.mainCamera.scrollX, _this.input.y);
             }, this);
             this.chapterTitleBg = this.add.image(0, 100, "chapterTitleBg");
-            this.chapterTitleBg.setScrollFactor(0)
+            this.chapterTitleBg
+                .setScrollFactor(0)
                 .setOrigin(0)
                 .setAlpha(0)
-                .setDepth(909).setVisible(false);
+                .setDepth(909)
+                .setVisible(false);
             this.chapterTitle = this.add.bitmapText(100, 200, "commodore2", "", 48);
             this.chapterTitle
                 .setScrollFactor(0)
                 .setOrigin(0)
                 .setAlpha(0)
-                .setDepth(910).setVisible(false);
+                .setDepth(910)
+                .setVisible(false);
             z89.playSound(z89.gameSound.intro);
             //add an Items on scene && a copy of the same item with randomized id
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //this.gameItemsUtils.addItem(100);
             /* this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              this.gameItemsUtils.addItem(100,true);
-              */
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            this.gameItemsUtils.addItem(100,true);
+            */
             //get an item and add directly to the inventory
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
             // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-            // this.addInventoryItem(this.gameItemsUtils.getItemById(30));
-            // this.addInventoryItem(this.gameItemsUtils.getItemById(32));
+            //this.gameItemsUtils.addItem(35);
+            //this.addInventoryItem(this.gameItemsUtils.getItemById(35));
             //beam out existing Items
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // this.gameItemsUtils.beamOut(27);
@@ -535,14 +538,14 @@ var z89;
             }
             else {
                 /* console.log("doillogic");
-         
-                 console.log(
-                   _actionObj.key,
-                   _actionObj.key.indexOf("_"),
-                   _actionObj.inventory.length,
-                   _actionObj.item
-                 );
-                 */
+        
+                console.log(
+                  _actionObj.key,
+                  _actionObj.key.indexOf("_"),
+                  _actionObj.inventory.length,
+                  _actionObj.item
+                );
+                */
                 if (_actionObj.key != "noAction" &&
                     _actionObj.key.indexOf("_") != -1 &&
                     ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
@@ -654,9 +657,7 @@ var z89;
                     //console.log(_actionObj.inventory.length)
                     if (_actionObj.inventory.length == 1) {
                         _actionText =
-                            this.getCurrentActionLabel() +
-                                " " +
-                                _actionObj.inventory[0].name; //+ _destText;
+                            this.getCurrentActionLabel() + " " + _actionObj.inventory[0].name; //+ _destText;
                     }
                     else if (_actionObj.inventory.length == 2) {
                         _actionText =
@@ -1033,6 +1034,9 @@ var z89;
         GameCity.prototype.showPlayerBaloon = function (textId, callback) {
             this.player.showBaloon(z89.getLabel(textId), callback);
         };
+        GameCity.prototype.setLanguage = function (language) {
+            z89.setLanguage(language);
+        };
         GameCity.prototype.addItem = function (id, randomId) {
             this.gameItemsUtils.addItem(id, randomId);
         };
@@ -1048,7 +1052,9 @@ var z89;
         GameCity.prototype.setUpConversation = function (_actionObj) {
             this.conversationBaloon.setUpConversation(_actionObj);
         };
-        GameCity.prototype.updateItems = function () { this.saveGameObj.updateItems(); };
+        GameCity.prototype.updateItems = function () {
+            this.saveGameObj.updateItems();
+        };
         GameCity.prototype.shootFromHigh = function (targets, shot, callback) {
             var _this = this;
             shot = {
@@ -1337,6 +1343,10 @@ var z89;
         return _089Data;
     }
     z89.getZero89Data = getZero89Data;
+    function setLanguage(language) {
+        currentLang = language;
+    }
+    z89.setLanguage = setLanguage;
     function isOnline() {
         return navigator.onLine;
     }
@@ -1366,7 +1376,14 @@ var z89;
         parent: "my-game",
         width: 1080,
         height: 720,
-        scene: [z89.Boot, z89.Preloader, z89.GameCity],
+        scene: [z89.Boot, z89.Preloader, z89.GameCity]
+        /*callbacks: {
+          postBoot: (game) => {
+              game.renderer.addPipeline(
+                  'testPipeline',
+                  new testPipeline({ 'game': game, 'renderer': game.renderer }));
+          },
+      },*/
     };
     var c64ColorsEnum;
     (function (c64ColorsEnum) {
@@ -1432,7 +1449,7 @@ var z89;
     }
     z89.pauseSound = pauseSound;
     function setSoundVolume(_sound, _volume) {
-        _gameSounds[_sound].volume = _volume;
+        // _gameSounds[_sound].volume = _volume;
     }
     z89.setSoundVolume = setSoundVolume;
     var initGame = (function () {
@@ -1477,10 +1494,10 @@ var z89;
             var gameRatio = z89._config.width / z89._config.height;
             if (windowRatio < gameRatio) {
                 canvas.style.width = windowWidth + "px";
-                canvas.style.height = (windowWidth / gameRatio) + "px";
+                canvas.style.height = windowWidth / gameRatio + "px";
             }
             else {
-                canvas.style.width = (windowHeight * gameRatio) + "px";
+                canvas.style.width = windowHeight * gameRatio + "px";
                 canvas.style.height = windowHeight + "px";
             }
         };
@@ -1585,11 +1602,11 @@ var languages = {
         "building",
         "door",
         "Seems to be not connected.",
-        "Wow! It\'s connected.",
-        "It\'not connected... maybe later!",
+        "Wow! It's connected.",
+        "It'not connected... maybe later!",
         "Hi! My name is Francesco Raimondo, Presentation Layer Architect @ Healthwareinternational.\nThis is an experimental website made using Phaz3r.js framework. Do you like it? :D",
         "DO YOU REALLY WANT TO RESTART?",
-        "I want to thanks Richard Davey author of Phaser Framework, PAUL ROBERTSON and JASON TAMMEMAGI for their unaware art contribution to this NON-COMMERCIAL experiment.",
+        "I want to thanks Richard Davey author of Phaser Framework,\nPAUL ROBERTSON and\nJASON TAMMEMAGI\nfor their unaware art contribution to this NON-COMMERCIAL experiment.",
         "Here some options!!",
         "Jukebox",
         "DEVDAY website",
@@ -1665,10 +1682,10 @@ var languages = {
         "TIPs I GOT!",
         "Hi Chris! How are you.",
         "Not bad Francesco. I' would like to play this arcade, but there is something that block the coinbox.",
-        "MMM... ok, but now I need your adventure GURU expertise to solve some puzzle. Could you help me?",
-        "Sure!...but I know you are a spare time Arcade master... so, if you help me to repair this Arcade, I'll help you to solve your quest.",
+        "MMM... ok, but now I need your AGS GURU expertise to solve my adventure. Could you help me?",
+        "Sure!...but I know you are a spare time ARCADE SENSEI... so, if you help me to repair this Arcade, I'll help you to solve your quest.",
         "OK! We have a deal! :D",
-        "Hi Francesco, any idea on how to fix the Arcade?",
+        "Hi Francesco, any news on how to fix the Arcade?",
         "Not yet!",
         "Who is???",
         "Me!",
@@ -1681,35 +1698,67 @@ var languages = {
         "Wow!... Do you have also some coins??",
         "NO!!!",
         "OK.... I'll use mine! :D Come back later if you need some help!",
+        "Select the language.",
+        "ENGLISH",
+        "ITALIAN",
+        "The interphone seems to work.",
+        "Hi! How are things going?",
+        "Not bad... hope better! Do you want a piece of cake?",
+        "No thanks! I'm on Diet. Too much sugar in your cakes! :D",
+        "That's why are so sweet... Honey!",
+        "Hi Sidney! How are you?",
+        "Hi Francesco, I'm ok! You?",
+        "Not to bad. I'm involved in this stupid retro adventure...",
+        "RETRO ADVENTURE.... this remind me the amazing C64 era! How many memories!",
+        "...Exactly! You are very lucky... i would like to have my name starting with a mighty 8bit music format... SID! ;)",
+        "True... Nomen omen! So, do you wanna play an adventure?? I have a big archive, you know I'm a collector! ;)",
+        "No thanks, I need to play around... finding my way! See you around! ;)",
+        "Ok if you think back, I'm here! Bye! :D",
+        "Do you changed idea?",
+        "No thanks, maybe later!",
+        "INCREDIBLE!!!... An original copy of Zak McKracken and the Alien Mindbenders. I have a perfect place in my collection, between the other 5 copy and the original Zak mask.",
+        "You have already 5 copy of this game??",
+        "You know...more is better than less!",
+        "Depends on situation... but in this case I agree. So, do you really have an original Zak mask?",
+        'Yes of course! ...it\'s one of... "MY PRECIOUS!!!!"',
+        "I would like to try it. Do you think it's possible?",
+        "Mmm... I don't know... it's MY PRECIOUS!!!!... Ok... Wait here!",
+        "Immutable like... like... a blockchain transaction!!!",
+        "Here again!",
+        "AHHHHH!!! How are you???",
+        'Seems that the mask works properly!...  "MY PRECIOUS!!!!" ....AHUAAAUAUHHA!!',
+        "Hey... Gollum... Let me try the mask!",
+        "Magic word?",
+        "Please!",
         "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
+        "" //211
     ]
 };
 var actions = {
-    en: ["PUSH", "PULL", "GIVE", "OPEN", "CLOSE", "EXAMINE", "USE", "PICK UP", "DROP", "TALK TO"],
-    it: ["SPINGI", "TIRA", "DAI", "APRI", "CHIUDI", "ESAMINA", "USA", "PRENDI", "LASCIA", "PARLA A"]
+    en: [
+        "PUSH",
+        "PULL",
+        "GIVE",
+        "OPEN",
+        "CLOSE",
+        "EXAMINE",
+        "USE",
+        "PICK UP",
+        "DROP",
+        "TALK TO"
+    ],
+    it: [
+        "SPINGI",
+        "TIRA",
+        "DAI",
+        "APRI",
+        "CHIUDI",
+        "ESAMINA",
+        "USA",
+        "PRENDI",
+        "LASCIA",
+        "PARLA A"
+    ]
 };
 var currentLang = "en";
 var gameData = {
@@ -1727,65 +1776,229 @@ var gameData = {
         laterA: [136],
         okA: [137, 138, 140]
     },
-    skills: [{ s: "phaser", v: 60 }, { s: "javascript", v: 70 }, { s: "html", v: 75 }, { s: "typescript", v: 60 }, { s: "css", v: 65 }, { s: ".net", v: 70 }, { s: "c#", v: 65 }, { s: "gamedev", v: 50 }, { s: "design", v: 60 }, { s: "ux", v: 65 }, { s: "clm", v: 80 }, { s: "tsql", v: 70 }, { s: "firebase", v: 60 }]
+    skills: [
+        { s: "phaser", v: 60 },
+        { s: "javascript", v: 70 },
+        { s: "html", v: 75 },
+        { s: "typescript", v: 60 },
+        { s: "css", v: 65 },
+        { s: ".net", v: 70 },
+        { s: "c#", v: 65 },
+        { s: "gamedev", v: 50 },
+        { s: "design", v: 60 },
+        { s: "ux", v: 65 },
+        { s: "clm", v: 80 },
+        { s: "tsql", v: 70 },
+        { s: "firebase", v: 60 }
+    ]
 };
 var eases = [
-    'Linear',
-    'Quad.easeIn',
-    'Cubic.easeIn',
-    'Quart.easeIn',
-    'Quint.easeIn',
-    'Sine.easeIn',
-    'Expo.easeIn',
-    'Circ.easeIn',
-    'Back.easeIn',
-    'Bounce.easeIn',
-    'Quad.easeOut',
-    'Cubic.easeOut',
-    'Quart.easeOut',
-    'Quint.easeOut',
-    'Sine.easeOut',
-    'Expo.easeOut',
-    'Circ.easeOut',
-    'Back.easeOut',
-    'Bounce.easeOut',
-    'Quad.easeInOut',
-    'Cubic.easeInOut',
-    'Quart.easeInOut',
-    'Quint.easeInOut',
-    'Sine.easeInOut',
-    'Expo.easeInOut',
-    'Circ.easeInOut',
-    'Back.easeInOut',
-    'Bounce.easeInOut'
+    "Linear",
+    "Quad.easeIn",
+    "Cubic.easeIn",
+    "Quart.easeIn",
+    "Quint.easeIn",
+    "Sine.easeIn",
+    "Expo.easeIn",
+    "Circ.easeIn",
+    "Back.easeIn",
+    "Bounce.easeIn",
+    "Quad.easeOut",
+    "Cubic.easeOut",
+    "Quart.easeOut",
+    "Quint.easeOut",
+    "Sine.easeOut",
+    "Expo.easeOut",
+    "Circ.easeOut",
+    "Back.easeOut",
+    "Bounce.easeOut",
+    "Quad.easeInOut",
+    "Cubic.easeInOut",
+    "Quart.easeInOut",
+    "Quint.easeInOut",
+    "Sine.easeInOut",
+    "Expo.easeInOut",
+    "Circ.easeInOut",
+    "Back.easeInOut",
+    "Bounce.easeInOut"
 ];
 gameData.assets = {
     spritesheets: [
-        { name: "player", path: "assets/images/game/player.png", width: 126, height: 126, frames: 64 },
-        { name: "terminal", path: "assets/images/game/items/terminal.png", width: 52, height: 132, frames: 7 },
-        { name: "arete", path: "assets/images/game/people/arete.png", width: 65, height: 138, frames: 4 },
-        { name: "daniele", path: "assets/images/game/people/daniele.png", width: 65, height: 138, frames: 4 },
-        { name: "davide", path: "assets/images/game/people/davide.png", width: 65, height: 138, frames: 4 },
-        { name: "michele", path: "assets/images/game/people/michele.png", width: 65, height: 138, frames: 4 },
-        { name: "chris", path: "assets/images/game/people/chris.png", width: 65, height: 138, frames: 4 },
-        { name: "sidney", path: "assets/images/game/people/sidney.png", width: 65, height: 138, frames: 4 },
-        { name: "walkers", path: "assets/images/game/people/walkers.png", width: 150, height: 150, frames: 120 },
-        { name: "inventory", path: "assets/images/game/inventory.png", width: 70, height: 70, frames: 2 },
-        { name: "icons", path: "assets/images/game/icons/icons.png", width: 80, height: 80, frames: 11 },
-        { name: "beam", path: "assets/images/game/beam.png", width: 200, height: 200, frames: 12 },
-        { name: "devday", path: "assets/images/game/items/devday.png", width: 320, height: 87, frames: 2 },
-        { name: "explosion", path: "assets/images/game/explosion.png", width: 80, height: 80, frames: 28 },
-        { name: "meteor", path: "assets/images/game/meteor.png", width: 80, height: 109, frames: 9 },
-        { name: "travolta", path: "assets/images/game/people/travolta2.png", width: 248, height: 200, frames: 25 },
-        { name: "cable", path: "assets/images/game/items/cable.png", width: 30, height: 40, frames: 20 },
-        { name: "cake", path: "assets/images/game/items/cake.png", width: 150, height: 177, frames: 9 },
-        { name: "drink-machine", path: "assets/images/game/items/drink-machine.png", width: 80, height: 124, frames: 2 },
-        { name: "jukebox", path: "assets/images/game/items/jukebox.png", width: 68, height: 136, frames: 8 },
-        { name: "phaser-logo", path: "assets/images/game/items/phaser-logo.png", width: 412, height: 93, frames: 2 },
-        { name: "photonstorm", path: "assets/images/game/items/photonstorm.png", width: 50, height: 50, frames: 3 },
-        { name: "floppy", path: "assets/images/game/items/floppy.png", width: 50, height: 50, frames: 2 },
-        { name: "screwdriver", path: "assets/images/game/items/screwdriver.png", width: 50, height: 50, frames: 2 },
-        { name: "interphone", path: "assets/images/game/items/interphone.png", width: 18, height: 27, frames: 2 },
+        {
+            name: "player",
+            path: "assets/images/game/player.png",
+            width: 126,
+            height: 126,
+            frames: 64
+        },
+        {
+            name: "terminal",
+            path: "assets/images/game/items/terminal.png",
+            width: 52,
+            height: 132,
+            frames: 7
+        },
+        {
+            name: "arete",
+            path: "assets/images/game/people/arete.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "daniele",
+            path: "assets/images/game/people/daniele.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "davide",
+            path: "assets/images/game/people/davide.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "michele",
+            path: "assets/images/game/people/michele.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "chris",
+            path: "assets/images/game/people/chris.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "sidney",
+            path: "assets/images/game/people/sidney.png",
+            width: 65,
+            height: 138,
+            frames: 4
+        },
+        {
+            name: "walkers",
+            path: "assets/images/game/people/walkers.png",
+            width: 150,
+            height: 150,
+            frames: 120
+        },
+        {
+            name: "inventory",
+            path: "assets/images/game/inventory.png",
+            width: 70,
+            height: 70,
+            frames: 2
+        },
+        {
+            name: "icons",
+            path: "assets/images/game/icons/icons.png",
+            width: 80,
+            height: 80,
+            frames: 11
+        },
+        {
+            name: "beam",
+            path: "assets/images/game/beam.png",
+            width: 200,
+            height: 200,
+            frames: 12
+        },
+        {
+            name: "devday",
+            path: "assets/images/game/items/devday.png",
+            width: 320,
+            height: 87,
+            frames: 2
+        },
+        {
+            name: "explosion",
+            path: "assets/images/game/explosion.png",
+            width: 80,
+            height: 80,
+            frames: 28
+        },
+        {
+            name: "meteor",
+            path: "assets/images/game/meteor.png",
+            width: 80,
+            height: 109,
+            frames: 9
+        },
+        {
+            name: "travolta",
+            path: "assets/images/game/people/travolta2.png",
+            width: 248,
+            height: 200,
+            frames: 25
+        },
+        {
+            name: "cable",
+            path: "assets/images/game/items/cable.png",
+            width: 30,
+            height: 40,
+            frames: 20
+        },
+        {
+            name: "cake",
+            path: "assets/images/game/items/cake.png",
+            width: 150,
+            height: 177,
+            frames: 9
+        },
+        {
+            name: "drink-machine",
+            path: "assets/images/game/items/drink-machine.png",
+            width: 80,
+            height: 124,
+            frames: 2
+        },
+        {
+            name: "jukebox",
+            path: "assets/images/game/items/jukebox.png",
+            width: 68,
+            height: 136,
+            frames: 8
+        },
+        {
+            name: "phaser-logo",
+            path: "assets/images/game/items/phaser-logo.png",
+            width: 412,
+            height: 93,
+            frames: 2
+        },
+        {
+            name: "photonstorm",
+            path: "assets/images/game/items/photonstorm.png",
+            width: 50,
+            height: 50,
+            frames: 3
+        },
+        {
+            name: "floppy",
+            path: "assets/images/game/items/floppy.png",
+            width: 50,
+            height: 50,
+            frames: 2
+        },
+        {
+            name: "screwdriver",
+            path: "assets/images/game/items/screwdriver.png",
+            width: 50,
+            height: 50,
+            frames: 2
+        },
+        {
+            name: "interphone",
+            path: "assets/images/game/items/interphone.png",
+            width: 18,
+            height: 27,
+            frames: 2
+        }
     ],
     images: [
         { name: "bg-level0", path: "assets/images/game/bg-level0.png" },
@@ -1820,7 +2033,10 @@ gameData.assets = {
         { name: "halftone", path: "assets/images/game/halftone.png" },
         { name: "readmore", path: "assets/images/game/readmore.png" },
         { name: "terminalBg", path: "assets/images/game/terminal/terminalBg.png" },
-        { name: "terminalKeyboard", path: "assets/images/game/terminal/keyboard.png" },
+        {
+            name: "terminalKeyboard",
+            path: "assets/images/game/terminal/keyboard.png"
+        },
         { name: "bg-home", path: "assets/images/game/buildings/home.png" },
         { name: "bg-devday", path: "assets/images/game/buildings/devday.png" },
         { name: "bg-skills", path: "assets/images/game/buildings/skills.png" },
@@ -1832,11 +2048,22 @@ gameData.assets = {
         { name: "bottle", path: "assets/images/game/items/bottle.png" },
         { name: "door", path: "assets/images/game/items/door.png" },
         { name: "stairs", path: "assets/images/game/items/stairs.png" },
+        { name: "mask", path: "assets/images/game/items/mask.png" }
     ],
-    sounds: [{ name: "intro", paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"], volume: 1, loop: false }
+    sounds: [
+        {
+            name: "intro",
+            paths: ["assets/sounds/intro.ogg", "assets/sounds/intro.m4a"],
+            volume: 1,
+            loop: false
+        }
     ],
     bitmapfont: [
-        { name: "commodore", imgpath: "assets/fonts/carrier_command.png", xmlpath: "assets/fonts/carrier_command.xml" }
+        {
+            name: "commodore",
+            imgpath: "assets/fonts/carrier_command.png",
+            xmlpath: "assets/fonts/carrier_command.xml"
+        }
     ]
 };
 gameData.chapters = [
@@ -1953,7 +2180,7 @@ gameData.ingame.conversation = {
                 label: "tiplist",
                 text: gameData.ingame.conversation.MANAGE_TIP_LIST(cs),
                 isItem: false,
-                fork: false,
+                fork: false
             }
         ];
     },
@@ -1974,6 +2201,29 @@ gameData.ingame.conversation = {
                         option: z89.getLabel(126),
                         action: function (cs, target) {
                             cs.conversationBaloon.hideBaloon();
+                        }
+                    }
+                ]
+            }
+        ];
+    },
+    LANGUAGE: function (cs) {
+        return [
+            {
+                text: z89.getLabel(178),
+                isItem: false,
+                fork: false,
+                options: [
+                    {
+                        option: z89.getLabel(179),
+                        action: function (cs, target) {
+                            cs.setLanguage("en");
+                        }
+                    },
+                    {
+                        option: z89.getLabel(180),
+                        action: function (cs, target) {
+                            cs.setLanguage("it");
                         }
                     }
                 ]
@@ -2176,6 +2426,97 @@ gameData.ingame.conversation = {
             }
         ];
     },
+    TALKTO_21_Null: function (cs) {
+        return [
+            { text: z89.getLabel(186), isItem: false, next: true },
+            { text: z89.getLabel(187), isItem: true, next: true },
+            { text: z89.getLabel(188), isItem: false, next: true },
+            { text: z89.getLabel(189), isItem: true, next: true },
+            { text: z89.getLabel(190), isItem: false, next: true },
+            { text: z89.getLabel(191), isItem: true, next: true },
+            { text: z89.getLabel(192), isItem: false, next: true },
+            {
+                text: z89.getLabel(193),
+                isItem: true,
+                end: true,
+                isSkippable: false,
+                callback: function (cs) {
+                    cs.getItem(21).setConversationStatus(0);
+                }
+            }
+        ];
+    },
+    TALKTO_21_0: function (cs) {
+        return [
+            {
+                text: z89.getLabel(194),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(195),
+                isItem: false,
+                end: true
+            }
+        ];
+    },
+    TALKTO_21_GAME: function (cs) {
+        return [
+            { text: z89.getLabel(196), isItem: true, next: true },
+            { text: z89.getLabel(197), isItem: false, next: true },
+            { text: z89.getLabel(198), isItem: true, next: true },
+            { text: z89.getLabel(199), isItem: false, next: true },
+            { text: z89.getLabel(200), isItem: true, next: true },
+            { text: z89.getLabel(201), isItem: false, next: true },
+            {
+                text: z89.getLabel(202),
+                isItem: true,
+                next: true
+            },
+            {
+                text: z89.getLabel(203),
+                isItem: false,
+                end: true,
+                callback: function (cs) {
+                    cs.gameItemsUtils.beamOut(cs.getItem(21), function () {
+                        cs.addDelay(2000, function () {
+                            cs.gameItemsUtils.beamIn(cs.getItem(21), function () {
+                                cs.setUpConversation(z89.conversationObj("TALKTO_21_GAME_BACK", cs.currentItem));
+                            });
+                        });
+                    });
+                }
+            }
+        ];
+    },
+    TALKTO_21_GAME_BACK: function (cs) {
+        return [
+            { text: z89.getLabel(204), isItem: true, next: true },
+            { text: z89.getLabel(205), isItem: false, next: true },
+            { text: z89.getLabel(206), isItem: true, next: true },
+            { text: z89.getLabel(207), isItem: false, next: true },
+            { text: z89.getLabel(208), isItem: true, next: true },
+            {
+                text: z89.getLabel(209),
+                isItem: false,
+                end: true,
+                callback: function () {
+                    cs.playerAnimation("player-use");
+                    cs.enableInteraction();
+                    cs.gameItemsUtils.addItem(35);
+                    cs.addInventoryItem(cs.getItem(35), true);
+                }
+            }
+        ];
+    },
+    TALKTO_106: function (cs) {
+        return [
+            { text: z89.getLabel(182), isItem: false, next: true },
+            { text: z89.getLabel(183), isItem: true, next: true },
+            { text: z89.getLabel(184), isItem: false, next: true },
+            { text: z89.getLabel(185), isItem: true, end: true }
+        ];
+    },
     DADDY: function (cs) {
         return [
             {
@@ -2205,7 +2546,7 @@ gameData.ingame.conversation = {
                 text: z89.getLabel(171),
                 isItem: true,
                 next: true,
-                delay: 1000,
+                delay: 1000
             },
             {
                 text: z89.getLabel(172),
@@ -2308,6 +2649,7 @@ gameData.ingame.conversation = {
     }
 };
 /*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 50 "skills", 100 "badguy 1",  101 "badguy 2",  102 "badguy 3", 103 "jumper", 104 "runner", 105 "girl 1", 106 "pastry"
 gameData.ingame.items = [
     {
         id: 1,
@@ -2329,7 +2671,15 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "terminal",
-        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
+        animations: [
+            {
+                name: "notWorking",
+                frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4],
+                rate: 5,
+                loop: true
+            },
+            { name: "working", frames: [5, 6], rate: 1, loop: true }
+        ],
         currentAnimation: "notWorking",
         working: true,
         name: z89.getLabel(12),
@@ -2373,7 +2723,14 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "cake",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3, 4, 5, 6, 7, 8], rate: 10, loop: true }],
+        animations: [
+            {
+                name: "idle",
+                frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                rate: 10,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         name: "cake",
         x: 1679,
@@ -2388,7 +2745,15 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "terminal",
-        animations: [{ name: "notWorking", frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4], rate: 5, loop: true }, { name: "working", frames: [5, 6], rate: 1, loop: true }],
+        animations: [
+            {
+                name: "notWorking",
+                frames: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4],
+                rate: 5,
+                loop: true
+            },
+            { name: "working", frames: [5, 6], rate: 1, loop: true }
+        ],
         currentAnimation: "notWorking",
         working: false,
         name: z89.getLabel(12),
@@ -2464,7 +2829,38 @@ gameData.ingame.items = [
         name: z89.getLabel(88),
         x: 2300,
         y: 650 - 48,
-        animations: [{ name: "idle", frames: [0], rate: 1, loop: false }, { name: "play", frames: [1, 2, 3, 4, 5, 6, 7, 2, 4, 6, 3, 1, 6, 3, 4, 6, 5, 7, 2, 5, 3, 4], rate: 14, loop: true }],
+        animations: [
+            { name: "idle", frames: [0], rate: 1, loop: false },
+            {
+                name: "play",
+                frames: [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    2,
+                    4,
+                    6,
+                    3,
+                    1,
+                    6,
+                    3,
+                    4,
+                    6,
+                    5,
+                    7,
+                    2,
+                    5,
+                    3,
+                    4
+                ],
+                rate: 14,
+                loop: true
+            }
+        ],
         currentAnimation: "play",
         onStart: true,
         interactive: true,
@@ -2522,7 +2918,7 @@ gameData.ingame.items = [
         name: "Phaser Arena",
         x: 70,
         y: 330,
-        alpha: .7,
+        alpha: 0.7,
         animations: [{ name: "idle", frames: [0, 1], rate: 1.5, loop: true }],
         currentAnimation: "idle",
         onStart: true,
@@ -2545,7 +2941,7 @@ gameData.ingame.items = [
         offsetX: 80,
         fixedToCamera: false,
         checkIntersect: false,
-        turnLeft: true,
+        turnLeft: true
     },
     {
         id: 17,
@@ -2561,7 +2957,7 @@ gameData.ingame.items = [
         interactive: true,
         offsetX: 80,
         fixedToCamera: false,
-        checkIntersect: false,
+        checkIntersect: false
     },
     {
         id: 18,
@@ -2639,7 +3035,8 @@ gameData.ingame.items = [
         offsetX: 0,
         fixedToCamera: false,
         isStarted: false,
-        contexts: ["devday"],
+        contexts: ["devday"]
+        //working:false
     },
     {
         id: 23,
@@ -2647,7 +3044,20 @@ gameData.ingame.items = [
         sprite: "cable",
         onStart: true,
         name: z89.getLabel(56),
-        animations: [{ name: "fixed", frames: [9, 8, 7, 6, 5, 4, 3, 2, 1], rate: 15, loop: true }, { name: "broken", frames: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10], rate: 15, loop: true }],
+        animations: [
+            {
+                name: "fixed",
+                frames: [9, 8, 7, 6, 5, 4, 3, 2, 1],
+                rate: 15,
+                loop: true
+            },
+            {
+                name: "broken",
+                frames: [19, 18, 17, 16, 15, 14, 13, 12, 11, 10],
+                rate: 15,
+                loop: true
+            }
+        ],
         currentAnimation: "broken",
         x: 650,
         y: 600 - 48,
@@ -2712,7 +3122,7 @@ gameData.ingame.items = [
         interactive: true,
         offsetX: 80,
         fixedToCamera: false,
-        checkIntersect: false,
+        checkIntersect: false
     },
     {
         id: 28,
@@ -2811,6 +3221,20 @@ gameData.ingame.items = [
         checkIntersect: false
     },
     {
+        id: 35,
+        type: 1,
+        sprite: "mask",
+        name: "Mask",
+        x: 0,
+        y: 0,
+        open: true,
+        onStart: false,
+        interactive: true,
+        offsetX: 0,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
         id: 50,
         type: 4,
         onStart: true,
@@ -2830,7 +3254,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [40, 41, 42, 43], rate: 5, loop: true }, { name: "walking", frames: [44, 45, 46, 47, 48, 49], rate: 5, loop: true }, { name: "running", frames: [50, 51, 52, 53, 54, 55, 56, 57], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [40, 41, 42, 43], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [44, 45, 46, 47, 48, 49],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [50, 51, 52, 53, 54, 55, 56, 57],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(101),
@@ -2842,7 +3280,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 70, behaviour: "idler", offsetY: 10 },
-        walkRange: { start: 100, end: 3000, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 100,
+            end: 3000,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 20
     },
     {
@@ -2850,7 +3293,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true }, { name: "walking", frames: [24, 25, 26, 27, 28, 29], rate: 5, loop: true }, { name: "running", frames: [30, 31, 32, 33, 34, 35, 36, 37], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [20, 21, 22, 23], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [24, 25, 26, 27, 28, 29],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [30, 31, 32, 33, 34, 35, 36, 37],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(104),
@@ -2862,7 +3319,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 300, behaviour: "jumper", offsetY: 300 },
-        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 100,
+            end: 3600,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 0
     },
     {
@@ -2870,7 +3332,16 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }, { name: "walking", frames: [4, 5, 6, 7, 8, 9], rate: 5, loop: true }, { name: "running", frames: [10, 11, 12, 13, 14, 15, 16, 17], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true },
+            { name: "walking", frames: [4, 5, 6, 7, 8, 9], rate: 5, loop: true },
+            {
+                name: "running",
+                frames: [10, 11, 12, 13, 14, 15, 16, 17],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(105),
@@ -2882,7 +3353,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 200, behaviour: "runner", offsetY: 200 },
-        walkRange: { start: 0, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 0,
+            end: 3600,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 0
     },
     {
@@ -2890,7 +3366,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true }, { name: "walking", frames: [64, 65, 66, 67, 68, 69], rate: 5, loop: true }, { name: "running", frames: [70, 71, 72, 73, 74, 75, 76, 77], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [60, 61, 62, 63], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [64, 65, 66, 67, 68, 69],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [70, 71, 72, 73, 74, 75, 76, 77],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(102),
@@ -2902,7 +3392,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 70, behaviour: "idler", offsetY: 10 },
-        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 100,
+            end: 3600,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 20
     },
     {
@@ -2910,7 +3405,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [80, 81, 82, 83], rate: 5, loop: true }, { name: "walking", frames: [84, 85, 86, 87, 88, 89], rate: 5, loop: true }, { name: "running", frames: [90, 91, 92, 93, 94, 95, 96, 97], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [80, 81, 82, 83], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [84, 85, 86, 87, 88, 89],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [90, 91, 92, 93, 94, 95, 96, 97],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(103),
@@ -2922,7 +3431,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 70, behaviour: "idler", offsetY: 10 },
-        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 100,
+            end: 3600,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 20
     },
     {
@@ -2930,7 +3444,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [104, 105, 106, 107, 108, 109],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [110, 111, 112, 113, 114, 115, 116, 117],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(106),
@@ -2942,7 +3470,12 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 70, behaviour: "idler", offsetY: 10 },
-        walkRange: { start: 100, end: 3600, step: { min: 200, max: 500 }, idle: { min: 1000, max: 1500 } },
+        walkRange: {
+            start: 100,
+            end: 3600,
+            step: { min: 200, max: 500 },
+            idle: { min: 1000, max: 1500 }
+        },
         jumpChance: 50
     },
     {
@@ -2950,7 +3483,21 @@ gameData.ingame.items = [
         type: 6,
         onStart: true,
         sprite: "walkers",
-        animations: [{ name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true }, { name: "walking", frames: [104, 105, 106, 107, 108, 109], rate: 5, loop: true }, { name: "running", frames: [110, 111, 112, 113, 114, 115, 116, 117], rate: 8, loop: true }],
+        animations: [
+            { name: "idle", frames: [100, 101, 102, 103], rate: 5, loop: true },
+            {
+                name: "walking",
+                frames: [104, 105, 106, 107, 108, 109],
+                rate: 5,
+                loop: true
+            },
+            {
+                name: "running",
+                frames: [110, 111, 112, 113, 114, 115, 116, 117],
+                rate: 8,
+                loop: true
+            }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
         name: z89.getLabel(107),
@@ -2962,9 +3509,14 @@ gameData.ingame.items = [
         fixedToCamera: false,
         checkIntersect: false,
         insight: { distance: 70, behaviour: "idler", offsetY: 10 },
-        walkRange: { start: 1600, end: 1750, step: { min: 50, max: 80 }, idle: { min: 3000, max: 4000 } },
+        walkRange: {
+            start: 1600,
+            end: 1750,
+            step: { min: 50, max: 80 },
+            idle: { min: 3000, max: 4000 }
+        },
         jumpChance: 0
-    },
+    }
 ];
 gameData.ingame.logic = {
     /*
@@ -2985,6 +3537,9 @@ gameData.ingame.logic = {
     },
     EXAMINE_14: function (cs) {
         cs.showPlayerBaloon(139);
+    },
+    EXAMINE_29: function (cs) {
+        cs.showPlayerBaloon(181);
     },
     //examine screwdriver
     EXAMINE_10: function (cs) {
@@ -3138,7 +3693,9 @@ gameData.ingame.logic = {
         if (cs.currentChapter == 0) {
             cs.disableInteraction();
             cs.addDelay(2000, function () {
-                cs.showPlayerBaloon(154, function () { cs.enableInteraction(); });
+                cs.showPlayerBaloon(154, function () {
+                    cs.enableInteraction();
+                });
             });
         }
         if (cs.currentChapter == 1) {
@@ -3192,10 +3749,15 @@ gameData.ingame.logic = {
             cs.addTween({ targets: cs.player, alpha: 0 });
             cs.getItem(50).start();
             cs.addDelay(2500, function () {
-                cs.addTween({ targets: cs.player, alpha: 1, duration: 500, onComplete: function () {
+                cs.addTween({
+                    targets: cs.player,
+                    alpha: 1,
+                    duration: 500,
+                    onComplete: function () {
                         cs.enableInteraction();
                         cs.chapterCompleted();
-                    } });
+                    }
+                });
                 var _item = cs.getItem(34);
                 cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
                 _item.itemObj.open = false;
@@ -3242,34 +3804,53 @@ gameData.ingame.logic = {
         }
     },
     /*
-     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     OPEN
-     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      */
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    GIVE
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
+    GIVE_9_21: function (cs) {
+        cs.playerAnimation("player-use");
+        cs.removeInventoryItems();
+        cs.addDelay(500, function () {
+            cs.disableInteraction();
+            cs.setUpConversation(z89.conversationObj("TALKTO_21_GAME", cs.currentItem));
+        });
+    },
+    /*
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    OPEN
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
     OPEN_34: function (cs) {
         cs.playerAnimation("player-use");
         var _item = cs.getItem(34);
         if (_item.itemObj.open) {
-            cs.addDelay(500, function () { cs.addTween({ targets: _item, x: _item.x + 76, ease: "Quad.easeOut" }); });
+            cs.addDelay(500, function () {
+                cs.addTween({ targets: _item, x: _item.x + 76, ease: "Quad.easeOut" });
+            });
         }
         else {
             cs.showPlayerBaloon(156);
         }
     },
     /*
-      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      CLOSE
-      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       */
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    CLOSE
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     */
     CLOSE_34: function (cs) {
         cs.playerAnimation("player-use");
         var _item = cs.getItem(34);
         if (_item.itemObj.open) {
-            cs.addDelay(500, function () { cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" }); });
+            cs.addDelay(500, function () {
+                cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
+            });
         }
         else {
             cs.showPlayerBaloon(157);
@@ -3373,13 +3954,29 @@ gameData.ingame.logic = {
     TALKTO_16: function (cs) {
         cs.setUpConversation(z89.conversationObj("TALKTO_16", cs.currentItem));
     },
+    TALKTO_106: function (cs) {
+        if (cs.currentChapter == 2) {
+            //cake thief
+        }
+        else {
+            cs.setUpConversation(z89.conversationObj("TALKTO_106", cs.currentItem));
+        }
+    },
     TALKTO_27: function (cs) {
         cs.setUpConversation(z89.conversationObj("TALKTO_27", cs.currentItem));
     },
     //sidney
     TALKTO_21: function (cs) {
         var item = cs.getItem(20);
-        cs.setUpConversation(z89.conversationObj("HELP_GAME", cs.currentItem));
+        console.log(cs.getItem(21).getConversationStatus());
+        switch (cs.getItem(21).getConversationStatus()) {
+            case null:
+                cs.setUpConversation(z89.conversationObj("TALKTO_21_Null", cs.currentItem));
+                break;
+            case 0:
+                cs.setUpConversation(z89.conversationObj("TALKTO_21_0", cs.currentItem));
+                break;
+        }
     },
     //chris
     TALKTO_20: function (cs) {
@@ -3426,7 +4023,7 @@ gameData.menuBtns = {
     actions: { name: "ACTIONS", frame: 1, x: 100, y: 30 },
     restart: { name: "RESTART", frame: 10, x: 200, y: 30 },
     info: { name: "INFO", frame: 2, x: 0, y: 360 },
-    options: { name: "OPTIONS", frame: 3, x: 100, y: 360 }
+    options: { name: "LANGUAGE", frame: 3, x: 100, y: 800 }
 };
 var z89;
 (function (z89) {
@@ -3467,7 +4064,7 @@ var z89;
                 if (element.itemObj != undefined)
                     _itemsObj.push(element.itemObj);
             }, this);
-            //console.log(_itemsObj)
+            //console.log(_itemsObj);
             this.items = _itemsObj;
             this.updateSaveObj();
         };
@@ -3507,13 +4104,15 @@ var z89;
         };
         saveGame.prototype.setSaved = function (obj) {
             this.savedObj = obj;
-            localStorage.setItem('savedObj', JSON.stringify(this.savedObj));
+            localStorage.setItem("savedObj", JSON.stringify(this.savedObj));
         };
         saveGame.prototype.clearSaved = function () {
             this.savedObj = null;
             localStorage.removeItem("savedObj");
         };
-        saveGame.prototype.getSaved = function () { return this.savedObj; };
+        saveGame.prototype.getSaved = function () {
+            return this.savedObj;
+        };
         saveGame.prototype.checkSaved = function () {
             var _obj = JSON.parse(localStorage.getItem("savedObj"));
             // console.log(_obj)
@@ -3543,7 +4142,11 @@ var z89;
                 inventory: this.inventory,
                 items: this.items,
                 firstChoice: this.firstChoice,
-                chapter: { current: this.current, choice: this.choice, chapters: this.chapters },
+                chapter: {
+                    current: this.current,
+                    choice: this.choice,
+                    chapters: this.chapters
+                },
                 tips: { lastTip: this.lastTip, tips: this.tips }
             };
             //console.log(obj);
@@ -3569,7 +4172,9 @@ var z89;
                 .setOrigin(0.5, 1)
                 .setAlpha(0.8)
                 .setInteractive()
-                .on("pointerdown", function () { _this.skip(); }, _this);
+                .on("pointerdown", function () {
+                _this.skip();
+            }, _this);
             _this.baloonBorder = _this.scene.add.image(0, 20, "baloonBorder");
             _this.baloonBorder.setOrigin(0.5, 1);
             _this.baloonPin = _this.scene.add.image(0, 30, "baloonPin");
@@ -3599,15 +4204,17 @@ var z89;
             this.timeEvent.remove(false);
             this.currentStep++;
             var _obj = this.conversationObj[this.currentStep];
-            (_obj != undefined && (_obj.next != undefined || _obj.end)) ? this.displayStep() : this.isPlaying = false;
+            _obj != undefined && (_obj.next != undefined || _obj.end)
+                ? this.displayStep()
+                : (this.isPlaying = false);
             /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
-               this.displayStep();
-             } else {
-               this.isPlaying = false;
-             }*/
+              this.displayStep();
+            } else {
+              this.isPlaying = false;
+            }*/
             /* if (_obj.next != undefined) {
-               this.displayStep();
-             }*/
+              this.displayStep();
+            }*/
         };
         conversationBaloon.prototype.showBaloon = function (_text) {
             if (_text == undefined)
@@ -3701,7 +4308,7 @@ var z89;
         };
         conversationBaloon.prototype.displayStep = function () {
             var _this = this;
-            var _delay = 0;
+            var _delay = 1000;
             this.removeForks();
             this.baloonText.setY(0);
             this.isSkippable = true;
@@ -3807,7 +4414,8 @@ var z89;
                             return;
                         }
                         _this.displayStep();
-                    }, _this).on("pointerover", function () {
+                    }, _this)
+                        .on("pointerover", function () {
                         // console.log(btn.z);
                         _this.scene.gameUtils.btnOverEffect(btn, _this.forkBtnsText[btn.z]);
                     })
@@ -3830,7 +4438,6 @@ var z89;
                     _this.add([_btn, _btnText]);
                 });
             }
-            ;
             this.displayItems();
             this.scene.tweens.add({
                 targets: this,
@@ -3940,7 +4547,6 @@ var z89;
         function Items(scene, itemObj) {
             var _this = _super.call(this, scene, itemObj.x, itemObj.y, itemObj.sprite) || this;
             _this._isIdle = true;
-            _this._conversationStatus = null;
             _this.scene = scene;
             _this.itemObj = itemObj;
             var config = {
@@ -3960,19 +4566,27 @@ var z89;
                         repeat = -1;
                     }
                     config.key = itemObj.id + "-" + element.name;
-                    config.frames = scene.anims.generateFrameNumbers(itemObj.sprite, { frames: element.frames });
+                    config.frames = scene.anims.generateFrameNumbers(itemObj.sprite, {
+                        frames: element.frames
+                    });
                     config.frameRate = element.rate;
                     config.repeat = repeat;
                     _this.anims.animationManager.create(config);
                 });
                 _this.play(itemObj.id + "-" + itemObj.currentAnimation);
             }
-            _this.setDepth(_this.y).setOrigin(0.5, 1).setX(itemObj.x);
+            _this.setDepth(_this.y)
+                .setOrigin(0.5, 1)
+                .setX(itemObj.x);
             _this.id = _this.itemObj.id;
             _this.name = _this.itemObj.name;
             _this._isInteractive = _this.itemObj.interactive;
-            _this.itemObj.scale != undefined ? _this.setScale(_this.itemObj.scale) : _this.setScale(1);
-            _this.itemObj.alpha != undefined ? _this.setAlpha(_this.itemObj.alpha) : _this.setAlpha(1);
+            _this.itemObj.scale != undefined
+                ? _this.setScale(_this.itemObj.scale)
+                : _this.setScale(1);
+            _this.itemObj.alpha != undefined
+                ? _this.setAlpha(_this.itemObj.alpha)
+                : _this.setAlpha(1);
             if (_this.itemObj.conversationStatus != undefined)
                 _this.setConversationStatus(_this.itemObj.conversationStatus);
             if (_this.itemObj.turnLeft != undefined)
@@ -3988,7 +4602,9 @@ var z89;
                     if (_this.scene.isInteractionDisabled())
                         return;
                     var _currentItem = _this.scene.getCurrentItem();
-                    if (_this.scene.playerActions.IsOpen() && _currentItem != undefined && _currentItem.id != _this.id)
+                    if (_this.scene.playerActions.IsOpen() &&
+                        _currentItem != undefined &&
+                        _currentItem.id != _this.id)
                         _this.scene.playerActions.hide();
                     var _playerDest = _this.x;
                     if (_this.scene.player.x < _this.x) {
@@ -4000,17 +4616,17 @@ var z89;
                     _this.scene.player.goTo(_playerDest, _this.y, _this);
                 }, _this);
                 /* .on("pointerover",()=>{
-     
-     
-                     this.scene.gameUtils.itemOverEffect(this);
-     
-                 }).on("pointerout",()=>{
-     
-     
-                     this.scene.gameUtils.itemOutEffect(this);
-     
-                 });
-                 */
+        
+        
+                        this.scene.gameUtils.itemOverEffect(this);
+        
+                    }).on("pointerout",()=>{
+        
+        
+                        this.scene.gameUtils.itemOutEffect(this);
+        
+                    });
+                    */
             }
             _this.scene.add.existing(_this);
             return _this;
@@ -4018,15 +4634,16 @@ var z89;
         Items.prototype.update = function () {
             ///if (this.itemObj.fixedToCamera) this.setX((this.scene.mainCamera.scrollX * -0.095) +  this.itemObj.x);
             if (this.y > 660 && this.isIdle()) {
-                this.setX((this.scene.mainCamera.scrollX * -0.095) + this.itemObj.x);
+                this.setX(this.scene.mainCamera.scrollX * -0.095 + this.itemObj.x);
             }
         };
         Items.prototype.getConversationStatus = function () {
             return this.itemObj.conversationStatus;
         };
         Items.prototype.setConversationStatus = function (value) {
-            this.itemObj.conversationStatus = this._conversationStatus = value;
-            this.scene.saveGameObj.updateItems();
+            //console.log("setConversationStatus", value);
+            this.itemObj.conversationStatus = value;
+            this.scene.updateItems();
         };
         Items.prototype.isInteractive = function () {
             return this._isInteractive;
@@ -5712,7 +6329,7 @@ var z89;
                 .setScrollFactor(0)
                 .setName("iconsBtn")
                 .on("pointerdown", function (pointer) {
-                _this.scene.conversationBaloon.setUpConversation({
+                _this.scene.setUpConversation({
                     key: "RESTART",
                     action: null,
                     inventory: null,
@@ -5777,7 +6394,14 @@ var z89;
                 });
     
                 this.hide();*/
-                _this.showMenu();
+                _this.scene.setUpConversation({
+                    key: "LANGUAGE",
+                    action: null,
+                    inventory: null,
+                    item: null
+                });
+                _this.hide();
+                //this.showMenu();
             }, _this)
                 .on("pointerover", function () {
                 _this.scene.gameUtils.iconOverEffect(_this.optionBtn);
@@ -5943,12 +6567,23 @@ var z89;
             var _this = this;
             this.getAll().forEach(function (element, index) {
                 if (element.name == "iconsBtn") {
-                    _this.scene.tweens.add({ targets: element, duration: 100, y: element.y + 20, alpha: 0, onComplete: function () {
+                    _this.scene.tweens.add({
+                        targets: element,
+                        duration: 100,
+                        y: element.y + 20,
+                        alpha: 0,
+                        onComplete: function () {
                             element.setY(element.y - 20);
-                        } });
+                        }
+                    });
                 }
             }, this);
-            this.scene.tweens.add({ targets: this.menuBgOptions, scaleY: 22, duration: 1000, ease: "Bounce.easeOut" });
+            this.scene.tweens.add({
+                targets: this.menuBgOptions,
+                scaleY: 22,
+                duration: 1000,
+                ease: "Bounce.easeOut"
+            });
         };
         PlayerMenu.prototype.hide = function () {
             var _this = this;

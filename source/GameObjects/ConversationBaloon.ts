@@ -21,7 +21,7 @@ namespace z89 {
     constructor(scene: GameCity, x: number, y: number) {
       super(scene);
 
-      this.setAlpha(0)
+      this.setAlpha(0);
       this.isSkippable = true;
       this.isPlaying = false;
 
@@ -32,7 +32,9 @@ namespace z89 {
         .setInteractive()
         .on(
           "pointerdown",
-          () => { this.skip(); },
+          () => {
+            this.skip();
+          },
           this
         );
 
@@ -70,15 +72,17 @@ namespace z89 {
       this.currentStep++;
       const _obj = this.conversationObj[this.currentStep];
 
-      (_obj!=undefined && (_obj.next != undefined || _obj.end)) ?  this.displayStep() : this.isPlaying = false
-      
-     /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
+      _obj != undefined && (_obj.next != undefined || _obj.end)
+        ? this.displayStep()
+        : (this.isPlaying = false);
+
+      /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
         this.displayStep();
       } else {
         this.isPlaying = false;
       }*/
 
-     /* if (_obj.next != undefined) {
+      /* if (_obj.next != undefined) {
         this.displayStep();
       }*/
     }
@@ -130,8 +134,6 @@ namespace z89 {
           });
         }
         */
-
-
       });
     }
 
@@ -184,7 +186,7 @@ namespace z89 {
     }
 
     displayStep(): void {
-      let _delay:number=0;
+      let _delay: number = 1000;
       this.removeForks();
       this.baloonText.setY(0);
 
@@ -218,8 +220,7 @@ namespace z89 {
       }
 
       if (_obj.next != undefined) {
-        
-        if (_obj.delay != undefined) _delay = _obj.delay
+        if (_obj.delay != undefined) _delay = _obj.delay;
         this.timeEvent = this.scene.time.addEvent({
           delay: this.getTime(_obj.text.length) + _delay,
           callback: () => {
@@ -232,7 +233,7 @@ namespace z89 {
       }
 
       if (_obj.end != undefined) {
-        if (_obj.delay != undefined) _delay = _obj.delay
+        if (_obj.delay != undefined) _delay = _obj.delay;
         this.timeEvent = this.scene.time.addEvent({
           delay: this.getTime(_obj.text.length) + _delay,
           callback: () => {
@@ -280,76 +281,71 @@ namespace z89 {
       this.removeForks();
       console.log(_obj.options);
 
-      if(_obj.options!=undefined){
-      _obj.options.forEach((element, index) => {
+      if (_obj.options != undefined) {
+        _obj.options.forEach((element, index) => {
+          //console.log(index);
+          _btn = this.scene.add.sprite(0, 0, "forkBtn");
+          _btn.setZ(index);
+          var _option = element;
+          var btn = _btn;
+          _btn
+            .setOrigin(0.5, 1)
+            .setInteractive()
+            .on(
+              "pointerdown",
+              () => {
+                if (_option.goto != undefined) {
+                  this.currentStep = this.goToLabel(_option.goto);
+                }
 
-        //console.log(index);
-        _btn = this.scene.add.sprite(0, 0, "forkBtn");
-        _btn.setZ(index);
-        var _option = element;
-        var btn=_btn;
-        _btn
-          .setOrigin(0.5, 1)
-          .setInteractive()
-          .on(
-            "pointerdown",
-            () => {
+                if (_option.link != undefined) {
+                  this.currentStep++;
+                  window.open(_option.link, "_blank");
+                }
 
-              if (_option.goto != undefined) {
-                this.currentStep = this.goToLabel(_option.goto);
-              }
+                if (_option.action != undefined) {
+                  _option.action(this.scene, this.baloonTarget);
+                  this.hideBaloon();
+                  return;
+                }
 
-              if (_option.link != undefined) {
-                this.currentStep++;
-                window.open(_option.link, "_blank");
-              }
+                this.displayStep();
+              },
+              this
+            )
+            .on("pointerover", () => {
+              // console.log(btn.z);
 
-              if (_option.action != undefined) {
-                _option.action(this.scene, this.baloonTarget);
-                this.hideBaloon();
-                return;
-              }
+              this.scene.gameUtils.btnOverEffect(btn, this.forkBtnsText[btn.z]);
+            })
+            .on("pointerout", () => {
+              // console.log(btn.z);
+              this.scene.gameUtils.btnOutEffect(btn, this.forkBtnsText[btn.z]);
+            });
 
-              this.displayStep();
-            },
-            this
-          ).on("pointerover", () => {
+          _btnText = this.scene.add.bitmapText(
+            0,
+            80,
+            "commodore",
+            element.option,
+            20
+          );
+          _btnText.setOrigin(0.5, 1);
 
-           // console.log(btn.z);
-            
-            this.scene.gameUtils.btnOverEffect( btn, this.forkBtnsText[btn.z]);
-            
-          })
-          .on("pointerout", () => {
-           // console.log(btn.z);
-            this.scene.gameUtils.btnOutEffect( btn,  this.forkBtnsText[btn.z]);
-  
-          });
+          if (_obj.isItem) {
+            _btn.setTint(0x333333);
+            _btnText.setTint(0xfefefe);
+          } else {
+            _btn.setTint(0x0f6c0f);
+            _btnText.setTint(0xffffff);
+          }
 
-        _btnText = this.scene.add.bitmapText(
-          0,
-          80,
-          "commodore",
-          element.option,
-          20
-        );
-        _btnText.setOrigin(0.5, 1);
+          this.forkBtns.push(_btn);
+          this.forkBtnsText.push(_btnText);
 
-        if (_obj.isItem) {
-          _btn.setTint(0x333333);
-          _btnText.setTint(0xfefefe);
-        } else {
-          _btn.setTint(0x0f6c0f);
-          _btnText.setTint(0xffffff);
-        }
-
-        this.forkBtns.push(_btn);
-        this.forkBtnsText.push(_btnText);
-
-        this.add([_btn, _btnText]);
-      });
-
-    };
+          this.add([_btn, _btnText]);
+        });
+      }
       this.displayItems();
 
       this.scene.tweens.add({
@@ -383,10 +379,9 @@ namespace z89 {
     }
 
     removeForks(): void {
-     // console.log(this.forkBtns, this.forkBtnsText);
+      // console.log(this.forkBtns, this.forkBtnsText);
       this.forkBtns.forEach((element: Phaser.GameObjects.Sprite, index) => {
-
-       // console.log("destroy "+index);
+        // console.log("destroy "+index);
         element.destroy();
         this.forkBtnsText[index].destroy();
       });
