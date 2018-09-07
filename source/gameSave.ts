@@ -1,9 +1,22 @@
 namespace z89 {
+  export interface playerPosition {
+    x: number;
+    y: number;
+  }
+
+  export interface scenes {
+    items: Array<Items>;
+    name: string;
+    playerPosition: playerPosition;
+  }
+
   export class saveGame {
     private scene: GameCity;
     private playerX: number = 0;
     private playerY: number = 0;
     private savedObj: any;
+    private scenes: Array<scenes> = gameData.ingame.scenes;
+    private currentScene: string;
     private isSaved: boolean = false;
     private inventory: Array<any>;
     private items: Array<any>;
@@ -14,6 +27,7 @@ namespace z89 {
     private choice: boolean = null;
     private chapters: Array<Boolean> = [];
     private chapter: any;
+
     constructor(scene: GameCity) {
       this.scene = scene;
 
@@ -26,8 +40,15 @@ namespace z89 {
     }
 
     updatePlayerPosition(x: number, y: number): void {
-      this.playerX = x;
-      this.playerY = y;
+      this.playerX = Math.round(x);
+      this.playerY = Math.round(y);
+
+      this.scenes.forEach(element => {
+        if (element.name == this.currentScene) {
+          element.playerPosition = { x: this.playerX, y: this.playerY };
+        }
+      });
+
       this.updateSaveObj();
     }
 
@@ -37,22 +58,39 @@ namespace z89 {
       inventory.forEach(item => {
         _inventory.push(item.itemObj);
       });
+
       this.inventory = _inventory;
       this.updateItems();
+
       this.updateSaveObj();
     }
 
-    updateItems() {
+    updateItems(): void {
       let _itemsObj: Array<any> = [];
 
       this.scene.groupAll.children.each((element: Items) => {
         if (element.itemObj != undefined) _itemsObj.push(element.itemObj);
       }, this);
 
-      //console.log(_itemsObj);
       this.items = _itemsObj;
 
+      this.updateSceneItems();
+
       this.updateSaveObj();
+    }
+
+    updateSceneItems(): void {
+      let _itemsObj: Array<any> = [];
+      this.scene.groupAll.children.each((element: Items) => {
+        if (element.itemObj != undefined) _itemsObj.push(element.itemObj);
+      }, this);
+
+      this.scenes.forEach(element => {
+        if (element.name == this.currentScene) {
+          element.playerPosition = { x: this.playerX, y: this.playerY };
+          element.items = _itemsObj;
+        }
+      });
     }
 
     setFirstChoice(choice: boolean): void {
@@ -86,6 +124,11 @@ namespace z89 {
       this.updateSaveObj();
     }
 
+    setScene(name: string) {
+      this.currentScene = name;
+      this.updateSaveObj();
+    }
+
     clearTips() {
       this.tips = [];
       this.updateSaveObj();
@@ -116,6 +159,8 @@ namespace z89 {
       if (_obj != null) {
         this.savedObj = _obj;
         this.inventory = this.savedObj.inventory;
+        this.currentScene = this.savedObj.currentScene;
+        this.scenes = this.savedObj.scenes;
         this.items = this.savedObj.items;
         this.playerX = this.savedObj.position.x;
         this.playerY = this.savedObj.position.y;
@@ -138,6 +183,8 @@ namespace z89 {
       obj = {
         position: { x: this.playerX, y: this.playerY },
         inventory: this.inventory,
+        scenes: this.scenes,
+        currentScene: this.currentScene,
         items: this.items,
         firstChoice: this.firstChoice,
         chapter: {

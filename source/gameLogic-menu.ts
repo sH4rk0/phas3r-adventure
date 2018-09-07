@@ -12,5 +12,5 @@ gameData.menuBtns = {
   actions: { name: "ACTIONS", frame: 1, x: 100, y: 30 },
   restart: { name: "RESTART", frame: 10, x: 200, y: 30 },
   info: { name: "INFO", frame: 2, x: 0, y: 360 },
-  options: { name: "LANGUAGE", frame: 3, x: 100, y: 800 }
+  options: { name: "LANGUAGE", frame: 3, x: 100, y: 360 }
 };

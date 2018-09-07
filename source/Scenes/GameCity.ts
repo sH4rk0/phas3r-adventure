@@ -17,7 +17,6 @@ namespace z89 {
     private bgLevel2: Phaser.GameObjects.TileSprite;
     private street: Phaser.GameObjects.TileSprite;
     private front: Phaser.GameObjects.TileSprite;
-    private ground: Phaser.GameObjects.Sprite;
 
     private groupStreet: Phaser.GameObjects.Group;
     public groupAll: Phaser.GameObjects.Group;
@@ -25,9 +24,6 @@ namespace z89 {
 
     public groupCity: Phaser.GameObjects.Group;
     private groupFront: Phaser.GameObjects.Group;
-    private groupMenu: Phaser.GameObjects.Group;
-    private groupAction: Phaser.GameObjects.Group;
-    private logicCombination: string;
 
     // private filters: Array<Phaser.Filter>;
     private gameInteraction: boolean = true;
@@ -40,13 +36,8 @@ namespace z89 {
     public chapterTitleBg: Phaser.GameObjects.Image;
     public currentChapter: number = 0;
 
-    private half: Phaser.GameObjects.TileSprite;
-    private actionTimer: Phaser.Time.TimerEvent;
-
-    constructor(test) {
-      super({
-        key: "GameCity"
-      });
+    constructor() {
+      super({ key: "GameCity" });
     }
 
     preload() {
@@ -185,14 +176,28 @@ namespace z89 {
       // saved game
       // +++++++++++++++++++++++++++++++++++++++
 
+      /*
       if (this.saveGameObj.gameIsSaved()) {
         this.processSavedGame();
       } else {
+      
         gameData.ingame.items.forEach(element => {
           if (element.onStart) {
             this.gameItemsUtils.addItem(element.id);
           }
         });
+
+        this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
+        this.saveGameObj.updateItems();
+
+        this.playerMenu.openOnStart();
+      }
+      */
+
+      if (this.saveGameObj.gameIsSaved()) {
+        this.processSavedGameMulti();
+      } else {
+        this.setUpScene("city");
         this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
         this.saveGameObj.updateItems();
         this.playerMenu.openOnStart();
@@ -267,12 +272,14 @@ namespace z89 {
       this.gameItemsUtils.addItem(100,true);
       */
 
-      //get an item and add directly to the inventory
+      //add an existing item from group list to the inventory
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
-      // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-      //this.gameItemsUtils.addItem(35);
-      //this.addInventoryItem(this.gameItemsUtils.getItemById(35));
+
+      //get an item from list and add to the inventory
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      //this.addInventory(13, true);
+      //this.addInventory(35, true);
 
       //beam out existing Items
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -289,6 +296,69 @@ namespace z89 {
 
       //accessible global instance for backend ajax call
       _gamecity = this;
+    }
+
+    setUpScene(name: string) {
+      console.log("setup scene");
+      gameData.ingame.scenes.forEach(element => {
+        if (element.name === name) {
+          this.saveGameObj.setScene(name);
+          element.startItems.forEach(itemId => {
+            this.gameItemsUtils.addItem(itemId);
+          });
+        }
+      });
+
+      this.saveGameObj.updateItems();
+    }
+
+    processSavedGameMulti(): void {
+      let _saved = this.saveGameObj.getSaved();
+
+      console.log(_saved);
+
+      this.currentChapter = _saved.chapter.current;
+      if (_saved.chapter.choice == null) {
+        this.displayChapterOptions();
+      }
+
+      _saved.scenes.forEach(element => {
+        if (element.name == _saved.currentScene) {
+          console.log(element);
+          _saved.items = element.items;
+          this.player.x = element.playerPosition.x;
+          this.player.y = element.playerPosition.y;
+        }
+      });
+
+      if (_saved.items != undefined) {
+        this.gameItemsUtils.addSavedItems(_saved.items);
+      }
+
+      if (_saved.inventory != undefined && _saved.inventory.length > 0) {
+        _saved.inventory.forEach(element => {
+          //console.log("add from cache" + element);
+          if (!this.playerActions.isInInventory(element.id)) {
+            let item: any;
+            // console.log(element.type )
+            switch (element.type) {
+              default:
+                this.groupAll.add(new Items(this, element));
+                break;
+            }
+
+            //console.log(element,this.getItemSpriteId(element))
+
+            this.addInventoryItem(this.gameItemsUtils.getItemById(element.id));
+          }
+        });
+      }
+    }
+
+    setLanguage(language: string): void {
+      currentLang = language;
+      this.gameItemsUtils.setLanguage();
+      this.playerActions.setLanguage();
     }
 
     setGameCompleted(): void {
@@ -332,8 +402,8 @@ namespace z89 {
     processSavedGame(): void {
       let _saved = this.saveGameObj.getSaved();
 
-      console.log(_saved);
-
+      //console.log(_saved);
+      this.currentChapter = _saved.chapter.current;
       if (_saved.chapter.choice == null) {
         this.displayChapterOptions();
       }
@@ -347,29 +417,20 @@ namespace z89 {
 
       if (_saved.inventory != undefined && _saved.inventory.length > 0) {
         _saved.inventory.forEach(element => {
-          let item: any;
-          // console.log(element.type )
-          switch (element.type) {
-            case 2:
-              // this.groupAll.add(new ItemsTruck(this.game, element));
-              break;
+          //console.log("add from cache" + element);
+          if (!this.playerActions.isInInventory(element.id)) {
+            let item: any;
+            // console.log(element.type )
+            switch (element.type) {
+              default:
+                this.groupAll.add(new Items(this, element));
+                break;
+            }
 
-            case 3:
-              this.groupAll.add(new ItemsContent(this, element));
-              break;
+            //console.log(element,this.getItemSpriteId(element))
 
-            case 4:
-              this.groupAll.add(new ItemsSkill(this, element));
-              break;
-
-            default:
-              this.groupAll.add(new Items(this, element));
-              break;
+            this.addInventoryItem(this.gameItemsUtils.getItemById(element.id));
           }
-
-          //console.log(element,this.getItemSpriteId(element))
-
-          this.addInventoryItem(this.gameItemsUtils.getItemById(element.id));
         });
       }
     }
@@ -386,335 +447,9 @@ namespace z89 {
     }
 
     startConversation(): void {
-      let _actionObj = this.getActionObject();
+      let _actionObj = this.playerActions.getActionObject();
 
       // this.conversationBaloon.setUpConversation(_actionObj);
-    }
-
-    doActionSequence(_item?: Items): void {
-      this.createActionObject(); //create the action object based on action/inventory/items selection
-      this.createActionText(); //create the action text based on the above selection
-      let _actionObj = this.getActionObject();
-
-      if (this.actionTimer != null) this.actionTimer.remove(false);
-
-      //console.log(_actionObj);
-
-      if (
-        _actionObj.action != -1 &&
-        (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
-        this.executeActionLogic(_item)
-      ) {
-        //console.log("doActionSequence");
-        //this.playerBaloon.hideBaloon();
-        this.playerActions.hide();
-        //this.playerMenu.hide();
-
-        /* this.time.delayedCall(
-            3000,
-            () => {
-              this.playerActions.setText("");
-            },
-            null,
-            this
-          );
-          */
-      } else {
-        /* console.log("doillogic");
-
-        console.log(
-          _actionObj.key,
-          _actionObj.key.indexOf("_"),
-          _actionObj.inventory.length,
-          _actionObj.item
-        );
-        */
-
-        if (
-          _actionObj.key != "noAction" &&
-          _actionObj.key.indexOf("_") != -1 &&
-          ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
-            (_actionObj.inventory.length == 0 && _actionObj.item != undefined))
-        )
-          this.player.illogicAction();
-      }
-
-      this.actionTimer = this.time.delayedCall(
-        3000,
-        () => {
-          this.resetActions();
-          this.setActionObject(null);
-          this.playerActions.setText("");
-          this.playerBaloon.hideBaloon();
-        },
-        null,
-        this
-      );
-    }
-
-    createActionObject(_itemSelected?: Items): void {
-      let returnObj: any = {
-        key: null,
-        action: null,
-        inventory: null,
-        item: null
-      };
-
-      let _currentAction: string = this.getCurrentActionString();
-      let _currentActionValue: number = this.getCurrentAction();
-
-      if (_currentAction == undefined) {
-        _currentAction = "";
-        returnObj.action = _currentActionValue = -1;
-      } else {
-        returnObj.action = _currentActionValue;
-      }
-
-      let _currentItem: Items;
-      let _inventoryIds: Array<string> = [];
-      let _Inventoryitems: string = "";
-
-      returnObj.inventory = this.getInventorySelected();
-
-      //console.log(returnObj.inventory);
-
-      let _Item: Items;
-
-      if (_itemSelected != undefined) {
-        _Item = _itemSelected;
-      } else {
-        _Item = this.getCurrentItem();
-      }
-      let ItemId: string = "";
-      returnObj.item = _Item;
-      if (returnObj.item != null) ItemId = returnObj.item.id;
-
-      returnObj.inventory.forEach((element: Items) => {
-        if (element != undefined) _inventoryIds.push(element.itemObj.id);
-      });
-
-      if (_inventoryIds.length > 0) _Inventoryitems = _inventoryIds.join("_");
-
-      if (ItemId != "" && _Inventoryitems != "")
-        _Inventoryitems = _Inventoryitems + "_";
-
-      let key: string = "";
-
-      if (_currentAction != "" && _Inventoryitems != "" && ItemId != "") {
-        returnObj.key = _currentAction + "_" + _Inventoryitems + ItemId;
-      } else if (
-        _currentAction != "" &&
-        _Inventoryitems != "" &&
-        ItemId == ""
-      ) {
-        returnObj.key = _currentAction + "_" + _Inventoryitems;
-      } else if (
-        _currentAction != "" &&
-        _Inventoryitems == "" &&
-        ItemId != ""
-      ) {
-        returnObj.key = _currentAction + "_" + ItemId;
-      } else if (
-        _currentAction != "" &&
-        _Inventoryitems == "" &&
-        ItemId == ""
-      ) {
-        returnObj.key = _currentAction;
-      } else if (_currentAction == "") {
-        returnObj.key = "noAction";
-      }
-
-      // console.log(returnObj);
-      this.logicCombination = returnObj;
-
-      //return this.logicCombination;
-    }
-
-    createActionText(): void {
-      //console.log("createActionText")
-      let _actionObj = this.getActionObject();
-
-      let _actionText: string = "";
-
-      if (_actionObj == null) {
-        if (this.getCurrentItem() != undefined)
-          _actionText = this.getCurrentItem().name;
-      } else {
-        let _destText: string = "";
-
-        if (_actionObj.action == PlayerActionList.GIVE) {
-          _destText = " to ";
-        } else if (_actionObj.action == PlayerActionList.USE) {
-          _destText = " on ";
-        }
-
-        if (_actionObj.inventory.length == 0 && _actionObj.item == null) {
-          //console.log("case 1")
-          _actionText = this.getCurrentActionLabel();
-        } else if (
-          _actionObj.action != -1 &&
-          _actionObj.inventory.length == 0 &&
-          _actionObj.item != null
-        ) {
-          //console.log("case 2")
-          _actionText =
-            this.getCurrentActionLabel() + " " + _actionObj.item.name;
-        } else if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-          //console.log("case 3")
-          //console.log(_actionObj.inventory.length)
-          if (_actionObj.inventory.length == 1) {
-            _actionText =
-              this.getCurrentActionLabel() + " " + _actionObj.inventory[0].name; //+ _destText;
-          } else if (_actionObj.inventory.length == 2) {
-            _actionText =
-              this.getCurrentActionLabel() +
-              " " +
-              _actionObj.inventory[0].name +
-              _destText +
-              _actionObj.inventory[1].name;
-          }
-        } else if (_actionObj.inventory.length > 0 && _actionObj.item != null) {
-          //console.log("case 4")
-
-          if (_actionObj.inventory.length == 1) {
-            _actionText =
-              this.getCurrentActionLabel() +
-              " " +
-              _actionObj.inventory[0].name +
-              _destText +
-              _actionObj.item.name;
-          }
-        } else if (_actionObj.key == "noAction" && _actionObj.item != null) {
-          //console.log("case 5", _actionObj.item.name);
-
-          _actionText = _actionObj.item.name;
-        }
-      }
-
-      //console.log(_actionText);
-      this.setActionText(_actionText);
-    }
-
-    checkCombinedItems(): boolean {
-      let _actionObj: any = this.getActionObject();
-      if (_actionObj.inventory.length == 2) {
-        let _key =
-          this.getCurrentActionLabel() +
-          "_" +
-          _actionObj.inventory[0].id +
-          "_" +
-          _actionObj.inventory[1].id;
-        // console.log(_key)
-        if (gameData.ingame.logic[_key] != undefined) return true;
-        _key =
-          this.getCurrentActionLabel() +
-          "_" +
-          _actionObj.inventory[1].id +
-          "_" +
-          _actionObj.inventory[0].id;
-        if (gameData.ingame.logic[_key] != undefined) return true;
-        // console.log(_key)
-      }
-      return false;
-    }
-
-    checkCombinedItemsKey(): string {
-      let _actionObj: any = this.getActionObject();
-      if (_actionObj.inventory.length == 2) {
-        let _key =
-          this.getCurrentActionLabel() +
-          "_" +
-          _actionObj.inventory[0].id +
-          "_" +
-          _actionObj.inventory[1].id;
-        // console.log(_key)
-        if (gameData.ingame.logic[_key] != undefined) return _key;
-        _key =
-          this.getCurrentActionLabel() +
-          "_" +
-          _actionObj.inventory[1].id +
-          "_" +
-          _actionObj.inventory[0].id;
-        if (gameData.ingame.logic[_key] != undefined) return _key;
-        // console.log(_key)
-      }
-      return "";
-    }
-
-    executeActionLogic(_item?: any): boolean {
-      let _actionObj: any = this.getActionObject();
-      //console.log(_actionObj);
-      //console.log(this.checkCombinedItems())
-      if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-        // console.log("logic 0");
-
-        //console.log(_actionObj.inventory.length, this.getCurrentActionString(), _actionObj.key)
-        if (
-          _actionObj.inventory.length == 1 &&
-          gameData.ingame.logic[_actionObj.key] != undefined
-        ) {
-          //console.log("logic 1");
-
-          gameData.ingame.logic[_actionObj.key](this);
-          return true;
-        } else if (
-          _actionObj.inventory.length == 2 &&
-          this.checkCombinedItems()
-        ) {
-          //console.log("logic item on item", _actionObj.key);
-
-          gameData.ingame.logic[this.checkCombinedItemsKey()](this);
-          return true;
-        }
-      } else if (
-        _actionObj.inventory.length == 0 &&
-        _actionObj.item != null &&
-        gameData.ingame.logic[_actionObj.key] != undefined
-      ) {
-        //console.log("logic 2", _actionObj.key);
-
-        //if (_actionObj.item.itemObj.logic != undefined && _actionObj.item.itemObj.logic[this.getCurrentActionString()] != undefined) { _actionObj.item.itemObj.logic[this.getCurrentActionString()](this); return true; }
-
-        gameData.ingame.logic[_actionObj.key](this);
-        return true;
-      } else if (
-        _actionObj.inventory.length > 0 &&
-        _actionObj.item != null &&
-        gameData.ingame.logic[_actionObj.key] != undefined
-      ) {
-        //console.log("logic 3", _actionObj.key);
-
-        gameData.ingame.logic[_actionObj.key](this);
-        return true;
-      }
-
-      return false;
-    }
-
-    resetActions(): void {
-      //console.log("resetActions ")
-      this.playerActions.resetActions();
-      this.currentItem = null;
-    }
-
-    returnMessage(): void {
-      let _currActionObj: any = this.getActionObject();
-      let _item: Items;
-      if (_currActionObj.item == null) {
-        _item = _currActionObj.inventory[0];
-      } else {
-        _item = _currActionObj.item;
-      }
-
-      let _mess: string =
-        _item.itemObj.actions[_currActionObj.action].answer[
-          Phaser.Math.RND.integerInRange(
-            0,
-            _item.itemObj.actions[_currActionObj.action].answer.length - 1
-          )
-        ];
-
-      this.player.showBaloon(_mess);
     }
 
     /* returnMessageExtra(): void {
@@ -746,19 +481,6 @@ namespace z89 {
       return this.playerActions.getInventorySelected();
     }
 
-    setActionText(_text: string) {
-      // console.log("setActionText: " + _text);
-      this.playerActions.setText(_text);
-    }
-
-    getActionObject(): any {
-      return this.logicCombination;
-    }
-
-    setActionObject(value: any): void {
-      this.logicCombination = value;
-    }
-
     getCurrentAction(): number {
       return this.playerActions.getCurrentAction();
     }
@@ -776,12 +498,10 @@ namespace z89 {
     }
 
     disableInteraction(): void {
-      console.log("disableInteraction");
       this.gameInteraction = false;
     }
 
     enableInteraction(): void {
-      console.log("enableInteraction");
       this.gameInteraction = true;
     }
 
@@ -790,45 +510,11 @@ namespace z89 {
     }
 
     addInventory(itemIndex: number, noAnimation?: boolean) {
-      this.gameItemsUtils.addItem(itemIndex);
-      this.addInventoryItem(
-        this.gameItemsUtils.getItemById(itemIndex),
-        noAnimation
-      );
+      this.playerActions.addInventory(itemIndex, noAnimation);
     }
 
     addInventoryItem(item?: Items, noAnimation?: boolean): void {
-      if (item != undefined) {
-        //console.log(item);
-
-        this.playerActions.addItem(item);
-        this.groupAll.remove(item, true);
-        if (noAnimation != undefined && !noAnimation)
-          this.player.play("player-pickdrop");
-      } else {
-        let _currActionObj: any = this.getActionObject();
-
-        if (_currActionObj != undefined) {
-          let _item: Items;
-          if (_currActionObj.item == null) {
-            _item = _currActionObj.inventory[0];
-          } else {
-            _item = _currActionObj.item;
-          }
-
-          if (this.playerActions.isInInventory(_item)) {
-            this.player.showBaloon(z89.getLabel(28));
-            this.playerActions.resetActions();
-          } else {
-            this.player.play("player-pickdrop");
-            this.playerActions.addItem(_item);
-            this.groupAll.remove(_item);
-            this.setCurrentItem(null);
-          }
-        }
-      }
-
-      this.saveGameObj.updateItems();
+      this.playerActions.addInventoryItem(item, noAnimation);
     }
 
     updateItemObject(itemId: number, key: string, value: any): void {
@@ -846,11 +532,13 @@ namespace z89 {
     }
 
     removeInventoryItems(): void {
-      this.playerActions.removeItems(this.getActionObject().inventory);
+      this.playerActions.removeItems(
+        this.playerActions.getActionObject().inventory
+      );
     }
 
     dropInventoryItem(): void {
-      let _currActionObj: any = this.getActionObject();
+      let _currActionObj: any = this.playerActions.getActionObject();
       let _item: Items;
 
       if (_currActionObj.item == null) {
@@ -859,7 +547,7 @@ namespace z89 {
         _item = _currActionObj.item;
       }
 
-      if (!this.playerActions.isInInventory(_item)) {
+      if (!this.playerActions.isInInventory(_item.id)) {
         return;
       }
 
@@ -894,7 +582,7 @@ namespace z89 {
     }
 
     chapterCompleted(): void {
-      console.log("chapter completed");
+      //console.log("chapter completed");
 
       this.saveGameObj.setChapterCompleted(this.currentChapter);
       this.currentChapter++;
@@ -910,7 +598,7 @@ namespace z89 {
     }
 
     displayChapterOptions(): void {
-      console.log("displayChapterOptions");
+      //console.log("displayChapterOptions");
       this.conversationBaloon.setUpConversation({
         key: "CHAPTER_COMPLETED",
         action: null,
@@ -961,7 +649,11 @@ namespace z89 {
     }
 
     removeItem(itemIndex: number): void {
-      this.groupAll.remove(this.gameItemsUtils.getItemById(itemIndex), true);
+      this.groupAll.remove(
+        this.gameItemsUtils.getItemById(itemIndex),
+        true,
+        true
+      );
     }
 
     getContentsBycontexts(contexts: Array<string>): Array<any> {
@@ -993,38 +685,8 @@ namespace z89 {
       return _result;
     }
 
-    explosion(x: number, y: number, config: any): void {
-      let _explosion: Phaser.GameObjects.Sprite = this.add.sprite(
-        x,
-        y,
-        config.name
-      );
-      _explosion
-        .setOrigin(0.5, 1)
-        .setScale(2)
-        .setDepth(1000);
-      _explosion.anims.animationManager.create({
-        key: "explode",
-        frames: this.anims.generateFrameNumbers(config.name, {
-          frames: config.animation.frames
-        }),
-        frameRate: config.animation.rate,
-        repeat: 0
-      });
-
-      _explosion.play("explode");
-
-      _explosion.on("animationcomplete", () => {
-        _explosion.destroy();
-      });
-    }
-
     showPlayerBaloon(textId: number, callback?: any): void {
       this.player.showBaloon(z89.getLabel(textId), callback);
-    }
-
-    setLanguage(language: string): void {
-      z89.setLanguage(language);
     }
 
     addItem(id: number, randomId?: boolean): void {
@@ -1040,7 +702,7 @@ namespace z89 {
     }
 
     playerAnimation(animation: string): void {
-      this.player.play(animation);
+      this.player.playAnimation(animation);
     }
 
     setUpConversation(_actionObj: any): void {
@@ -1049,103 +711,6 @@ namespace z89 {
 
     updateItems(): void {
       this.saveGameObj.updateItems();
-    }
-
-    shootFromHigh(targets: Array<number>, shot?: any, callback?: any): void {
-      shot = {
-        delay: 1000,
-        missile: {
-          name: "meteor",
-          animation: {
-            frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            rate: 5,
-            loop: true
-          }
-        },
-        explosion: {
-          name: "explosion",
-          animation: {
-            frames: [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28
-            ],
-            rate: 25,
-            loop: false
-          }
-        }
-      };
-
-      let _shot: Phaser.GameObjects.Sprite;
-
-      targets.forEach((element, index) => {
-        this.groupAll.children.each((sprite: any) => {
-          if (sprite.id == element) {
-            //console.log(sprite);
-
-            _shot = this.add.sprite(sprite.x, -100, shot.missile.name);
-            _shot.setOrigin(0.5, 1).setDepth(1000);
-
-            _shot.anims.animationManager.create({
-              key: "run",
-              frames: this.anims.generateFrameNumbers("meteor", {
-                frames: shot.missile.animation.frames
-              }),
-              frameRate: shot.missile.animation.rate,
-              repeat: -1
-            });
-
-            _shot.play("run");
-
-            this.tweens.add({
-              targets: _shot,
-              y: sprite.y,
-              duration: 1000,
-              delay: shot.delay * index,
-              ease: "Quad.easeIn",
-
-              onComplete: () => {
-                this.mainCamera.flash(500, 255, 255, 255);
-                this.mainCamera.shake(700, 0.01);
-                this.explosion(sprite.x, sprite.y, shot.explosion);
-                this.groupAll.remove(
-                  this.gameItemsUtils.getItemById(sprite.id),
-                  true
-                );
-                _shot.destroy();
-
-                this.saveGameObj.updateItems();
-              }
-            });
-          }
-        }, this);
-      });
     }
   }
 }

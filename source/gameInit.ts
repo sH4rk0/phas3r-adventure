@@ -23,10 +23,6 @@ namespace z89 {
     return _089Data;
   }
 
-  export function setLanguage(language: string): void {
-    currentLang = language;
-  }
-
   export function isOnline(): any {
     return navigator.onLine;
   }

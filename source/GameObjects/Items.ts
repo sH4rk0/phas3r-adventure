@@ -50,7 +50,7 @@ namespace z89 {
         .setX(itemObj.x);
 
       this.id = this.itemObj.id;
-      this.name = this.itemObj.name;
+      this.name = z89.getLabel(this.itemObj.name);
       this._isInteractive = this.itemObj.interactive;
       this.itemObj.scale != undefined
         ? this.setScale(this.itemObj.scale)

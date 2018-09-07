@@ -94,7 +94,7 @@ let languages = {
     "I would like to listen...", //91
     "Woofer", //92
     "Nothing to do with this!", //93
-    "I have completed this chapter. Would you like to continue?", //94
+    "Chapter completed.\n Would you like to continue?", //94
     "Tap me to access the menu.", //95
     "The GOVERNOR", //96
     "Hi!", //97
@@ -160,7 +160,7 @@ let languages = {
     "It's already closed!", //157
     "Not a good idea!", //158
     "TIPs I GOT!", //159
-    "Hi Chris! How are you.", //160
+    "Hi Chris! How are you?", //160
     "Not bad Francesco. I' would like to play this arcade, but there is something that block the coinbox.", //161
     "MMM... ok, but now I need your AGS GURU expertise to solve my adventure. Could you help me?", //162
     "Sure!...but I know you are a spare time ARCADE SENSEI... so, if you help me to repair this Arcade, I'll help you to solve your quest.", //163
@@ -182,8 +182,8 @@ let languages = {
     "ENGLISH", //179
     "ITALIAN", //180
     "The interphone seems to work.", //181
-    "Hi! How are things going?", //182
-    "Not bad... hope better! Do you want a piece of cake?", //183
+    "Something pulled off the trash!", //182
+    "Hi! Do you want a piece of cake?", //183
     "No thanks! I'm on Diet. Too much sugar in your cakes! :D", //184
     "That's why are so sweet... Honey!", //185
     "Hi Sidney! How are you?", //186
@@ -196,7 +196,6 @@ let languages = {
     "Ok if you think back, I'm here! Bye! :D", //193
     "Do you changed idea?", //194
     "No thanks, maybe later!", //195
-
     "INCREDIBLE!!!... An original copy of Zak McKracken and the Alien Mindbenders. I have a perfect place in my collection, between the other 5 copy and the original Zak mask.", //196
     "You have already 5 copy of this game??", //197
     "You know...more is better than less!", //198
@@ -205,16 +204,240 @@ let languages = {
     "I would like to try it. Do you think it's possible?", //201
     "Mmm... I don't know... it's MY PRECIOUS!!!!... Ok... Wait here!", //202
     "Immutable like... like... a blockchain transaction!!!", //203
-
     "Here again!", //204
     "AHHHHH!!! How are you???", //205
     'Seems that the mask works properly!...  "MY PRECIOUS!!!!" ....AHUAAAUAUHHA!!', //206
     "Hey... Gollum... Let me try the mask!", //207
     "Magic word?", //208
     "Please!", //209
-
     "Zak Mask", //210
-    "The original Zak Mask" //211
+    "The original Zak Mask", //211
+    "Cake", //212
+    "Cloak of Invisibility", //213
+    "Galaga clone", //214
+    "Phaser gala", //215
+    "Interphone", //216
+    "Stairs" //217
+  ],
+  it: [
+    "distributore bevande", //00
+    "Troppo pesante!!!", //01
+    "Non c'è modo di tirarlo!", //02
+    "Forse accetta monete!", //03
+    "E' chiuso!", //04
+    "E' già chiuso!", //05
+    "Sembra un normale distributore di bevande.", //06
+    "Non ho soldi.", //07
+    "Davvero!?!?!", //08
+    "Davvero pensi che voglia parlarci?", //09
+    "Coca", //10
+    "Chiedi a Francesco di sviluppare un algoritmo di pathfinding migliore!", //11
+    "Terminale", //12
+    "NO!", //13
+    "Nulla di strano.", //14
+    "Fa davvero caldo! Avrei bisogno di una bevanda.", //15
+    "Cestino", //16
+    "Idrante", //17
+    "Spazzatura puzzolente.!", //18
+    "Non è logico!", //19
+    "Non voglio farlo!", //20
+    "Scordatelo!", //21
+    "Non posso lasciarlo!", //22
+    "Monete", //23
+    "Quattrocchi, non mi far alterare o ti SCUMM a sangue!!", //24
+    "4eyes", //25
+    "Una lattina di coca, che altro!", //26
+    "Alcune monete...giuste per una coca.", //27
+    "Ce l'ho già!", //28
+    "Seleziona un azione!", //29
+    "Non sono stupido!", //30
+    "Michele", //31
+    "Lui è michele, fondatore del DevDay Salerno.", //32
+    "Ciao Mike! Comen va?", //33
+    "Ciao, Francesco, Tutto ok. Non dimenticare il nostro prossimo Meetup.", //34
+    "Sure! Where and when?", //35
+    "Saturday 16th September at Puntolingue. We'll talk about blockchain and bitcoins", //36
+    "AMAZING!!!", //37
+    "Qui il DEVDAY organizza i meeting mensili!!!", //38
+    "@##@ @##@!!!", //39
+    "Gerardo", //40
+    "Daniele", //41
+    "Davide", //42
+    "Lui è Gerardo. Founder del DEVDAY Avellino.", //43
+    "Catena", //44
+    "Catena rotta", //45
+    "Blocco", //46
+    "Un blocco di cemento", //47
+    "DEVDAY in Bits", //48
+    "Un pugno di bits", //49
+    "Blockchain", //50
+    "una blockchain", //51
+    "Bitcoin", //52
+    "un bitcoin", //53
+    "DEVDAY pass", //54
+    "Nastro adesivo", //55
+    "Alimentatore rotto", //56
+    "Alimentatore funzionante", //57
+    "Qualcuno ha perso un rotolo di natro adesivo!", //58
+    "Sembra rotto! Ho bisogno di qualcosa per aggiustarlo.", //59
+    "L'alimentatore è riparato.", //60
+    "DEVDAY PALACE", //61
+    "Che puzza!", //62
+    "Lui è Daniele. Founder del DEVDAY Benevento.", //63
+    "Lui è Davide. Founder del DEVDAY Napoli.", //64
+    "$ git init\n$ git add *.c\n$ git add README\n$ git commit -m 'DEVDAY first commit'", //65
+    "Ciao Gerardo! Come va??", //66
+    "Ehmm!! OK! OK!", //67
+    "Ciao Mike! Come gira??", //68
+    "Ciao Francesco! Un grosso guaio!\nLo schermo pubblicitario non funziona, e non so perchè!\nCosì non possiamo avvisare i Dev dei nostri dei prossimi eventi!!\nHai qualche idea?", //69
+    "Sicuro!", //70
+    "Francesco, novità?", //71
+    "Non ancora!", //72
+    "Grazie Francesco! Adesso lo schermo funziona correttamente.", //73
+    "Di nulla!", //74
+    "The DEVDAY event screen!", //75
+    "DEVDAY ADV screen", //76
+    "Wow! Le mie skills!", //77
+    "Io vivo al terzo piano!", //78
+    "palazzo", //79
+    "porta", //80
+    "Sembra non essere connesso.", //81
+    "Wow! Ora è connesso.", //82
+    "Non è connesso... forse più tardi!", //83
+    "Ciao! Mi chiamo Francesco Raimondo, Presentation Layer Architect @ Healthwareinternational.\nQuesto è un esperimento realizzato usando il framework Phaz3r.js. Che ne pensi? :D", //84
+    "DAVVERO VUOI RICOMINCIARE?", //85
+    "I miei ringraziamenti vanno a Richard Davey autore di Phaser,\nPAUL ROBERTSON e\nJASON TAMMEMAGI\nper il loro inconsapevole contributo a questo esperimento NON COMMERCIALE.", //86
+    "Qualche opzione!!", //87
+    "Jukebox", //88
+    "DEVDAY website", //89
+    "Info", //90
+    "Mi piacerebbe ascoltare...", //91
+    "Woofer", //92
+    "Nulla da fare con questo!", //93
+    "Ho completato questa capitolo. Vuoi continuare?", //94
+    "Tap per accedere al menu.", //95
+    "Il Governatore", //96
+    "Cioa!", //97
+    "Io sono il Governatore... e tu non sei nessuno!", //98
+    "Sidney C64", //99
+    "Chris AGS guru", //100
+    "Bad guy 1", //101
+    "Bad guy 2", //102
+    "Bad guy 3", //103
+    "The Jumper", //104
+    "The Runner", //105
+    "Girl 1", //106
+    "Pasticciera", //107
+    "Invito", //108
+    "Torna più tardi!", //109
+    "Già qui? Prova ad usare il cervello ogni tanto! Torna più tardi!", //110
+    "Già qui? Hai perso tutti i neuroni? Torna più tardi!", //111
+    "Ho già detto tutto!", //112
+    "Hai tutte le informazioni necessarie per risolvere questo capitolo!", //113
+    "E' la tua prima avventura? fai qualche tentativo e poi torna!", //114
+    "Yo bro! Ho bisogno del tuo aiuto per risolvere l' ENIGMA!", //115
+    "Yo bro! Hai qualche indizio su come risolvere la quest?", //116
+    "Yo bro! Non so come andare avanti!", //117
+    "sugg 0_0", //118
+    "sugg 0_1", //119
+    "sugg 0_2", //120
+    "sugg 1_0", //121
+    "sugg 1_1", //122
+    "sugg 1_2", //123
+    "Vuoi ricominciare il gioco?", //124
+    "SI", //125
+    "NO", //126
+    "ABBANDONA IL GIOCO", //127
+    "CREDITI", //128
+    "INDIETRO", //129
+    "Nulla", //130
+    "Musica a 8bit", //131
+    'Mai giocato a "Zak McKracken and the Alien Mindbenders"? Giocaci e poi ritorna!', //132
+    '"Day of the Tentacle" ti suona nuovo? Giocaci e torna più tardi!', //133
+    'Hai bisogno di rigiocare "The Secret of Monkey Island"! Giocaci e poi ritorna!', //134
+    "Ok, cercherò di trovare una soluzione!", //135
+    "Ok, ritornerò!", //136
+    "Capito!", //137
+    "Ottimo spunto!", //138,
+    "Galaga è il primo arcade a cui ho giocato!", //139
+    "Mmmm, interessante...", //140
+    "Benvenuto in questo esperimento.\nCompleta le quest per accedere alle sezioni del sito... oppure esplora il sito senza giocare!", //141
+    "Bottiglia vuota", //142
+    "Qualcuno non ha buttato la bottiglia nel cestino.", //143
+    "Il cestino è pieno!", //144
+    "Un vecchio floppy disk", //145
+    "WOW! E' una copia originale di Zak McKracken... Dovrebbe valere un bel pò di $$$!!! ", //146
+    "WOW! Un vero mantello di invisibilità!", //147
+    "Cacciavite", //148
+    "Uno strumento per tutte le stagioni!", //149
+    "Riparato!", //150
+    "Non voglio rompere nulla!", //151
+    "La porta è aperta.", //152
+    "La porta è chiusa.", //153
+    "Nessuna risposta!", //154
+    "I GOT DEVDAY PASS!", //155
+    "Meledizione! E' chiusa!", //156
+    "E' già chiusa!", //157
+    "Non è una buona idea.!", //158
+    "Suggerimenti!", //159
+    "Ciao Chris! Come va?", //160
+    "Non male Francesco. Mi piacerebbe giocare a questo Arcade, ma c'è qualcosa che blocca la gettoniera.", //161
+    "MMM... ok, ma sono qui perchè ho bisogno della tua esperienza di AGS GURU per risolvere la mia avventura. Mi aiuteresti?", //162
+    "Certo!...ma io so che tu sei un ARCADE SENSEI nel tempo libero... se tu mi aiuti a riparare l'Arcade, io ti aiuterò a risolvere la tua avventura.", //163
+    "OK! Abbiamo un accordo! Stretta di mano con lo sputo?? :D", //164
+    "Ciao Francesco, idee su come riparare l'Arcade?", //165
+    "Non ancora!", //166
+    "Chi è???", //167
+    "Sono io!", //168
+    "Io chi?", //169
+    "Sono io!! PAPA'! Dai Noemi.. Apri il portone!", //170
+    "OK...", //171
+    "E' aperto??", //172
+    "Provo!", //173
+    "Ok Chris, l'Arcade è riparato!", //174
+    "Wow!... Hai delle monete??", //175
+    "NO!!!", //176
+    "OK.... Userò le mie! :D Torna se hai bisogno di aiuto!", //177
+    "Seleziona la lingua.", //178
+    "INGLESE", //179
+    "ITALIANO", //180
+    "Il citofono sembra funzionare.", //181
+    "Qualcosa è uscito dal cestino!", //182
+    "Cio! Ti va una fetta di torta?", //183
+    "No grazie! Sono a dieta. Troppo succhero nelle tue torte! :D", //184
+    "Per questo sono così dolci... Caro!", //185
+    "Ciao Sidney! Come butta?", //186
+    "Ciao Francesco, tutto bene! Tu?", //187
+    "Non male, ma mi hanno coinvolto in questa stupida RETRO avventura...", //188
+    "RETRO AVVETURA.... questo mi ricorda i bei tempi del c64! Quanti ricordi!", //189
+    "...Esattamente! Tu sei fortunato... mi piacerebbe che il mio nome iniziasse con il formato musicale del commodore... SID! ;)", //190
+    "Vero... Nomen omen! Così stai giocando un avventura?? Io ho un grosso archivio, lo sai sono un collezionista! Facciamo una partita? ;)", //191
+    "Non posso adesso... ci vediamo in giro! ;)", //192
+    "Ok se ci ripensi, Io sono qui! Ciao! :D", //193
+    "Hai cambiato idea?", //194
+    "No, forse più tardi!", //195
+    "INCREDIBILE!!!... Una copia originale di Zak McKracken and the Alien Mindbenders. Ho un posto perfetto nella mia collezione, tra le altre 5 copie e la maschera originale di Zak.", //196
+    "Hai già 5 copie??", //197
+    "Lo sai...più è meglio che meno!", //198
+    "Dipende dalle situazioni... ma in questo caso concordo. Ma hai davvero la maschera originale di Zak?", //199
+    'Certo! ...è uno dei... "MIEI TESSSSSOORI!!!!"', //200
+    "Mi piacerebbe vederla, credi sia possibile?", //201
+    "Mmm... non so... it's MY PRECIOUS!!!!... Ok... Aspetta qui!", //202
+    "Immutabile come... come... a transazione nella blockchain!!!", //203
+    "Eccomi di ritorno!", //204
+    "AHHHHH!!! Chi sei???", //205
+    'Sembra che la maschera funzioni!...  "IL MI TESSSORO!!!!" ....AHUAAAUAUHHA!!', //206
+    "Hey... Gollum... Fammi provare la maschera!", //207
+    "Parola magica?", //208
+    "PER FAVORE!", //209
+    "Maschera di ZAK", //210
+    "La maschera originale di ZAK", //211
+    "Torta", //212
+    "Mantello di invisibilità", //213
+    "Galaga clone", //214
+    "Phaser gala", //215
+    "Citofono", //216
+    "Scale" //216
   ]
 };
 
@@ -248,10 +471,11 @@ let actions = {
 let currentLang = "en";
 let gameData = {
   chapters: null,
-  ingame: { conversation: null, logic: null, items: null },
+  ingame: { conversation: null, logic: null, items: null, scenes: null },
   assets: null,
   menuBlink: null,
   menuBtns: null,
+  actions: actions,
   tips: {
     delay: 10,
     nomore: [112, 113],

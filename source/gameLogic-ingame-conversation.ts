@@ -1,6 +1,4 @@
 gameData.ingame.conversation = {
-  //TIPS: [[z89.getLabel(118), z89.getLabel(119), z89.getLabel(120)], [z89.getLabel(121), z89.getLabel(122), z89.getLabel(123)]],
-
   CHECK_TIP_TIME: (cs: z89.GameCity) => {
     let lastTip: any = cs.saveGameObj.getSaved().tips.lastTip;
     if (lastTip != undefined) {
@@ -424,6 +422,7 @@ gameData.ingame.conversation = {
         callback: (cs: z89.GameCity) => {
           cs.gameItemsUtils.beamOut(cs.getItem(21), () => {
             cs.addDelay(2000, () => {
+              cs.getItem(21).play("21-mask");
               cs.gameItemsUtils.beamIn(cs.getItem(21), () => {
                 cs.setUpConversation(
                   z89.conversationObj("TALKTO_21_GAME_BACK", cs.currentItem)
@@ -449,6 +448,7 @@ gameData.ingame.conversation = {
         end: true,
         callback: () => {
           cs.playerAnimation("player-use");
+          cs.getItem(21).play("21-idle");
           cs.enableInteraction();
           cs.gameItemsUtils.addItem(35);
           cs.addInventoryItem(cs.getItem(35), true);
@@ -459,7 +459,6 @@ gameData.ingame.conversation = {
 
   TALKTO_106: (cs: z89.GameCity) => {
     return [
-      { text: z89.getLabel(182), isItem: false, next: true },
       { text: z89.getLabel(183), isItem: true, next: true },
       { text: z89.getLabel(184), isItem: false, next: true },
       { text: z89.getLabel(185), isItem: true, end: true }

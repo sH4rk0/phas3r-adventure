@@ -55,7 +55,7 @@ gameData.assets = {
       path: "assets/images/game/people/sidney.png",
       width: 65,
       height: 138,
-      frames: 4
+      frames: 8
     },
     {
       name: "walkers",

@@ -10,12 +10,12 @@ namespace z89 {
     constructor(scene: GameCity, itemObj: any) {
       super(scene, itemObj);
 
-      this.setAlpha(0);
+      this.setAlpha(0).setX(itemObj.startX);
 
       this.playAnim(this.itemObj.id + "-idle");
 
       this.movingTimer = this.scene.time.delayedCall(
-        Phaser.Math.RND.integerInRange(0,5000),
+        Phaser.Math.RND.integerInRange(0, 5000),
         scene => {
           this.beamIn();
         },
@@ -65,8 +65,11 @@ namespace z89 {
     }
 
     startPath(direction: number): void {
-        //console.log("startpath")
-      let _walk: number = Phaser.Math.RND.integerInRange(this.itemObj.walkRange.step.min, this.itemObj.walkRange.step.max);
+      //console.log("startpath")
+      let _walk: number = Phaser.Math.RND.integerInRange(
+        this.itemObj.walkRange.step.min,
+        this.itemObj.walkRange.step.max
+      );
       let _walkSpeed: number = _walk * 10;
 
       if (direction == 0) {
@@ -85,21 +88,21 @@ namespace z89 {
         y: this.setDestinationY(false),
         duration: _walkSpeed,
         onUpdate: () => {
-
           this.setDepth(this.y);
 
-          if (this.checkBounds() && this.itemObj.insight.behaviour!="runner") {
+          if (
+            this.checkBounds() &&
+            this.itemObj.insight.behaviour != "runner"
+          ) {
             //console.log("startpath update checkBounds");
             if (this.movingTween != undefined) this.movingTween.stop();
             if (this.movingTimer != undefined) this.movingTimer.remove(false);
             this.setXPosition(this.x);
 
             if (this.x < this.itemObj.walkRange.start) {
-              
               this.turnRight();
               this.nextDirection(1);
             } else {
-                
               this.turnLeft();
               this.nextDirection(0);
             }
@@ -109,75 +112,73 @@ namespace z89 {
         onComplete: () => {
           //  console.log("startpath complete");
 
-                  this.setIdle(true);
-                  this.playAnim(this.itemObj.id + "-idle"); 
-                  this.updateItemObj(
-                    "x",
-                    this.scene.mainCamera.scrollX * 0.095 + this.x
-                  ); 
+          this.setIdle(true);
+          this.playAnim(this.itemObj.id + "-idle");
+          this.updateItemObj(
+            "x",
+            this.scene.mainCamera.scrollX * 0.095 + this.x
+          );
 
-                  if(this.itemObj.insight.behaviour=="runner" && this.checkBounds()){
+          if (
+            this.itemObj.insight.behaviour == "runner" &&
+            this.checkBounds()
+          ) {
+            this.beaming = true;
 
-                    this.beaming = true;
-                    
-                    this.scene.gameItemsUtils.beamOut(this, () => {
-                       
-                        this.setXPosition(Phaser.Math.RND.integerInRange(this.itemObj.walkRange.start, this.itemObj.walkRange.end));
-                       
-                        if (Phaser.Math.RND.integerInRange(0, 1)==0) {
-                          this.setYPosition(610);
-                      
-                        } else {
-                          this.setYPosition(700);
-                        }
-              
-                        this.beamIn();
-                      });
+            this.scene.gameItemsUtils.beamOut(this, () => {
+              this.setXPosition(
+                Phaser.Math.RND.integerInRange(
+                  this.itemObj.walkRange.start,
+                  this.itemObj.walkRange.end
+                )
+              );
 
-                  
+              if (Phaser.Math.RND.integerInRange(0, 1) == 0) {
+                this.setYPosition(610);
+              } else {
+                this.setYPosition(700);
+              }
 
-                  }else{
-
-
-                  this.movingTimer = this.scene.time.delayedCall(
-                    Phaser.Math.RND.integerInRange(this.itemObj.walkRange.idle.min, this.itemObj.walkRange.idle.max),
-                    scene => {
-                      this.nextDirection();
-                    },
-                    null,
-                    this
-                  );
-
-                }
-           
-         
+              this.beamIn();
+            });
+          } else {
+            this.movingTimer = this.scene.time.delayedCall(
+              Phaser.Math.RND.integerInRange(
+                this.itemObj.walkRange.idle.min,
+                this.itemObj.walkRange.idle.max
+              ),
+              scene => {
+                this.nextDirection();
+              },
+              null,
+              this
+            );
+          }
         }
       });
     }
 
-    setXPosition(value:number):void{
-
-        this.updateItemObj( "x", this.scene.mainCamera.scrollX * 0.095 + (value));
-        this.setX(value);
-
+    setXPosition(value: number): void {
+      this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + value);
+      this.setX(value);
     }
 
-    setYPosition(value:number):void{
-
-        this.updateItemObj( "y", value);
-        this.setY(value).setDepth(value);
-
+    setYPosition(value: number): void {
+      this.updateItemObj("y", value);
+      this.setY(value).setDepth(value);
     }
 
     nextDirection(_setDirection?: number): void {
-        //console.log("nextDirection",_setDirection);
+      //console.log("nextDirection",_setDirection);
       let _action: number = Phaser.Math.RND.integerInRange(0, 100);
       let _direction: number = Phaser.Math.RND.integerInRange(0, 1);
 
       if (_setDirection != undefined) _direction = _setDirection;
 
-      if (_action > 100 - this.itemObj.jumpChance && _setDirection==undefined) {
-
+      if (
+        _action > 100 - this.itemObj.jumpChance &&
+        _setDirection == undefined
+      ) {
         //console.log("nextDirection jump")
         this.beaming = true;
         this.setIdle(true);
@@ -185,22 +186,24 @@ namespace z89 {
 
         this.scene.gameItemsUtils.beamOut(this, () => {
           this.beaming = false;
-          this.setXPosition(Phaser.Math.RND.integerInRange(this.itemObj.walkRange.start, this.itemObj.walkRange.end));
-         
+          this.setXPosition(
+            Phaser.Math.RND.integerInRange(
+              this.itemObj.walkRange.start,
+              this.itemObj.walkRange.end
+            )
+          );
+
           if (_direction == 0) {
             this.setYPosition(610);
-        
           } else {
             this.setYPosition(700);
           }
 
           this.beamIn();
         });
-
       } else {
         //console.log("nextDirection startPath")
         this.startPath(_direction);
-
       }
     }
 
@@ -216,14 +219,19 @@ namespace z89 {
     }
 
     update() {
-
-       // if(this.itemObj.insight.behaviour=="runner") console.log(this.x);
-    
+      if (
+        this.scene.player.alpha < 1 ||
+        (this.scene.player.isMasked() && this.itemObj.id == 102)
+      ) {
+        //this.setAlpha(0.5);
+        return;
+      }
 
       if (
         !this.beaming &&
         this.itemObj.insight.distance > 0 &&
-        this.distanceUpdate && this.scene.player.alpha==1
+        this.distanceUpdate &&
+        !this.scene.player.isTalking()
       ) {
         if (
           Math.round(
@@ -241,17 +249,17 @@ namespace z89 {
 
             if (this.movingTween != undefined) this.movingTween.stop();
             if (this.movingTimer != undefined) this.movingTimer.remove(false);
+
             this.updateItemObj(
               "x",
               this.scene.mainCamera.scrollX * 0.095 + this.x
             );
 
             switch (this.itemObj.insight.behaviour) {
-
               case "runner":
-              this.distanceUpdate = false;
-             
-             /* if (this.scene.player.x <= this.x) {
+                this.distanceUpdate = false;
+
+                /* if (this.scene.player.x <= this.x) {
                 this.turnRight();
                 this.startPath(1);
               } else {
@@ -260,7 +268,6 @@ namespace z89 {
               }
               
               return;*/
-              
 
                 this.setIdle(false);
                 let _run: number = 500;
@@ -282,19 +289,15 @@ namespace z89 {
                   duration: _runSpeed,
                   onUpdate: () => {
                     this.setDepth(this.y);
-                   
-                    
                   },
                   onComplete: () => {
                     this.distanceUpdate = true;
                   }
-                 
                 });
 
                 break;
 
               case "jumper":
-                
                 this.distanceUpdate = false;
                 this.setIdle(true);
                 this.playAnim(this.itemObj.id + "-idle");
@@ -303,7 +306,7 @@ namespace z89 {
 
                 this.scene.gameItemsUtils.beamOut(this, () => {
                   let _jump: number;
-                  
+
                   if (this.scene.player.x <= this.x) {
                     this.turnRight();
                     _jump = -400;
@@ -314,16 +317,17 @@ namespace z89 {
 
                   this.setYPosition(this.setDestinationY(true));
 
-                  if((this.scene.player.x + _jump)<this.itemObj.walkRange.start){
-
+                  if (
+                    this.scene.player.x + _jump <
+                    this.itemObj.walkRange.start
+                  ) {
                     this.setXPosition(this.itemObj.walkRange.start);
-
-                  }else if((this.scene.player.x + _jump)>this.itemObj.walkRange.end){
-
+                  } else if (
+                    this.scene.player.x + _jump >
+                    this.itemObj.walkRange.end
+                  ) {
                     this.setXPosition(this.itemObj.walkRange.end);
-
-                  }else{
-
+                  } else {
                     this.setXPosition(this.scene.player.x + _jump);
                   }
 
@@ -347,6 +351,7 @@ namespace z89 {
                 } else {
                   this.turnRight();
                 }
+
                 break;
             }
           }
@@ -354,7 +359,7 @@ namespace z89 {
           //console.log("far");
 
           if (!this.behaviour) {
-           // console.log("restart");
+            // console.log("restart");
             this.nextDirection();
           }
 

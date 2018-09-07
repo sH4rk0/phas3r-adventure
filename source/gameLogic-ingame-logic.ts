@@ -168,10 +168,10 @@ gameData.ingame.logic = {
 
   // use bottle on trash2
   USE_8_7: (cs: z89.GameCity) => {
-    cs.playerAnimation("player-use");
     cs.removeInventoryItems();
-
+    cs.playerAnimation("player-use");
     cs.addDelay(300, () => {
+      cs.showPlayerBaloon(182);
       cs.addItem(9);
       cs.getItem(9).itemObj.onStart = true;
       cs.updateItems();
@@ -191,6 +191,8 @@ gameData.ingame.logic = {
   //use interphone
   USE_29: (cs: z89.GameCity) => {
     cs.playerAnimation("player-use");
+
+    console.log(cs.currentChapter);
 
     if (cs.currentChapter == 0) {
       cs.disableInteraction();
@@ -238,8 +240,8 @@ gameData.ingame.logic = {
       cs.chapterCompleted();
     });
   },
+
   USE_30_32: (cs: z89.GameCity) => {
-    //console.log("bitcoin on blockchain");
     cs.showPlayerBaloon(155);
     cs.removeInventoryItems();
     cs.addInventory(31, true);
@@ -274,6 +276,12 @@ gameData.ingame.logic = {
         cs.updateItems();
       });
     });
+  },
+
+  //use zak mask
+  USE_35: (cs: z89.GameCity) => {
+    cs.player.useMask(true);
+    cs.playerAnimation("player-idle");
   },
 
   /*

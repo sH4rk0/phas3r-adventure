@@ -72,9 +72,12 @@ namespace z89 {
       this.currentStep++;
       const _obj = this.conversationObj[this.currentStep];
 
-      _obj != undefined && (_obj.next != undefined || _obj.end)
-        ? this.displayStep()
-        : (this.isPlaying = false);
+      if (_obj != undefined && (_obj.next != undefined || _obj.end)) {
+        this.displayStep();
+      } else {
+        this.isPlaying = false;
+        this.scene.player.setConversation(false);
+      }
 
       /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
         this.displayStep();
@@ -113,6 +116,7 @@ namespace z89 {
     }
 
     stopConversation(): void {
+      this.scene.player.setConversation(false);
       this.hideBaloon(() => {
         this.removeForks();
         this.baloonText.setY(0);
@@ -172,6 +176,7 @@ namespace z89 {
     }
 
     startConversation(): void {
+      this.scene.player.setConversation(true);
       if (this.baloonTarget != null) {
         if (this.scene.player.x < this.baloonTarget.x) {
           this.baloonTarget.turnLeft();
@@ -198,65 +203,70 @@ namespace z89 {
 
       let _obj = this.conversationObj[this.currentStep];
 
-      if (_obj.isSkippable != undefined) this.isSkippable = _obj.isSkippable;
-      if (_obj == undefined) {
-        this.hideBaloon();
-        return;
+      if (_obj != undefined) {
+        if (_obj.isSkippable != undefined) this.isSkippable = _obj.isSkippable;
+        if (_obj.end != undefined) this.isSkippable = false;
+
+        if (_obj == undefined) {
+          this.hideBaloon();
+          return;
+        }
+
+        if (_obj.isItem) {
+          this.baloonText.tint = 0xffffff;
+          this.baloonBorder.tint = 0xffffff;
+          this.baloonPin.tint = 0xffffff;
+
+          this.baloonX = this.baloonTarget.x;
+          this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
+        } else {
+          this.baloonText.tint = 0x00ff00;
+          this.baloonBorder.tint = 0x00ff00;
+          this.baloonPin.tint = 0x00ff00;
+          this.baloonX = this.scene.player.x;
+          this.baloonY = this.scene.player.y - this.scene.player.height - 50;
+        }
+
+        if (_obj.next != undefined) {
+          if (_obj.delay != undefined) _delay = _obj.delay;
+          this.timeEvent = this.scene.time.addEvent({
+            delay: this.getTime(_obj.text.length) + _delay,
+            callback: () => {
+              this.currentStep++;
+              this.displayStep();
+            },
+            callbackScope: this,
+            loop: false
+          });
+        }
+
+        if (_obj.end != undefined) {
+          if (_obj.delay != undefined) _delay = _obj.delay;
+          this.timeEvent = this.scene.time.addEvent({
+            delay: this.getTime(_obj.text.length) + _delay,
+            callback: () => {
+              this.currentStep = 0;
+              this.hideBaloon();
+              this.isPlaying = false;
+              this.scene.player.setConversation(false);
+            },
+            callbackScope: this,
+            loop: false
+          });
+        }
+
+        if (_obj.callback != undefined) {
+          _obj.callback(this.scene);
+        }
+
+        if (_obj.fork != undefined) {
+          this.isSkippable = false;
+          this.showOptions(_obj);
+          return;
+        }
+
+        this.showBaloon(_obj.text);
       }
-
-      if (_obj.isItem) {
-        this.baloonText.tint = 0xffffff;
-        this.baloonBorder.tint = 0xffffff;
-        this.baloonPin.tint = 0xffffff;
-
-        this.baloonX = this.baloonTarget.x;
-        this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
-      } else {
-        this.baloonText.tint = 0x00ff00;
-        this.baloonBorder.tint = 0x00ff00;
-        this.baloonPin.tint = 0x00ff00;
-        this.baloonX = this.scene.player.x;
-        this.baloonY = this.scene.player.y - this.scene.player.height - 50;
-      }
-
-      if (_obj.next != undefined) {
-        if (_obj.delay != undefined) _delay = _obj.delay;
-        this.timeEvent = this.scene.time.addEvent({
-          delay: this.getTime(_obj.text.length) + _delay,
-          callback: () => {
-            this.currentStep++;
-            this.displayStep();
-          },
-          callbackScope: this,
-          loop: false
-        });
-      }
-
-      if (_obj.end != undefined) {
-        if (_obj.delay != undefined) _delay = _obj.delay;
-        this.timeEvent = this.scene.time.addEvent({
-          delay: this.getTime(_obj.text.length) + _delay,
-          callback: () => {
-            this.currentStep = 0;
-            this.hideBaloon();
-            this.isPlaying = false;
-          },
-          callbackScope: this,
-          loop: false
-        });
-      }
-
-      if (_obj.callback != undefined) {
-        _obj.callback(this.scene);
-      }
-
-      if (_obj.fork != undefined) {
-        this.isSkippable = false;
-        this.showOptions(_obj);
-        return;
-      }
-
-      this.showBaloon(_obj.text);
     }
 
     getTime(textLenght: number): number {
@@ -279,7 +289,7 @@ namespace z89 {
       let _btnText: Phaser.GameObjects.BitmapText;
 
       this.removeForks();
-      console.log(_obj.options);
+      //console.log(_obj.options);
 
       if (_obj.options != undefined) {
         _obj.options.forEach((element, index) => {
@@ -301,6 +311,8 @@ namespace z89 {
                 if (_option.link != undefined) {
                   this.currentStep++;
                   window.open(_option.link, "_blank");
+                  //this.hideBaloon();
+                  return;
                 }
 
                 if (_option.action != undefined) {

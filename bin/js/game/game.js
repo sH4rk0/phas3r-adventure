@@ -227,10 +227,8 @@ var z89;
 (function (z89) {
     var GameCity = (function (_super) {
         __extends(GameCity, _super);
-        function GameCity(test) {
-            var _this = _super.call(this, {
-                key: "GameCity"
-            }) || this;
+        function GameCity() {
+            var _this = _super.call(this, { key: "GameCity" }) || this;
             _this.gameCompleted = false;
             // private filters: Array<Phaser.Filter>;
             _this.gameInteraction = true;
@@ -344,15 +342,28 @@ var z89;
             // +++++++++++++++++++++++++++++++++++++++
             // saved game
             // +++++++++++++++++++++++++++++++++++++++
+            /*
             if (this.saveGameObj.gameIsSaved()) {
-                this.processSavedGame();
+              this.processSavedGame();
+            } else {
+            
+              gameData.ingame.items.forEach(element => {
+                if (element.onStart) {
+                  this.gameItemsUtils.addItem(element.id);
+                }
+              });
+      
+              this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
+              this.saveGameObj.updateItems();
+      
+              this.playerMenu.openOnStart();
+            }
+            */
+            if (this.saveGameObj.gameIsSaved()) {
+                this.processSavedGameMulti();
             }
             else {
-                gameData.ingame.items.forEach(function (element) {
-                    if (element.onStart) {
-                        _this.gameItemsUtils.addItem(element.id);
-                    }
-                });
+                this.setUpScene("city");
                 this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
                 this.saveGameObj.updateItems();
                 this.playerMenu.openOnStart();
@@ -411,12 +422,13 @@ var z89;
             this.gameItemsUtils.addItem(100,true);
             this.gameItemsUtils.addItem(100,true);
             */
-            //get an item and add directly to the inventory
+            //add an existing item from group list to the inventory
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // this.addInventoryItem(this.gameItemsUtils.getItemById(24));
-            // this.addInventoryItem(this.gameItemsUtils.getItemById(25));
-            //this.gameItemsUtils.addItem(35);
-            //this.addInventoryItem(this.gameItemsUtils.getItemById(35));
+            //get an item from list and add to the inventory
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //this.addInventory(13, true);
+            //this.addInventory(35, true);
             //beam out existing Items
             //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             // this.gameItemsUtils.beamOut(27);
@@ -429,6 +441,60 @@ var z89;
             //this.shootFromHigh([27]);
             //accessible global instance for backend ajax call
             _gamecity = this;
+        };
+        GameCity.prototype.setUpScene = function (name) {
+            var _this = this;
+            console.log("setup scene");
+            gameData.ingame.scenes.forEach(function (element) {
+                if (element.name === name) {
+                    _this.saveGameObj.setScene(name);
+                    element.startItems.forEach(function (itemId) {
+                        _this.gameItemsUtils.addItem(itemId);
+                    });
+                }
+            });
+            this.saveGameObj.updateItems();
+        };
+        GameCity.prototype.processSavedGameMulti = function () {
+            var _this = this;
+            var _saved = this.saveGameObj.getSaved();
+            console.log(_saved);
+            this.currentChapter = _saved.chapter.current;
+            if (_saved.chapter.choice == null) {
+                this.displayChapterOptions();
+            }
+            _saved.scenes.forEach(function (element) {
+                if (element.name == _saved.currentScene) {
+                    console.log(element);
+                    _saved.items = element.items;
+                    _this.player.x = element.playerPosition.x;
+                    _this.player.y = element.playerPosition.y;
+                }
+            });
+            if (_saved.items != undefined) {
+                this.gameItemsUtils.addSavedItems(_saved.items);
+            }
+            if (_saved.inventory != undefined && _saved.inventory.length > 0) {
+                _saved.inventory.forEach(function (element) {
+                    //console.log("add from cache" + element);
+                    if (!_this.playerActions.isInInventory(element.id)) {
+                        var item = void 0;
+                        // console.log(element.type )
+                        switch (element.type) {
+                            default:
+                                _this.groupAll.add(new z89.Items(_this, element));
+                                break;
+                        }
+                        //console.log(element,this.getItemSpriteId(element))
+                        _this.addInventoryItem(_this.gameItemsUtils.getItemById(element.id));
+                    }
+                });
+            }
+        };
+        GameCity.prototype.setLanguage = function (language) {
+            currentLang = language;
+            this.gameItemsUtils.setLanguage();
+            this.playerActions.setLanguage();
         };
         GameCity.prototype.setGameCompleted = function () {
             this.gameCompleted = true;
@@ -466,7 +532,8 @@ var z89;
         GameCity.prototype.processSavedGame = function () {
             var _this = this;
             var _saved = this.saveGameObj.getSaved();
-            console.log(_saved);
+            //console.log(_saved);
+            this.currentChapter = _saved.chapter.current;
             if (_saved.chapter.choice == null) {
                 this.displayChapterOptions();
             }
@@ -477,24 +544,18 @@ var z89;
             }
             if (_saved.inventory != undefined && _saved.inventory.length > 0) {
                 _saved.inventory.forEach(function (element) {
-                    var item;
-                    // console.log(element.type )
-                    switch (element.type) {
-                        case 2:
-                            // this.groupAll.add(new ItemsTruck(this.game, element));
-                            break;
-                        case 3:
-                            _this.groupAll.add(new z89.ItemsContent(_this, element));
-                            break;
-                        case 4:
-                            _this.groupAll.add(new z89.ItemsSkill(_this, element));
-                            break;
-                        default:
-                            _this.groupAll.add(new z89.Items(_this, element));
-                            break;
+                    //console.log("add from cache" + element);
+                    if (!_this.playerActions.isInInventory(element.id)) {
+                        var item = void 0;
+                        // console.log(element.type )
+                        switch (element.type) {
+                            default:
+                                _this.groupAll.add(new z89.Items(_this, element));
+                                break;
+                        }
+                        //console.log(element,this.getItemSpriteId(element))
+                        _this.addInventoryItem(_this.gameItemsUtils.getItemById(element.id));
                     }
-                    //console.log(element,this.getItemSpriteId(element))
-                    _this.addInventoryItem(_this.gameItemsUtils.getItemById(element.id));
                 });
             }
         };
@@ -508,284 +569,8 @@ var z89;
             //this.game.debug.body(this.player.myArea)
         };
         GameCity.prototype.startConversation = function () {
-            var _actionObj = this.getActionObject();
+            var _actionObj = this.playerActions.getActionObject();
             // this.conversationBaloon.setUpConversation(_actionObj);
-        };
-        GameCity.prototype.doActionSequence = function (_item) {
-            var _this = this;
-            this.createActionObject(); //create the action object based on action/inventory/items selection
-            this.createActionText(); //create the action text based on the above selection
-            var _actionObj = this.getActionObject();
-            if (this.actionTimer != null)
-                this.actionTimer.remove(false);
-            //console.log(_actionObj);
-            if (_actionObj.action != -1 &&
-                (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
-                this.executeActionLogic(_item)) {
-                //console.log("doActionSequence");
-                //this.playerBaloon.hideBaloon();
-                this.playerActions.hide();
-                //this.playerMenu.hide();
-                /* this.time.delayedCall(
-                    3000,
-                    () => {
-                      this.playerActions.setText("");
-                    },
-                    null,
-                    this
-                  );
-                  */
-            }
-            else {
-                /* console.log("doillogic");
-        
-                console.log(
-                  _actionObj.key,
-                  _actionObj.key.indexOf("_"),
-                  _actionObj.inventory.length,
-                  _actionObj.item
-                );
-                */
-                if (_actionObj.key != "noAction" &&
-                    _actionObj.key.indexOf("_") != -1 &&
-                    ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
-                        (_actionObj.inventory.length == 0 && _actionObj.item != undefined)))
-                    this.player.illogicAction();
-            }
-            this.actionTimer = this.time.delayedCall(3000, function () {
-                _this.resetActions();
-                _this.setActionObject(null);
-                _this.playerActions.setText("");
-                _this.playerBaloon.hideBaloon();
-            }, null, this);
-        };
-        GameCity.prototype.createActionObject = function (_itemSelected) {
-            var returnObj = {
-                key: null,
-                action: null,
-                inventory: null,
-                item: null
-            };
-            var _currentAction = this.getCurrentActionString();
-            var _currentActionValue = this.getCurrentAction();
-            if (_currentAction == undefined) {
-                _currentAction = "";
-                returnObj.action = _currentActionValue = -1;
-            }
-            else {
-                returnObj.action = _currentActionValue;
-            }
-            var _currentItem;
-            var _inventoryIds = [];
-            var _Inventoryitems = "";
-            returnObj.inventory = this.getInventorySelected();
-            //console.log(returnObj.inventory);
-            var _Item;
-            if (_itemSelected != undefined) {
-                _Item = _itemSelected;
-            }
-            else {
-                _Item = this.getCurrentItem();
-            }
-            var ItemId = "";
-            returnObj.item = _Item;
-            if (returnObj.item != null)
-                ItemId = returnObj.item.id;
-            returnObj.inventory.forEach(function (element) {
-                if (element != undefined)
-                    _inventoryIds.push(element.itemObj.id);
-            });
-            if (_inventoryIds.length > 0)
-                _Inventoryitems = _inventoryIds.join("_");
-            if (ItemId != "" && _Inventoryitems != "")
-                _Inventoryitems = _Inventoryitems + "_";
-            var key = "";
-            if (_currentAction != "" && _Inventoryitems != "" && ItemId != "") {
-                returnObj.key = _currentAction + "_" + _Inventoryitems + ItemId;
-            }
-            else if (_currentAction != "" &&
-                _Inventoryitems != "" &&
-                ItemId == "") {
-                returnObj.key = _currentAction + "_" + _Inventoryitems;
-            }
-            else if (_currentAction != "" &&
-                _Inventoryitems == "" &&
-                ItemId != "") {
-                returnObj.key = _currentAction + "_" + ItemId;
-            }
-            else if (_currentAction != "" &&
-                _Inventoryitems == "" &&
-                ItemId == "") {
-                returnObj.key = _currentAction;
-            }
-            else if (_currentAction == "") {
-                returnObj.key = "noAction";
-            }
-            // console.log(returnObj);
-            this.logicCombination = returnObj;
-            //return this.logicCombination;
-        };
-        GameCity.prototype.createActionText = function () {
-            //console.log("createActionText")
-            var _actionObj = this.getActionObject();
-            var _actionText = "";
-            if (_actionObj == null) {
-                if (this.getCurrentItem() != undefined)
-                    _actionText = this.getCurrentItem().name;
-            }
-            else {
-                var _destText = "";
-                if (_actionObj.action == z89.PlayerActionList.GIVE) {
-                    _destText = " to ";
-                }
-                else if (_actionObj.action == z89.PlayerActionList.USE) {
-                    _destText = " on ";
-                }
-                if (_actionObj.inventory.length == 0 && _actionObj.item == null) {
-                    //console.log("case 1")
-                    _actionText = this.getCurrentActionLabel();
-                }
-                else if (_actionObj.action != -1 &&
-                    _actionObj.inventory.length == 0 &&
-                    _actionObj.item != null) {
-                    //console.log("case 2")
-                    _actionText =
-                        this.getCurrentActionLabel() + " " + _actionObj.item.name;
-                }
-                else if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-                    //console.log("case 3")
-                    //console.log(_actionObj.inventory.length)
-                    if (_actionObj.inventory.length == 1) {
-                        _actionText =
-                            this.getCurrentActionLabel() + " " + _actionObj.inventory[0].name; //+ _destText;
-                    }
-                    else if (_actionObj.inventory.length == 2) {
-                        _actionText =
-                            this.getCurrentActionLabel() +
-                                " " +
-                                _actionObj.inventory[0].name +
-                                _destText +
-                                _actionObj.inventory[1].name;
-                    }
-                }
-                else if (_actionObj.inventory.length > 0 && _actionObj.item != null) {
-                    //console.log("case 4")
-                    if (_actionObj.inventory.length == 1) {
-                        _actionText =
-                            this.getCurrentActionLabel() +
-                                " " +
-                                _actionObj.inventory[0].name +
-                                _destText +
-                                _actionObj.item.name;
-                    }
-                }
-                else if (_actionObj.key == "noAction" && _actionObj.item != null) {
-                    //console.log("case 5", _actionObj.item.name);
-                    _actionText = _actionObj.item.name;
-                }
-            }
-            //console.log(_actionText);
-            this.setActionText(_actionText);
-        };
-        GameCity.prototype.checkCombinedItems = function () {
-            var _actionObj = this.getActionObject();
-            if (_actionObj.inventory.length == 2) {
-                var _key = this.getCurrentActionLabel() +
-                    "_" +
-                    _actionObj.inventory[0].id +
-                    "_" +
-                    _actionObj.inventory[1].id;
-                // console.log(_key)
-                if (gameData.ingame.logic[_key] != undefined)
-                    return true;
-                _key =
-                    this.getCurrentActionLabel() +
-                        "_" +
-                        _actionObj.inventory[1].id +
-                        "_" +
-                        _actionObj.inventory[0].id;
-                if (gameData.ingame.logic[_key] != undefined)
-                    return true;
-                // console.log(_key)
-            }
-            return false;
-        };
-        GameCity.prototype.checkCombinedItemsKey = function () {
-            var _actionObj = this.getActionObject();
-            if (_actionObj.inventory.length == 2) {
-                var _key = this.getCurrentActionLabel() +
-                    "_" +
-                    _actionObj.inventory[0].id +
-                    "_" +
-                    _actionObj.inventory[1].id;
-                // console.log(_key)
-                if (gameData.ingame.logic[_key] != undefined)
-                    return _key;
-                _key =
-                    this.getCurrentActionLabel() +
-                        "_" +
-                        _actionObj.inventory[1].id +
-                        "_" +
-                        _actionObj.inventory[0].id;
-                if (gameData.ingame.logic[_key] != undefined)
-                    return _key;
-                // console.log(_key)
-            }
-            return "";
-        };
-        GameCity.prototype.executeActionLogic = function (_item) {
-            var _actionObj = this.getActionObject();
-            //console.log(_actionObj);
-            //console.log(this.checkCombinedItems())
-            if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
-                // console.log("logic 0");
-                //console.log(_actionObj.inventory.length, this.getCurrentActionString(), _actionObj.key)
-                if (_actionObj.inventory.length == 1 &&
-                    gameData.ingame.logic[_actionObj.key] != undefined) {
-                    //console.log("logic 1");
-                    gameData.ingame.logic[_actionObj.key](this);
-                    return true;
-                }
-                else if (_actionObj.inventory.length == 2 &&
-                    this.checkCombinedItems()) {
-                    //console.log("logic item on item", _actionObj.key);
-                    gameData.ingame.logic[this.checkCombinedItemsKey()](this);
-                    return true;
-                }
-            }
-            else if (_actionObj.inventory.length == 0 &&
-                _actionObj.item != null &&
-                gameData.ingame.logic[_actionObj.key] != undefined) {
-                //console.log("logic 2", _actionObj.key);
-                //if (_actionObj.item.itemObj.logic != undefined && _actionObj.item.itemObj.logic[this.getCurrentActionString()] != undefined) { _actionObj.item.itemObj.logic[this.getCurrentActionString()](this); return true; }
-                gameData.ingame.logic[_actionObj.key](this);
-                return true;
-            }
-            else if (_actionObj.inventory.length > 0 &&
-                _actionObj.item != null &&
-                gameData.ingame.logic[_actionObj.key] != undefined) {
-                //console.log("logic 3", _actionObj.key);
-                gameData.ingame.logic[_actionObj.key](this);
-                return true;
-            }
-            return false;
-        };
-        GameCity.prototype.resetActions = function () {
-            //console.log("resetActions ")
-            this.playerActions.resetActions();
-            this.currentItem = null;
-        };
-        GameCity.prototype.returnMessage = function () {
-            var _currActionObj = this.getActionObject();
-            var _item;
-            if (_currActionObj.item == null) {
-                _item = _currActionObj.inventory[0];
-            }
-            else {
-                _item = _currActionObj.item;
-            }
-            var _mess = _item.itemObj.actions[_currActionObj.action].answer[Phaser.Math.RND.integerInRange(0, _item.itemObj.actions[_currActionObj.action].answer.length - 1)];
-            this.player.showBaloon(_mess);
         };
         /* returnMessageExtra(): void {
           let _currActionObj: any = this.getActionObject();
@@ -812,16 +597,6 @@ var z89;
         GameCity.prototype.getInventorySelected = function () {
             return this.playerActions.getInventorySelected();
         };
-        GameCity.prototype.setActionText = function (_text) {
-            // console.log("setActionText: " + _text);
-            this.playerActions.setText(_text);
-        };
-        GameCity.prototype.getActionObject = function () {
-            return this.logicCombination;
-        };
-        GameCity.prototype.setActionObject = function (value) {
-            this.logicCombination = value;
-        };
         GameCity.prototype.getCurrentAction = function () {
             return this.playerActions.getCurrentAction();
         };
@@ -835,51 +610,19 @@ var z89;
             return this.groupAll;
         };
         GameCity.prototype.disableInteraction = function () {
-            console.log("disableInteraction");
             this.gameInteraction = false;
         };
         GameCity.prototype.enableInteraction = function () {
-            console.log("enableInteraction");
             this.gameInteraction = true;
         };
         GameCity.prototype.isInteractionDisabled = function () {
             return !this.gameInteraction;
         };
         GameCity.prototype.addInventory = function (itemIndex, noAnimation) {
-            this.gameItemsUtils.addItem(itemIndex);
-            this.addInventoryItem(this.gameItemsUtils.getItemById(itemIndex), noAnimation);
+            this.playerActions.addInventory(itemIndex, noAnimation);
         };
         GameCity.prototype.addInventoryItem = function (item, noAnimation) {
-            if (item != undefined) {
-                //console.log(item);
-                this.playerActions.addItem(item);
-                this.groupAll.remove(item, true);
-                if (noAnimation != undefined && !noAnimation)
-                    this.player.play("player-pickdrop");
-            }
-            else {
-                var _currActionObj = this.getActionObject();
-                if (_currActionObj != undefined) {
-                    var _item = void 0;
-                    if (_currActionObj.item == null) {
-                        _item = _currActionObj.inventory[0];
-                    }
-                    else {
-                        _item = _currActionObj.item;
-                    }
-                    if (this.playerActions.isInInventory(_item)) {
-                        this.player.showBaloon(z89.getLabel(28));
-                        this.playerActions.resetActions();
-                    }
-                    else {
-                        this.player.play("player-pickdrop");
-                        this.playerActions.addItem(_item);
-                        this.groupAll.remove(_item);
-                        this.setCurrentItem(null);
-                    }
-                }
-            }
-            this.saveGameObj.updateItems();
+            this.playerActions.addInventoryItem(item, noAnimation);
         };
         GameCity.prototype.updateItemObject = function (itemId, key, value) {
             this.gameItemsUtils.getItemById(itemId).updateItemObj(key, value);
@@ -891,10 +634,10 @@ var z89;
             });
         };
         GameCity.prototype.removeInventoryItems = function () {
-            this.playerActions.removeItems(this.getActionObject().inventory);
+            this.playerActions.removeItems(this.playerActions.getActionObject().inventory);
         };
         GameCity.prototype.dropInventoryItem = function () {
-            var _currActionObj = this.getActionObject();
+            var _currActionObj = this.playerActions.getActionObject();
             var _item;
             if (_currActionObj.item == null) {
                 _item = _currActionObj.inventory[0];
@@ -902,7 +645,7 @@ var z89;
             else {
                 _item = _currActionObj.item;
             }
-            if (!this.playerActions.isInInventory(_item)) {
+            if (!this.playerActions.isInInventory(_item.id)) {
                 return;
             }
             // console.log(_item);
@@ -928,7 +671,7 @@ var z89;
             return this.saveGameObj.getSaved().chapter.chapters[chapterIndex];
         };
         GameCity.prototype.chapterCompleted = function () {
-            console.log("chapter completed");
+            //console.log("chapter completed");
             this.saveGameObj.setChapterCompleted(this.currentChapter);
             this.currentChapter++;
             //this.currentChapter=this.saveGameObj.getSaved().chapter.current;
@@ -938,7 +681,7 @@ var z89;
             this.displayChapterOptions();
         };
         GameCity.prototype.displayChapterOptions = function () {
-            console.log("displayChapterOptions");
+            //console.log("displayChapterOptions");
             this.conversationBaloon.setUpConversation({
                 key: "CHAPTER_COMPLETED",
                 action: null,
@@ -984,7 +727,7 @@ var z89;
             });
         };
         GameCity.prototype.removeItem = function (itemIndex) {
-            this.groupAll.remove(this.gameItemsUtils.getItemById(itemIndex), true);
+            this.groupAll.remove(this.gameItemsUtils.getItemById(itemIndex), true, true);
         };
         GameCity.prototype.getContentsBycontexts = function (contexts) {
             var _arr = z89.getZero89Data();
@@ -1012,30 +755,8 @@ var z89;
             });
             return _result;
         };
-        GameCity.prototype.explosion = function (x, y, config) {
-            var _explosion = this.add.sprite(x, y, config.name);
-            _explosion
-                .setOrigin(0.5, 1)
-                .setScale(2)
-                .setDepth(1000);
-            _explosion.anims.animationManager.create({
-                key: "explode",
-                frames: this.anims.generateFrameNumbers(config.name, {
-                    frames: config.animation.frames
-                }),
-                frameRate: config.animation.rate,
-                repeat: 0
-            });
-            _explosion.play("explode");
-            _explosion.on("animationcomplete", function () {
-                _explosion.destroy();
-            });
-        };
         GameCity.prototype.showPlayerBaloon = function (textId, callback) {
             this.player.showBaloon(z89.getLabel(textId), callback);
-        };
-        GameCity.prototype.setLanguage = function (language) {
-            z89.setLanguage(language);
         };
         GameCity.prototype.addItem = function (id, randomId) {
             this.gameItemsUtils.addItem(id, randomId);
@@ -1047,7 +768,7 @@ var z89;
             this.tweens.add(tweenObj);
         };
         GameCity.prototype.playerAnimation = function (animation) {
-            this.player.play(animation);
+            this.player.playAnimation(animation);
         };
         GameCity.prototype.setUpConversation = function (_actionObj) {
             this.conversationBaloon.setUpConversation(_actionObj);
@@ -1055,7 +776,192 @@ var z89;
         GameCity.prototype.updateItems = function () {
             this.saveGameObj.updateItems();
         };
-        GameCity.prototype.shootFromHigh = function (targets, shot, callback) {
+        return GameCity;
+    }(Phaser.Scene));
+    z89.GameCity = GameCity;
+})(z89 || (z89 = {}));
+var z89;
+(function (z89) {
+    var GameItemsUtils = (function () {
+        function GameItemsUtils(scene) {
+            this.scene = scene;
+        }
+        GameItemsUtils.prototype.addSavedItems = function (_items) {
+            var _this = this;
+            _items.forEach(function (element) {
+                _this.attachItem(element);
+            });
+        };
+        GameItemsUtils.prototype.addItem = function (id, randomId) {
+            var _itemObj = this.getItemObjById(id);
+            if (randomId != undefined) {
+                _itemObj = JSON.parse(JSON.stringify(_itemObj));
+                _itemObj.id = Phaser.Math.RND.integerInRange(1000, 100000);
+            }
+            // console.log(_itemObj);
+            this.attachItem(_itemObj);
+        };
+        GameItemsUtils.prototype.attachItem = function (_itemObj) {
+            if (_itemObj != undefined) {
+                switch (_itemObj.type) {
+                    case 2:
+                        //    this.scene.groupAll.add(new ItemsTruck(this.scene, _itemObj));
+                        break;
+                    case 3:
+                        this.scene.groupAll.add(new z89.ItemsContent(this.scene, _itemObj));
+                        break;
+                    case 4:
+                        this.scene.groupAll.add(new z89.ItemsSkill(this.scene, _itemObj));
+                        break;
+                    case 5:
+                        // this.scene.groupCity.add(new Items(this.scene, _itemObj));
+                        break;
+                    case 6:
+                        this.scene.groupAll.add(new z89.ItemsWalking(this.scene, _itemObj));
+                        break;
+                    default:
+                        // console.log(_itemObj);
+                        this.scene.groupAll.add(new z89.Items(this.scene, _itemObj));
+                        break;
+                }
+            }
+        };
+        GameItemsUtils.prototype.getItemObjById = function (id) {
+            var _itemObj;
+            gameData.ingame.items.forEach(function (element) {
+                if (element.id == id)
+                    _itemObj = element;
+            });
+            return _itemObj;
+        };
+        GameItemsUtils.prototype.getItemById = function (id) {
+            var _itemObj;
+            this.scene.groupAll.children.each(function (element) {
+                if (element.id == id)
+                    _itemObj = element;
+            }, this);
+            // console.log(_itemObj);
+            return _itemObj;
+        };
+        GameItemsUtils.prototype.setLanguage = function () {
+            this.scene.groupAll.children.each(function (item) {
+                if (item.itemObj != undefined) {
+                    item.name = z89.getLabel(item.itemObj.name);
+                }
+            }, this);
+        };
+        GameItemsUtils.prototype.beamIn = function (item, callback) {
+            var _this = this;
+            item.setAlpha(0);
+            var beam = this.scene.add.sprite(item.x, 0, "beam");
+            beam
+                .setScale(0.5, item.y / 200)
+                .setOrigin(0.5, 0)
+                .setAlpha(0)
+                .setDepth(item.y)
+                .play("beam");
+            /*
+            let color2 = new Phaser.Display.Color(255, 255, 255);
+            let color1 = new Phaser.Display.Color(0, 255, 0);
+            this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
+      */
+            var tweenBeam = this.scene.tweens.add({
+                targets: beam,
+                scaleX: 1,
+                alpha: 0.5,
+                ease: "Power1",
+                duration: 300,
+                delay: 1000,
+                repeat: 0,
+                onComplete: function () {
+                    _this.scene.tweens.add({
+                        targets: item,
+                        alpha: 1,
+                        duration: 300,
+                        repeat: 0,
+                        onComplete: function () {
+                            if (callback != undefined)
+                                callback();
+                        }
+                    });
+                    _this.scene.tweens.add({
+                        targets: beam,
+                        alpha: 0,
+                        duration: 300,
+                        repeat: 0
+                    });
+                }
+            });
+        };
+        GameItemsUtils.prototype.beamOut = function (item, callback) {
+            var _this = this;
+            if (item != undefined) {
+                var beam_1 = this.scene.add.sprite(item.x, 0, "beam");
+                beam_1
+                    .setScale(0.5, item.y / 200)
+                    .setOrigin(0.5, 0)
+                    .setAlpha(0)
+                    .setDepth(item.y)
+                    .play("beam");
+                var tweenBeam = this.scene.tweens.add({
+                    targets: beam_1,
+                    scaleX: 1,
+                    alpha: 0.3,
+                    ease: "Power1",
+                    duration: 300,
+                    delay: 500,
+                    repeat: 0,
+                    onComplete: function () {
+                        _this.scene.tweens.add({
+                            targets: beam_1,
+                            alpha: 0,
+                            ease: "Power1",
+                            duration: 100,
+                            repeat: 0,
+                            onComplete: function () {
+                                beam_1.destroy();
+                            }
+                        });
+                    }
+                });
+                /*
+              let color1 = new Phaser.Display.Color(255, 255, 255);
+              let color2 = new Phaser.Display.Color(0, 255, 0);
+              this.scene.gameUtils.tweenTint(item, color1, color2, 300, 400, null);
+              */
+                var test = this.scene.tweens.add({
+                    targets: item,
+                    scaleX: 1.5,
+                    scaleY: 0.5,
+                    ease: "Power1",
+                    alpha: 0.5,
+                    duration: 300,
+                    repeat: 0,
+                    delay: 500,
+                    onComplete: function () {
+                        _this.scene.tweens.add({
+                            targets: item,
+                            y: item.y - 100,
+                            scaleX: 0.25,
+                            scaleY: 10,
+                            alpha: 0,
+                            duration: 300,
+                            ease: "Power1",
+                            repeat: 0,
+                            onComplete: function () {
+                                item.setScale(1).setY(item.itemObj.y);
+                                if (callback != undefined)
+                                    callback();
+                                //to remove an item definitly
+                                //this.scene.removeItem(itemId);
+                                //this.scene.saveGameObj.updateItems();
+                            }
+                        });
+                    }
+                });
+            }
+        };
+        GameItemsUtils.prototype.shootFromHigh = function (targets, shot, callback) {
             var _this = this;
             shot = {
                 delay: 1000,
@@ -1108,212 +1014,57 @@ var z89;
             };
             var _shot;
             targets.forEach(function (element, index) {
-                _this.groupAll.children.each(function (sprite) {
+                _this.scene.groupAll.children.each(function (sprite) {
                     if (sprite.id == element) {
                         //console.log(sprite);
-                        _shot = _this.add.sprite(sprite.x, -100, shot.missile.name);
+                        _shot = _this.scene.add.sprite(sprite.x, -100, shot.missile.name);
                         _shot.setOrigin(0.5, 1).setDepth(1000);
                         _shot.anims.animationManager.create({
                             key: "run",
-                            frames: _this.anims.generateFrameNumbers("meteor", {
+                            frames: _this.scene.anims.generateFrameNumbers("meteor", {
                                 frames: shot.missile.animation.frames
                             }),
                             frameRate: shot.missile.animation.rate,
                             repeat: -1
                         });
                         _shot.play("run");
-                        _this.tweens.add({
+                        _this.scene.tweens.add({
                             targets: _shot,
                             y: sprite.y,
                             duration: 1000,
                             delay: shot.delay * index,
                             ease: "Quad.easeIn",
                             onComplete: function () {
-                                _this.mainCamera.flash(500, 255, 255, 255);
-                                _this.mainCamera.shake(700, 0.01);
+                                _this.scene.mainCamera.flash(500, 255, 255, 255);
+                                _this.scene.mainCamera.shake(700, 0.01);
                                 _this.explosion(sprite.x, sprite.y, shot.explosion);
-                                _this.groupAll.remove(_this.gameItemsUtils.getItemById(sprite.id), true);
+                                _this.scene.groupAll.remove(_this.getItemById(sprite.id), true, true);
                                 _shot.destroy();
-                                _this.saveGameObj.updateItems();
+                                _this.scene.saveGameObj.updateItems();
                             }
                         });
                     }
                 }, _this);
             });
         };
-        return GameCity;
-    }(Phaser.Scene));
-    z89.GameCity = GameCity;
-})(z89 || (z89 = {}));
-var z89;
-(function (z89) {
-    var GameItemsUtils = (function () {
-        function GameItemsUtils(scene) {
-            this.scene = scene;
-        }
-        GameItemsUtils.prototype.addSavedItems = function (_items) {
-            var _this = this;
-            _items.forEach(function (element) {
-                _this.attachItem(element);
+        GameItemsUtils.prototype.explosion = function (x, y, config) {
+            var _explosion = this.scene.add.sprite(x, y, config.name);
+            _explosion
+                .setOrigin(0.5, 1)
+                .setScale(2)
+                .setDepth(1000);
+            _explosion.anims.animationManager.create({
+                key: "explode",
+                frames: this.scene.anims.generateFrameNumbers(config.name, {
+                    frames: config.animation.frames
+                }),
+                frameRate: config.animation.rate,
+                repeat: 0
             });
-        };
-        GameItemsUtils.prototype.addItem = function (id, randomId) {
-            var _itemObj = this.getItemObjById(id);
-            if (randomId != undefined) {
-                _itemObj = JSON.parse(JSON.stringify(_itemObj));
-                _itemObj.id = Phaser.Math.RND.integerInRange(1000, 100000);
-            }
-            //console.log(_itemObj)
-            this.attachItem(_itemObj);
-        };
-        GameItemsUtils.prototype.attachItem = function (_itemObj) {
-            if (_itemObj != undefined) {
-                switch (_itemObj.type) {
-                    case 2:
-                        //    this.scene.groupAll.add(new ItemsTruck(this.scene, _itemObj));
-                        break;
-                    case 3:
-                        this.scene.groupAll.add(new z89.ItemsContent(this.scene, _itemObj));
-                        break;
-                    case 4:
-                        this.scene.groupAll.add(new z89.ItemsSkill(this.scene, _itemObj));
-                        break;
-                    case 5:
-                        this.scene.groupCity.add(new z89.Items(this.scene, _itemObj));
-                        break;
-                    case 6:
-                        this.scene.groupAll.add(new z89.ItemsWalking(this.scene, _itemObj));
-                        break;
-                    default:
-                        this.scene.groupAll.add(new z89.Items(this.scene, _itemObj));
-                        break;
-                }
-            }
-        };
-        GameItemsUtils.prototype.getItemObjById = function (id) {
-            var _itemObj;
-            gameData.ingame.items.forEach(function (element) { if (element.id == id)
-                _itemObj = element; });
-            return _itemObj;
-        };
-        GameItemsUtils.prototype.getItemById = function (id) {
-            var _itemObj;
-            this.scene.groupAll.children.each(function (element) {
-                if (element.id == id)
-                    _itemObj = element;
-            }, this);
-            return _itemObj;
-        };
-        GameItemsUtils.prototype.beamIn = function (item, callback) {
-            var _this = this;
-            item.setAlpha(0);
-            var beam = this.scene.add.sprite(item.x, 0, "beam");
-            beam
-                .setScale(0.5, (item.y / 200))
-                .setOrigin(0.5, 0)
-                .setAlpha(0)
-                .setDepth(item.y)
-                .play("beam");
-            /*
-                  let color2 = new Phaser.Display.Color(255, 255, 255);
-                  let color1 = new Phaser.Display.Color(0, 255, 0);
-                  this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
-            */
-            var tweenBeam = this.scene.tweens.add({
-                targets: beam,
-                scaleX: 1,
-                alpha: 0.5,
-                ease: "Power1",
-                duration: 300,
-                delay: 1000,
-                repeat: 0,
-                onComplete: function () {
-                    _this.scene.tweens.add({
-                        targets: item,
-                        alpha: 1,
-                        duration: 300,
-                        repeat: 0,
-                        onComplete: function () {
-                            if (callback != undefined)
-                                callback();
-                        }
-                    });
-                    _this.scene.tweens.add({
-                        targets: beam,
-                        alpha: 0,
-                        duration: 300,
-                        repeat: 0
-                    });
-                }
+            _explosion.play("explode");
+            _explosion.on("animationcomplete", function () {
+                _explosion.destroy();
             });
-        };
-        GameItemsUtils.prototype.beamOut = function (item, callback) {
-            var _this = this;
-            if (item != undefined) {
-                var beam_1 = this.scene.add.sprite(item.x, 0, "beam");
-                beam_1
-                    .setScale(0.5, (item.y / 200))
-                    .setOrigin(0.5, 0)
-                    .setAlpha(0)
-                    .setDepth(item.y)
-                    .play("beam");
-                var tweenBeam = this.scene.tweens.add({
-                    targets: beam_1,
-                    scaleX: 1,
-                    alpha: 0.3,
-                    ease: "Power1",
-                    duration: 300,
-                    delay: 500,
-                    repeat: 0,
-                    onComplete: function () {
-                        _this.scene.tweens.add({
-                            targets: beam_1,
-                            alpha: 0,
-                            ease: "Power1",
-                            duration: 100,
-                            repeat: 0,
-                            onComplete: function () {
-                                beam_1.destroy();
-                            }
-                        });
-                    }
-                });
-                /*
-                let color1 = new Phaser.Display.Color(255, 255, 255);
-                let color2 = new Phaser.Display.Color(0, 255, 0);
-                this.scene.gameUtils.tweenTint(item, color1, color2, 300, 400, null);
-                */
-                var test = this.scene.tweens.add({
-                    targets: item,
-                    scaleX: 1.5,
-                    scaleY: 0.5,
-                    ease: "Power1",
-                    alpha: 0.5,
-                    duration: 300,
-                    repeat: 0,
-                    delay: 500,
-                    onComplete: function () {
-                        _this.scene.tweens.add({
-                            targets: item,
-                            y: item.y - 100,
-                            scaleX: 0.25,
-                            scaleY: 10,
-                            alpha: 0,
-                            duration: 300,
-                            ease: "Power1",
-                            repeat: 0,
-                            onComplete: function () {
-                                item.setScale(1).setY(item.itemObj.y);
-                                if (callback != undefined)
-                                    callback();
-                                //to remove an item definitly
-                                //this.scene.removeItem(itemId);
-                                //this.scene.saveGameObj.updateItems();
-                            }
-                        });
-                    }
-                });
-            }
         };
         return GameItemsUtils;
     }());
@@ -1343,10 +1094,6 @@ var z89;
         return _089Data;
     }
     z89.getZero89Data = getZero89Data;
-    function setLanguage(language) {
-        currentLang = language;
-    }
-    z89.setLanguage = setLanguage;
     function isOnline() {
         return navigator.onLine;
     }
@@ -1614,7 +1361,7 @@ var languages = {
         "I would like to listen...",
         "Woofer",
         "Nothing to do with this!",
-        "I have completed this chapter. Would you like to continue?",
+        "Chapter completed.\n Would you like to continue?",
         "Tap me to access the menu.",
         "The GOVERNOR",
         "Hi!",
@@ -1680,7 +1427,7 @@ var languages = {
         "It's already closed!",
         "Not a good idea!",
         "TIPs I GOT!",
-        "Hi Chris! How are you.",
+        "Hi Chris! How are you?",
         "Not bad Francesco. I' would like to play this arcade, but there is something that block the coinbox.",
         "MMM... ok, but now I need your AGS GURU expertise to solve my adventure. Could you help me?",
         "Sure!...but I know you are a spare time ARCADE SENSEI... so, if you help me to repair this Arcade, I'll help you to solve your quest.",
@@ -1702,8 +1449,8 @@ var languages = {
         "ENGLISH",
         "ITALIAN",
         "The interphone seems to work.",
-        "Hi! How are things going?",
-        "Not bad... hope better! Do you want a piece of cake?",
+        "Something pulled off the trash!",
+        "Hi! Do you want a piece of cake?",
         "No thanks! I'm on Diet. Too much sugar in your cakes! :D",
         "That's why are so sweet... Honey!",
         "Hi Sidney! How are you?",
@@ -1730,8 +1477,234 @@ var languages = {
         "Hey... Gollum... Let me try the mask!",
         "Magic word?",
         "Please!",
-        "",
-        "" //211
+        "Zak Mask",
+        "The original Zak Mask",
+        "Cake",
+        "Cloak of Invisibility",
+        "Galaga clone",
+        "Phaser gala",
+        "Interphone",
+        "Stairs" //217
+    ],
+    it: [
+        "distributore bevande",
+        "Troppo pesante!!!",
+        "Non c'è modo di tirarlo!",
+        "Forse accetta monete!",
+        "E' chiuso!",
+        "E' già chiuso!",
+        "Sembra un normale distributore di bevande.",
+        "Non ho soldi.",
+        "Davvero!?!?!",
+        "Davvero pensi che voglia parlarci?",
+        "Coca",
+        "Chiedi a Francesco di sviluppare un algoritmo di pathfinding migliore!",
+        "Terminale",
+        "NO!",
+        "Nulla di strano.",
+        "Fa davvero caldo! Avrei bisogno di una bevanda.",
+        "Cestino",
+        "Idrante",
+        "Spazzatura puzzolente.!",
+        "Non è logico!",
+        "Non voglio farlo!",
+        "Scordatelo!",
+        "Non posso lasciarlo!",
+        "Monete",
+        "Quattrocchi, non mi far alterare o ti SCUMM a sangue!!",
+        "4eyes",
+        "Una lattina di coca, che altro!",
+        "Alcune monete...giuste per una coca.",
+        "Ce l'ho già!",
+        "Seleziona un azione!",
+        "Non sono stupido!",
+        "Michele",
+        "Lui è michele, fondatore del DevDay Salerno.",
+        "Ciao Mike! Comen va?",
+        "Ciao, Francesco, Tutto ok. Non dimenticare il nostro prossimo Meetup.",
+        "Sure! Where and when?",
+        "Saturday 16th September at Puntolingue. We'll talk about blockchain and bitcoins",
+        "AMAZING!!!",
+        "Qui il DEVDAY organizza i meeting mensili!!!",
+        "@##@ @##@!!!",
+        "Gerardo",
+        "Daniele",
+        "Davide",
+        "Lui è Gerardo. Founder del DEVDAY Avellino.",
+        "Catena",
+        "Catena rotta",
+        "Blocco",
+        "Un blocco di cemento",
+        "DEVDAY in Bits",
+        "Un pugno di bits",
+        "Blockchain",
+        "una blockchain",
+        "Bitcoin",
+        "un bitcoin",
+        "DEVDAY pass",
+        "Nastro adesivo",
+        "Alimentatore rotto",
+        "Alimentatore funzionante",
+        "Qualcuno ha perso un rotolo di natro adesivo!",
+        "Sembra rotto! Ho bisogno di qualcosa per aggiustarlo.",
+        "L'alimentatore è riparato.",
+        "DEVDAY PALACE",
+        "Che puzza!",
+        "Lui è Daniele. Founder del DEVDAY Benevento.",
+        "Lui è Davide. Founder del DEVDAY Napoli.",
+        "$ git init\n$ git add *.c\n$ git add README\n$ git commit -m 'DEVDAY first commit'",
+        "Ciao Gerardo! Come va??",
+        "Ehmm!! OK! OK!",
+        "Ciao Mike! Come gira??",
+        "Ciao Francesco! Un grosso guaio!\nLo schermo pubblicitario non funziona, e non so perchè!\nCosì non possiamo avvisare i Dev dei nostri dei prossimi eventi!!\nHai qualche idea?",
+        "Sicuro!",
+        "Francesco, novità?",
+        "Non ancora!",
+        "Grazie Francesco! Adesso lo schermo funziona correttamente.",
+        "Di nulla!",
+        "The DEVDAY event screen!",
+        "DEVDAY ADV screen",
+        "Wow! Le mie skills!",
+        "Io vivo al terzo piano!",
+        "palazzo",
+        "porta",
+        "Sembra non essere connesso.",
+        "Wow! Ora è connesso.",
+        "Non è connesso... forse più tardi!",
+        "Ciao! Mi chiamo Francesco Raimondo, Presentation Layer Architect @ Healthwareinternational.\nQuesto è un esperimento realizzato usando il framework Phaz3r.js. Che ne pensi? :D",
+        "DAVVERO VUOI RICOMINCIARE?",
+        "I miei ringraziamenti vanno a Richard Davey autore di Phaser,\nPAUL ROBERTSON e\nJASON TAMMEMAGI\nper il loro inconsapevole contributo a questo esperimento NON COMMERCIALE.",
+        "Qualche opzione!!",
+        "Jukebox",
+        "DEVDAY website",
+        "Info",
+        "Mi piacerebbe ascoltare...",
+        "Woofer",
+        "Nulla da fare con questo!",
+        "Ho completato questa capitolo. Vuoi continuare?",
+        "Tap per accedere al menu.",
+        "Il Governatore",
+        "Cioa!",
+        "Io sono il Governatore... e tu non sei nessuno!",
+        "Sidney C64",
+        "Chris AGS guru",
+        "Bad guy 1",
+        "Bad guy 2",
+        "Bad guy 3",
+        "The Jumper",
+        "The Runner",
+        "Girl 1",
+        "Pasticciera",
+        "Invito",
+        "Torna più tardi!",
+        "Già qui? Prova ad usare il cervello ogni tanto! Torna più tardi!",
+        "Già qui? Hai perso tutti i neuroni? Torna più tardi!",
+        "Ho già detto tutto!",
+        "Hai tutte le informazioni necessarie per risolvere questo capitolo!",
+        "E' la tua prima avventura? fai qualche tentativo e poi torna!",
+        "Yo bro! Ho bisogno del tuo aiuto per risolvere l' ENIGMA!",
+        "Yo bro! Hai qualche indizio su come risolvere la quest?",
+        "Yo bro! Non so come andare avanti!",
+        "sugg 0_0",
+        "sugg 0_1",
+        "sugg 0_2",
+        "sugg 1_0",
+        "sugg 1_1",
+        "sugg 1_2",
+        "Vuoi ricominciare il gioco?",
+        "SI",
+        "NO",
+        "ABBANDONA IL GIOCO",
+        "CREDITI",
+        "INDIETRO",
+        "Nulla",
+        "Musica a 8bit",
+        'Mai giocato a "Zak McKracken and the Alien Mindbenders"? Giocaci e poi ritorna!',
+        '"Day of the Tentacle" ti suona nuovo? Giocaci e torna più tardi!',
+        'Hai bisogno di rigiocare "The Secret of Monkey Island"! Giocaci e poi ritorna!',
+        "Ok, cercherò di trovare una soluzione!",
+        "Ok, ritornerò!",
+        "Capito!",
+        "Ottimo spunto!",
+        "Galaga è il primo arcade a cui ho giocato!",
+        "Mmmm, interessante...",
+        "Benvenuto in questo esperimento.\nCompleta le quest per accedere alle sezioni del sito... oppure esplora il sito senza giocare!",
+        "Bottiglia vuota",
+        "Qualcuno non ha buttato la bottiglia nel cestino.",
+        "Il cestino è pieno!",
+        "Un vecchio floppy disk",
+        "WOW! E' una copia originale di Zak McKracken... Dovrebbe valere un bel pò di $$$!!! ",
+        "WOW! Un vero mantello di invisibilità!",
+        "Cacciavite",
+        "Uno strumento per tutte le stagioni!",
+        "Riparato!",
+        "Non voglio rompere nulla!",
+        "La porta è aperta.",
+        "La porta è chiusa.",
+        "Nessuna risposta!",
+        "I GOT DEVDAY PASS!",
+        "Meledizione! E' chiusa!",
+        "E' già chiusa!",
+        "Non è una buona idea.!",
+        "Suggerimenti!",
+        "Ciao Chris! Come va?",
+        "Non male Francesco. Mi piacerebbe giocare a questo Arcade, ma c'è qualcosa che blocca la gettoniera.",
+        "MMM... ok, ma sono qui perchè ho bisogno della tua esperienza di AGS GURU per risolvere la mia avventura. Mi aiuteresti?",
+        "Certo!...ma io so che tu sei un ARCADE SENSEI nel tempo libero... se tu mi aiuti a riparare l'Arcade, io ti aiuterò a risolvere la tua avventura.",
+        "OK! Abbiamo un accordo! Stretta di mano con lo sputo?? :D",
+        "Ciao Francesco, idee su come riparare l'Arcade?",
+        "Non ancora!",
+        "Chi è???",
+        "Sono io!",
+        "Io chi?",
+        "Sono io!! PAPA'! Dai Noemi.. Apri il portone!",
+        "OK...",
+        "E' aperto??",
+        "Provo!",
+        "Ok Chris, l'Arcade è riparato!",
+        "Wow!... Hai delle monete??",
+        "NO!!!",
+        "OK.... Userò le mie! :D Torna se hai bisogno di aiuto!",
+        "Seleziona la lingua.",
+        "INGLESE",
+        "ITALIANO",
+        "Il citofono sembra funzionare.",
+        "Qualcosa è uscito dal cestino!",
+        "Cio! Ti va una fetta di torta?",
+        "No grazie! Sono a dieta. Troppo succhero nelle tue torte! :D",
+        "Per questo sono così dolci... Caro!",
+        "Ciao Sidney! Come butta?",
+        "Ciao Francesco, tutto bene! Tu?",
+        "Non male, ma mi hanno coinvolto in questa stupida RETRO avventura...",
+        "RETRO AVVETURA.... questo mi ricorda i bei tempi del c64! Quanti ricordi!",
+        "...Esattamente! Tu sei fortunato... mi piacerebbe che il mio nome iniziasse con il formato musicale del commodore... SID! ;)",
+        "Vero... Nomen omen! Così stai giocando un avventura?? Io ho un grosso archivio, lo sai sono un collezionista! Facciamo una partita? ;)",
+        "Non posso adesso... ci vediamo in giro! ;)",
+        "Ok se ci ripensi, Io sono qui! Ciao! :D",
+        "Hai cambiato idea?",
+        "No, forse più tardi!",
+        "INCREDIBILE!!!... Una copia originale di Zak McKracken and the Alien Mindbenders. Ho un posto perfetto nella mia collezione, tra le altre 5 copie e la maschera originale di Zak.",
+        "Hai già 5 copie??",
+        "Lo sai...più è meglio che meno!",
+        "Dipende dalle situazioni... ma in questo caso concordo. Ma hai davvero la maschera originale di Zak?",
+        'Certo! ...è uno dei... "MIEI TESSSSSOORI!!!!"',
+        "Mi piacerebbe vederla, credi sia possibile?",
+        "Mmm... non so... it's MY PRECIOUS!!!!... Ok... Aspetta qui!",
+        "Immutabile come... come... a transazione nella blockchain!!!",
+        "Eccomi di ritorno!",
+        "AHHHHH!!! Chi sei???",
+        'Sembra che la maschera funzioni!...  "IL MI TESSSORO!!!!" ....AHUAAAUAUHHA!!',
+        "Hey... Gollum... Fammi provare la maschera!",
+        "Parola magica?",
+        "PER FAVORE!",
+        "Maschera di ZAK",
+        "La maschera originale di ZAK",
+        "Torta",
+        "Mantello di invisibilità",
+        "Galaga clone",
+        "Phaser gala",
+        "Citofono",
+        "Scale" //216
     ]
 };
 var actions = {
@@ -1763,10 +1736,11 @@ var actions = {
 var currentLang = "en";
 var gameData = {
     chapters: null,
-    ingame: { conversation: null, logic: null, items: null },
+    ingame: { conversation: null, logic: null, items: null, scenes: null },
     assets: null,
     menuBlink: null,
     menuBtns: null,
+    actions: actions,
     tips: {
         delay: 10,
         nomore: [112, 113],
@@ -1878,7 +1852,7 @@ gameData.assets = {
             path: "assets/images/game/people/sidney.png",
             width: 65,
             height: 138,
-            frames: 4
+            frames: 8
         },
         {
             name: "walkers",
@@ -2081,7 +2055,7 @@ gameData.chapters = [
         }
     },
     {
-        title: "CHAPTER TWO:\nBACK TO HOME!",
+        title: "CHAPTER TWO:\nHOUSE OF SKILLS!",
         completed: false,
         choice: null,
         complete: function (cs) {
@@ -2094,12 +2068,10 @@ gameData.chapters = [
         title: "CHAPTER THREE:\nPIECE OF CAKE!",
         completed: false,
         choice: null,
-        complete: function (cs) {
-        }
+        complete: function (cs) { }
     }
 ];
 gameData.ingame.conversation = {
-    //TIPS: [[z89.getLabel(118), z89.getLabel(119), z89.getLabel(120)], [z89.getLabel(121), z89.getLabel(122), z89.getLabel(123)]],
     CHECK_TIP_TIME: function (cs) {
         var lastTip = cs.saveGameObj.getSaved().tips.lastTip;
         if (lastTip != undefined) {
@@ -2480,6 +2452,7 @@ gameData.ingame.conversation = {
                 callback: function (cs) {
                     cs.gameItemsUtils.beamOut(cs.getItem(21), function () {
                         cs.addDelay(2000, function () {
+                            cs.getItem(21).play("21-mask");
                             cs.gameItemsUtils.beamIn(cs.getItem(21), function () {
                                 cs.setUpConversation(z89.conversationObj("TALKTO_21_GAME_BACK", cs.currentItem));
                             });
@@ -2502,6 +2475,7 @@ gameData.ingame.conversation = {
                 end: true,
                 callback: function () {
                     cs.playerAnimation("player-use");
+                    cs.getItem(21).play("21-idle");
                     cs.enableInteraction();
                     cs.gameItemsUtils.addItem(35);
                     cs.addInventoryItem(cs.getItem(35), true);
@@ -2511,7 +2485,6 @@ gameData.ingame.conversation = {
     },
     TALKTO_106: function (cs) {
         return [
-            { text: z89.getLabel(182), isItem: false, next: true },
             { text: z89.getLabel(183), isItem: true, next: true },
             { text: z89.getLabel(184), isItem: false, next: true },
             { text: z89.getLabel(185), isItem: true, end: true }
@@ -2649,13 +2622,59 @@ gameData.ingame.conversation = {
     }
 };
 /*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
-// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 50 "skills", 100 "badguy 1",  101 "badguy 2",  102 "badguy 3", 103 "jumper", 104 "runner", 105 "girl 1", 106 "pastry"
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
+gameData.ingame.scenes = [
+    {
+        name: "city",
+        startItems: [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            10,
+            11,
+            12,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            33,
+            34,
+            50,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106
+        ],
+        items: [],
+        playerPosition: { x: null, y: null }
+    }
+];
 gameData.ingame.items = [
     {
         id: 1,
         type: 1,
         sprite: "drink-machine",
-        name: z89.getLabel(0),
+        name: 0,
         x: 800,
         y: 680,
         animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
@@ -2682,7 +2701,7 @@ gameData.ingame.items = [
         ],
         currentAnimation: "notWorking",
         working: true,
-        name: z89.getLabel(12),
+        name: 12,
         x: 1214,
         y: 596,
         interactive: true,
@@ -2695,7 +2714,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "coke",
         onStart: false,
-        name: z89.getLabel(10),
+        name: 10,
         x: 800,
         y: 724 - 48,
         interactive: true,
@@ -2708,7 +2727,7 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "trash",
-        name: z89.getLabel(16),
+        name: 16,
         x: 450,
         y: 601,
         interactive: true,
@@ -2732,7 +2751,7 @@ gameData.ingame.items = [
             }
         ],
         currentAnimation: "idle",
-        name: "cake",
+        name: 212,
         x: 1679,
         y: 290 - 48,
         interactive: true,
@@ -2756,7 +2775,7 @@ gameData.ingame.items = [
         ],
         currentAnimation: "notWorking",
         working: false,
-        name: z89.getLabel(12),
+        name: 12,
         x: 3000,
         y: 644 - 48,
         interactive: true,
@@ -2769,7 +2788,7 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "trash",
-        name: z89.getLabel(16),
+        name: 16,
         x: 1520,
         y: 601,
         interactive: true,
@@ -2784,7 +2803,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "bottle",
         onStart: true,
-        name: z89.getLabel(142),
+        name: 142,
         x: 490,
         y: 606,
         interactive: true,
@@ -2797,11 +2816,11 @@ gameData.ingame.items = [
         type: 1,
         sprite: "floppy",
         onStart: false,
-        name: z89.getLabel(145),
+        name: 145,
         animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
         currentAnimation: "small",
         x: 1520,
-        y: 603,
+        y: 608,
         interactive: true,
         offsetX: 30,
         fixedToCamera: false,
@@ -2812,7 +2831,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "screwdriver",
         onStart: true,
-        name: z89.getLabel(148),
+        name: 148,
         animations: [{ name: "small", frames: [1], rate: 0, loop: false }],
         currentAnimation: "small",
         x: 100,
@@ -2826,7 +2845,7 @@ gameData.ingame.items = [
         id: 11,
         type: 1,
         sprite: "jukebox",
-        name: z89.getLabel(88),
+        name: 88,
         x: 2300,
         y: 650 - 48,
         animations: [
@@ -2872,7 +2891,7 @@ gameData.ingame.items = [
         id: 12,
         type: 1,
         sprite: "woofer",
-        name: z89.getLabel(92),
+        name: 92,
         x: 2300,
         y: 650 - 48,
         currentAnimation: "idle",
@@ -2886,7 +2905,7 @@ gameData.ingame.items = [
         id: 13,
         type: 1,
         sprite: "amazonPack",
-        name: "Cloak of Invisibility",
+        name: 213,
         x: 1300,
         y: 605,
         currentAnimation: "",
@@ -2900,7 +2919,7 @@ gameData.ingame.items = [
         id: 14,
         type: 1,
         sprite: "arcade",
-        name: "Galaga clone",
+        name: 214,
         x: 1920,
         y: 602,
         fixed: false,
@@ -2915,7 +2934,7 @@ gameData.ingame.items = [
         id: 15,
         type: 1,
         sprite: "phaser-logo",
-        name: "Phaser Arena",
+        name: 215,
         x: 70,
         y: 330,
         alpha: 0.7,
@@ -2933,7 +2952,7 @@ gameData.ingame.items = [
         onStart: true,
         sprite: "arete",
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.2, loop: true }],
-        name: z89.getLabel(40),
+        name: 40,
         currentAnimation: "idle",
         x: 720,
         y: 650 - 48,
@@ -2949,7 +2968,7 @@ gameData.ingame.items = [
         onStart: true,
         sprite: "daniele",
         animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
-        name: z89.getLabel(41),
+        name: 41,
         currentAnimation: "idle",
         x: 1040,
         y: 650 - 48,
@@ -2965,7 +2984,7 @@ gameData.ingame.items = [
         onStart: true,
         sprite: "davide",
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
-        name: z89.getLabel(42),
+        name: 42,
         currentAnimation: "idle",
         x: 950,
         y: 650 - 48,
@@ -2982,7 +3001,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(31),
+        name: 31,
         x: 800,
         y: 650 - 48,
         interactive: true,
@@ -2998,7 +3017,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5, loop: true }],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(100),
+        name: 100,
         x: 1860,
         y: 603,
         interactive: true,
@@ -3011,10 +3030,13 @@ gameData.ingame.items = [
         type: 1,
         onStart: true,
         sprite: "sidney",
-        animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true }],
+        animations: [
+            { name: "idle", frames: [0, 1, 2, 3], rate: 5.5, loop: true },
+            { name: "mask", frames: [4, 5, 6, 7], rate: 5.5, loop: true }
+        ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(99),
+        name: 99,
         x: 1980,
         y: 603,
         interactive: true,
@@ -3028,7 +3050,7 @@ gameData.ingame.items = [
         type: 3,
         onStart: true,
         sprite: "newsbg",
-        name: z89.getLabel(76),
+        name: 76,
         x: 866,
         y: 291,
         interactive: true,
@@ -3043,7 +3065,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "cable",
         onStart: true,
-        name: z89.getLabel(56),
+        name: 56,
         animations: [
             {
                 name: "fixed",
@@ -3072,7 +3094,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "scotch",
         onStart: true,
-        name: z89.getLabel(55),
+        name: 55,
         x: 450,
         y: 648 - 48,
         interactive: true,
@@ -3085,7 +3107,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "coins",
         onStart: true,
-        name: "coins",
+        name: 23,
         x: 940,
         y: 702,
         interactive: true,
@@ -3100,7 +3122,7 @@ gameData.ingame.items = [
         animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
         sprite: "devday",
         currentAnimation: "idle",
-        name: z89.getLabel(61),
+        name: 61,
         x: 869,
         y: 218 - 48,
         interactive: true,
@@ -3114,7 +3136,7 @@ gameData.ingame.items = [
         onStart: false,
         sprite: "daniele",
         animations: [{ name: "idle", frames: [1, 2, 3, 0], rate: 4.5, loop: true }],
-        name: z89.getLabel(96),
+        name: 96,
         currentAnimation: "idle",
         x: 600,
         y: 650 - 48,
@@ -3143,7 +3165,7 @@ gameData.ingame.items = [
         id: 29,
         type: 1,
         sprite: "interphone",
-        name: "Interphone",
+        name: 216,
         x: 1310,
         y: 540,
         animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
@@ -3159,7 +3181,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "bitcoin",
         onStart: false,
-        name: z89.getLabel(52),
+        name: 52,
         x: 400,
         y: 700 - 48,
         interactive: true,
@@ -3172,7 +3194,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "invite",
         onStart: false,
-        name: z89.getLabel(108),
+        name: 108,
         x: 400,
         y: 648 - 48,
         interactive: true,
@@ -3185,7 +3207,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "blockchain",
         onStart: false,
-        name: z89.getLabel(50),
+        name: 50,
         x: 500,
         y: 700 - 48,
         interactive: true,
@@ -3197,7 +3219,7 @@ gameData.ingame.items = [
         id: 33,
         type: 1,
         sprite: "stairs",
-        name: "Stairs",
+        name: 217,
         x: 1360,
         y: 592,
         onStart: true,
@@ -3210,7 +3232,7 @@ gameData.ingame.items = [
         id: 34,
         type: 1,
         sprite: "door",
-        name: "Door",
+        name: 80,
         x: 1360,
         y: 592,
         open: true,
@@ -3224,7 +3246,7 @@ gameData.ingame.items = [
         id: 35,
         type: 1,
         sprite: "mask",
-        name: "Mask",
+        name: 210,
         x: 0,
         y: 0,
         open: true,
@@ -3239,7 +3261,7 @@ gameData.ingame.items = [
         type: 4,
         onStart: true,
         sprite: "skills",
-        name: z89.getLabel(79),
+        name: 79,
         x: 1161 + 174,
         y: 4 + 215 - 48,
         interactive: false,
@@ -3271,8 +3293,9 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(101),
-        x: 1800,
+        name: 101,
+        startX: 1800,
+        x: 2800,
         y: 700,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
@@ -3284,7 +3307,7 @@ gameData.ingame.items = [
             start: 100,
             end: 3000,
             step: { min: 200, max: 500 },
-            idle: { min: 1000, max: 1500 }
+            idle: { min: 10000, max: 15000 }
         },
         jumpChance: 20
     },
@@ -3310,8 +3333,9 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(104),
-        x: 1000,
+        name: 104,
+        startX: 1000,
+        x: 3000,
         y: 700,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
@@ -3323,7 +3347,7 @@ gameData.ingame.items = [
             start: 100,
             end: 3600,
             step: { min: 200, max: 500 },
-            idle: { min: 1000, max: 1500 }
+            idle: { min: 3000, max: 4000 }
         },
         jumpChance: 0
     },
@@ -3344,8 +3368,9 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(105),
-        x: 2000,
+        name: 105,
+        startX: 2000,
+        x: 1100,
         y: 700,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
@@ -3357,7 +3382,7 @@ gameData.ingame.items = [
             start: 0,
             end: 3600,
             step: { min: 200, max: 500 },
-            idle: { min: 1000, max: 1500 }
+            idle: { min: 3000, max: 4000 }
         },
         jumpChance: 0
     },
@@ -3383,7 +3408,8 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(102),
+        name: 102,
+        startX: 2500,
         x: 2500,
         y: 610,
         interactive: true,
@@ -3422,7 +3448,8 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(103),
+        name: 103,
+        startX: 1800,
         x: 1800,
         y: 700,
         interactive: true,
@@ -3461,7 +3488,8 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(106),
+        name: 106,
+        startX: 500,
         x: 500,
         y: 700,
         interactive: true,
@@ -3500,8 +3528,9 @@ gameData.ingame.items = [
         ],
         currentAnimation: "idle",
         conversationStatus: null,
-        name: z89.getLabel(107),
-        x: 1400,
+        name: 107,
+        startX: 1650,
+        x: 1600,
         y: 610,
         interactive: true,
         interactiveArea: { x: 35, y: 20, w: 80, h: 130 },
@@ -3671,9 +3700,10 @@ gameData.ingame.logic = {
     },
     // use bottle on trash2
     USE_8_7: function (cs) {
-        cs.playerAnimation("player-use");
         cs.removeInventoryItems();
+        cs.playerAnimation("player-use");
         cs.addDelay(300, function () {
+            cs.showPlayerBaloon(182);
             cs.addItem(9);
             cs.getItem(9).itemObj.onStart = true;
             cs.updateItems();
@@ -3690,6 +3720,7 @@ gameData.ingame.logic = {
     //use interphone
     USE_29: function (cs) {
         cs.playerAnimation("player-use");
+        console.log(cs.currentChapter);
         if (cs.currentChapter == 0) {
             cs.disableInteraction();
             cs.addDelay(2000, function () {
@@ -3733,7 +3764,6 @@ gameData.ingame.logic = {
         });
     },
     USE_30_32: function (cs) {
-        //console.log("bitcoin on blockchain");
         cs.showPlayerBaloon(155);
         cs.removeInventoryItems();
         cs.addInventory(31, true);
@@ -3764,6 +3794,11 @@ gameData.ingame.logic = {
                 cs.updateItems();
             });
         });
+    },
+    //use zak mask
+    USE_35: function (cs) {
+        cs.player.useMask(true);
+        cs.playerAnimation("player-idle");
     },
     /*
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -4023,7 +4058,7 @@ gameData.menuBtns = {
     actions: { name: "ACTIONS", frame: 1, x: 100, y: 30 },
     restart: { name: "RESTART", frame: 10, x: 200, y: 30 },
     info: { name: "INFO", frame: 2, x: 0, y: 360 },
-    options: { name: "LANGUAGE", frame: 3, x: 100, y: 800 }
+    options: { name: "LANGUAGE", frame: 3, x: 100, y: 360 }
 };
 var z89;
 (function (z89) {
@@ -4031,6 +4066,7 @@ var z89;
         function saveGame(scene) {
             this.playerX = 0;
             this.playerY = 0;
+            this.scenes = gameData.ingame.scenes;
             this.isSaved = false;
             this.firstChoice = null;
             this.current = 0;
@@ -4045,8 +4081,14 @@ var z89;
             this.clearSaved();
         };
         saveGame.prototype.updatePlayerPosition = function (x, y) {
-            this.playerX = x;
-            this.playerY = y;
+            var _this = this;
+            this.playerX = Math.round(x);
+            this.playerY = Math.round(y);
+            this.scenes.forEach(function (element) {
+                if (element.name == _this.currentScene) {
+                    element.playerPosition = { x: _this.playerX, y: _this.playerY };
+                }
+            });
             this.updateSaveObj();
         };
         saveGame.prototype.updatePlayerInventory = function (inventory) {
@@ -4064,9 +4106,23 @@ var z89;
                 if (element.itemObj != undefined)
                     _itemsObj.push(element.itemObj);
             }, this);
-            //console.log(_itemsObj);
             this.items = _itemsObj;
+            this.updateSceneItems();
             this.updateSaveObj();
+        };
+        saveGame.prototype.updateSceneItems = function () {
+            var _this = this;
+            var _itemsObj = [];
+            this.scene.groupAll.children.each(function (element) {
+                if (element.itemObj != undefined)
+                    _itemsObj.push(element.itemObj);
+            }, this);
+            this.scenes.forEach(function (element) {
+                if (element.name == _this.currentScene) {
+                    element.playerPosition = { x: _this.playerX, y: _this.playerY };
+                    element.items = _itemsObj;
+                }
+            });
         };
         saveGame.prototype.setFirstChoice = function (choice) {
             this.firstChoice = choice;
@@ -4091,6 +4147,10 @@ var z89;
         saveGame.prototype.setTip = function (tip) {
             this.lastTip = new Date();
             this.tips.push(tip);
+            this.updateSaveObj();
+        };
+        saveGame.prototype.setScene = function (name) {
+            this.currentScene = name;
             this.updateSaveObj();
         };
         saveGame.prototype.clearTips = function () {
@@ -4119,6 +4179,8 @@ var z89;
             if (_obj != null) {
                 this.savedObj = _obj;
                 this.inventory = this.savedObj.inventory;
+                this.currentScene = this.savedObj.currentScene;
+                this.scenes = this.savedObj.scenes;
                 this.items = this.savedObj.items;
                 this.playerX = this.savedObj.position.x;
                 this.playerY = this.savedObj.position.y;
@@ -4140,6 +4202,8 @@ var z89;
             obj = {
                 position: { x: this.playerX, y: this.playerY },
                 inventory: this.inventory,
+                scenes: this.scenes,
+                currentScene: this.currentScene,
                 items: this.items,
                 firstChoice: this.firstChoice,
                 chapter: {
@@ -4204,9 +4268,13 @@ var z89;
             this.timeEvent.remove(false);
             this.currentStep++;
             var _obj = this.conversationObj[this.currentStep];
-            _obj != undefined && (_obj.next != undefined || _obj.end)
-                ? this.displayStep()
-                : (this.isPlaying = false);
+            if (_obj != undefined && (_obj.next != undefined || _obj.end)) {
+                this.displayStep();
+            }
+            else {
+                this.isPlaying = false;
+                this.scene.player.setConversation(false);
+            }
             /* if (_obj!=undefined && (_obj.next != undefined || _obj.end))  {
               this.displayStep();
             } else {
@@ -4242,6 +4310,7 @@ var z89;
         };
         conversationBaloon.prototype.stopConversation = function () {
             var _this = this;
+            this.scene.player.setConversation(false);
             this.hideBaloon(function () {
                 _this.removeForks();
                 _this.baloonText.setY(0);
@@ -4294,6 +4363,7 @@ var z89;
         };
         conversationBaloon.prototype.startConversation = function () {
             var _this = this;
+            this.scene.player.setConversation(true);
             if (this.baloonTarget != null) {
                 if (this.scene.player.x < this.baloonTarget.x) {
                     this.baloonTarget.turnLeft();
@@ -4316,62 +4386,67 @@ var z89;
                 return;
             }
             var _obj = this.conversationObj[this.currentStep];
-            if (_obj.isSkippable != undefined)
-                this.isSkippable = _obj.isSkippable;
-            if (_obj == undefined) {
-                this.hideBaloon();
-                return;
+            if (_obj != undefined) {
+                if (_obj.isSkippable != undefined)
+                    this.isSkippable = _obj.isSkippable;
+                if (_obj.end != undefined)
+                    this.isSkippable = false;
+                if (_obj == undefined) {
+                    this.hideBaloon();
+                    return;
+                }
+                if (_obj.isItem) {
+                    this.baloonText.tint = 0xffffff;
+                    this.baloonBorder.tint = 0xffffff;
+                    this.baloonPin.tint = 0xffffff;
+                    this.baloonX = this.baloonTarget.x;
+                    this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
+                }
+                else {
+                    this.baloonText.tint = 0x00ff00;
+                    this.baloonBorder.tint = 0x00ff00;
+                    this.baloonPin.tint = 0x00ff00;
+                    this.baloonX = this.scene.player.x;
+                    this.baloonY = this.scene.player.y - this.scene.player.height - 50;
+                }
+                if (_obj.next != undefined) {
+                    if (_obj.delay != undefined)
+                        _delay = _obj.delay;
+                    this.timeEvent = this.scene.time.addEvent({
+                        delay: this.getTime(_obj.text.length) + _delay,
+                        callback: function () {
+                            _this.currentStep++;
+                            _this.displayStep();
+                        },
+                        callbackScope: this,
+                        loop: false
+                    });
+                }
+                if (_obj.end != undefined) {
+                    if (_obj.delay != undefined)
+                        _delay = _obj.delay;
+                    this.timeEvent = this.scene.time.addEvent({
+                        delay: this.getTime(_obj.text.length) + _delay,
+                        callback: function () {
+                            _this.currentStep = 0;
+                            _this.hideBaloon();
+                            _this.isPlaying = false;
+                            _this.scene.player.setConversation(false);
+                        },
+                        callbackScope: this,
+                        loop: false
+                    });
+                }
+                if (_obj.callback != undefined) {
+                    _obj.callback(this.scene);
+                }
+                if (_obj.fork != undefined) {
+                    this.isSkippable = false;
+                    this.showOptions(_obj);
+                    return;
+                }
+                this.showBaloon(_obj.text);
             }
-            if (_obj.isItem) {
-                this.baloonText.tint = 0xffffff;
-                this.baloonBorder.tint = 0xffffff;
-                this.baloonPin.tint = 0xffffff;
-                this.baloonX = this.baloonTarget.x;
-                this.baloonY = this.baloonTarget.y - this.baloonTarget.height - 50;
-            }
-            else {
-                this.baloonText.tint = 0x00ff00;
-                this.baloonBorder.tint = 0x00ff00;
-                this.baloonPin.tint = 0x00ff00;
-                this.baloonX = this.scene.player.x;
-                this.baloonY = this.scene.player.y - this.scene.player.height - 50;
-            }
-            if (_obj.next != undefined) {
-                if (_obj.delay != undefined)
-                    _delay = _obj.delay;
-                this.timeEvent = this.scene.time.addEvent({
-                    delay: this.getTime(_obj.text.length) + _delay,
-                    callback: function () {
-                        _this.currentStep++;
-                        _this.displayStep();
-                    },
-                    callbackScope: this,
-                    loop: false
-                });
-            }
-            if (_obj.end != undefined) {
-                if (_obj.delay != undefined)
-                    _delay = _obj.delay;
-                this.timeEvent = this.scene.time.addEvent({
-                    delay: this.getTime(_obj.text.length) + _delay,
-                    callback: function () {
-                        _this.currentStep = 0;
-                        _this.hideBaloon();
-                        _this.isPlaying = false;
-                    },
-                    callbackScope: this,
-                    loop: false
-                });
-            }
-            if (_obj.callback != undefined) {
-                _obj.callback(this.scene);
-            }
-            if (_obj.fork != undefined) {
-                this.isSkippable = false;
-                this.showOptions(_obj);
-                return;
-            }
-            this.showBaloon(_obj.text);
         };
         conversationBaloon.prototype.getTime = function (textLenght) {
             var _time = (textLenght * 1000) / 15;
@@ -4389,7 +4464,7 @@ var z89;
             var _btn;
             var _btnText;
             this.removeForks();
-            console.log(_obj.options);
+            //console.log(_obj.options);
             if (_obj.options != undefined) {
                 _obj.options.forEach(function (element, index) {
                     //console.log(index);
@@ -4407,6 +4482,8 @@ var z89;
                         if (_option.link != undefined) {
                             _this.currentStep++;
                             window.open(_option.link, "_blank");
+                            //this.hideBaloon();
+                            return;
                         }
                         if (_option.action != undefined) {
                             _option.action(_this.scene, _this.baloonTarget);
@@ -4579,7 +4656,7 @@ var z89;
                 .setOrigin(0.5, 1)
                 .setX(itemObj.x);
             _this.id = _this.itemObj.id;
-            _this.name = _this.itemObj.name;
+            _this.name = z89.getLabel(_this.itemObj.name);
             _this._isInteractive = _this.itemObj.interactive;
             _this.itemObj.scale != undefined
                 ? _this.setScale(_this.itemObj.scale)
@@ -5044,7 +5121,7 @@ var z89;
             _this.behaviour = true;
             _this.beaming = false;
             _this.distanceUpdate = true;
-            _this.setAlpha(0);
+            _this.setAlpha(0).setX(itemObj.startX);
             _this.playAnim(_this.itemObj.id + "-idle");
             _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(0, 5000), function (scene) {
                 _this.beamIn();
@@ -5106,7 +5183,8 @@ var z89;
                 duration: _walkSpeed,
                 onUpdate: function () {
                     _this.setDepth(_this.y);
-                    if (_this.checkBounds() && _this.itemObj.insight.behaviour != "runner") {
+                    if (_this.checkBounds() &&
+                        _this.itemObj.insight.behaviour != "runner") {
                         //console.log("startpath update checkBounds");
                         if (_this.movingTween != undefined)
                             _this.movingTween.stop();
@@ -5128,7 +5206,8 @@ var z89;
                     _this.setIdle(true);
                     _this.playAnim(_this.itemObj.id + "-idle");
                     _this.updateItemObj("x", _this.scene.mainCamera.scrollX * 0.095 + _this.x);
-                    if (_this.itemObj.insight.behaviour == "runner" && _this.checkBounds()) {
+                    if (_this.itemObj.insight.behaviour == "runner" &&
+                        _this.checkBounds()) {
                         _this.beaming = true;
                         _this.scene.gameItemsUtils.beamOut(_this, function () {
                             _this.setXPosition(Phaser.Math.RND.integerInRange(_this.itemObj.walkRange.start, _this.itemObj.walkRange.end));
@@ -5150,7 +5229,7 @@ var z89;
             });
         };
         ItemsWalking.prototype.setXPosition = function (value) {
-            this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + (value));
+            this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + value);
             this.setX(value);
         };
         ItemsWalking.prototype.setYPosition = function (value) {
@@ -5164,7 +5243,8 @@ var z89;
             var _direction = Phaser.Math.RND.integerInRange(0, 1);
             if (_setDirection != undefined)
                 _direction = _setDirection;
-            if (_action > 100 - this.itemObj.jumpChance && _setDirection == undefined) {
+            if (_action > 100 - this.itemObj.jumpChance &&
+                _setDirection == undefined) {
                 //console.log("nextDirection jump")
                 this.beaming = true;
                 this.setIdle(true);
@@ -5198,11 +5278,16 @@ var z89;
             return false;
         };
         ItemsWalking.prototype.update = function () {
-            // if(this.itemObj.insight.behaviour=="runner") console.log(this.x);
             var _this = this;
+            if (this.scene.player.alpha < 1 ||
+                (this.scene.player.isMasked() && this.itemObj.id == 102)) {
+                //this.setAlpha(0.5);
+                return;
+            }
             if (!this.beaming &&
                 this.itemObj.insight.distance > 0 &&
-                this.distanceUpdate && this.scene.player.alpha == 1) {
+                this.distanceUpdate &&
+                !this.scene.player.isTalking()) {
                 if (Math.round(Phaser.Math.Distance.Between(this.x, this.y, this.scene.player.x, this.scene.player.y)) < this.itemObj.insight.distance &&
                     this.checkYOffset()) {
                     if (this.behaviour) {
@@ -5216,14 +5301,14 @@ var z89;
                             case "runner":
                                 this.distanceUpdate = false;
                                 /* if (this.scene.player.x <= this.x) {
-                                   this.turnRight();
-                                   this.startPath(1);
-                                 } else {
-                                   this.turnLeft();
-                                   this.startPath(0);
-                                 }
-                                 
-                                 return;*/
+                                this.turnRight();
+                                this.startPath(1);
+                              } else {
+                                this.turnLeft();
+                                this.startPath(0);
+                              }
+                              
+                              return;*/
                                 this.setIdle(false);
                                 var _run = 500;
                                 var _runSpeed = 1500;
@@ -5264,10 +5349,12 @@ var z89;
                                         _jump = 400;
                                     }
                                     _this.setYPosition(_this.setDestinationY(true));
-                                    if ((_this.scene.player.x + _jump) < _this.itemObj.walkRange.start) {
+                                    if (_this.scene.player.x + _jump <
+                                        _this.itemObj.walkRange.start) {
                                         _this.setXPosition(_this.itemObj.walkRange.start);
                                     }
-                                    else if ((_this.scene.player.x + _jump) > _this.itemObj.walkRange.end) {
+                                    else if (_this.scene.player.x + _jump >
+                                        _this.itemObj.walkRange.end) {
                                         _this.setXPosition(_this.itemObj.walkRange.end);
                                     }
                                     else {
@@ -5337,78 +5424,107 @@ var z89;
             _this.yMax = 720;
             _this.direction = PlayerDirection.RIGHT;
             _this.playerState = PlayerStates.IDLE;
+            _this._isMasked = false;
+            _this._isTalking = false;
             // private myArea: Phaser.GameObjects.Sprite;
-            _this.illogicText = [
-                z89.getLabel(19),
-                z89.getLabel(20),
-                z89.getLabel(13),
-                z89.getLabel(21)
+            _this.illogicText = [19, 20, 13, 21];
+            _this.animations = [
+                {
+                    key: "player-idle",
+                    frames: [8, 9, 10, 11],
+                    frameRate: 5,
+                    repeat: -1,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-walk",
+                    frames: [0, 1, 2, 3, 4, 5, 6, 7],
+                    frameRate: 7,
+                    repeat: -1,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-pickdrop",
+                    frames: [16, 17, 18, 19],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-use",
+                    frames: [19, 20, 21, 20, 19],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-punch",
+                    frames: [12, 13, 14, 15],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-idle-mask",
+                    frames: [32, 33, 34, 35],
+                    frameRate: 5,
+                    repeat: -1,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-walk-mask",
+                    frames: [24, 25, 26, 27, 28, 29, 30, 31],
+                    frameRate: 7,
+                    repeat: -1,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-pickdrop-mask",
+                    frames: [40, 41, 42, 43],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-use-mask",
+                    frames: [43, 44, 45, 44, 43],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                },
+                {
+                    key: "player-punch-mask",
+                    frames: [36, 37, 38, 39],
+                    frameRate: 7,
+                    repeat: 0,
+                    repeatDelay: 0
+                }
             ];
             //this.setPipeline("testPipeline");
             //this.pipeline.setFloat2('uResolution', this.width, this.height);
-            _this.scene.input.keyboard.on('keyup', function (event) {
+            _this.scene.input.keyboard.on("keyup", function (event) {
                 //console.log("player",event.key);
                 if (event.key == "p") {
                     // console.log("punch");
-                    _this.play("player-punch");
+                    _this.playAnimation("player-punch");
                 }
             });
             _this.scene = scene;
-            var config = {
-                key: "player-idle",
-                frames: scene.anims.generateFrameNumbers("player", {
-                    start: 8,
-                    end: 11
-                }),
-                frameRate: 5,
-                repeat: -1,
-                repeatDelay: 0
-            };
-            _this.anims.animationManager.create(config);
-            config = {
-                key: "player-walk",
-                frames: scene.anims.generateFrameNumbers("player", {
-                    start: 0,
-                    end: 7
-                }),
-                frameRate: 7,
-                repeat: -1,
-                repeatDelay: 0
-            };
-            _this.anims.animationManager.create(config);
-            config = {
-                key: "player-pickdrop",
-                frames: scene.anims.generateFrameNumbers("player", {
-                    start: 16,
-                    end: 19
-                }),
-                frameRate: 7,
-                repeat: 0,
-                repeatDelay: 0
-            };
-            _this.anims.animationManager.create(config);
-            config = {
-                key: "player-use",
-                frames: scene.anims.generateFrameNumbers("player", {
-                    frames: [19, 20, 21, 20, 19]
-                }),
-                frameRate: 7,
-                repeat: 0,
-                repeatDelay: 0
-            };
-            _this.anims.animationManager.create(config);
-            config = {
-                key: "player-punch",
-                frames: scene.anims.generateFrameNumbers("player", {
-                    frames: [12, 13, 14, 15]
-                }),
-                frameRate: 10,
-                repeat: 0,
-                repeatDelay: 0
-            };
-            _this.anims.animationManager.create(config);
+            var config;
+            _this.animations.forEach(function (element) {
+                config = {
+                    key: element.key,
+                    frames: scene.anims.generateFrameNumbers("player", {
+                        frames: element.frames
+                    }),
+                    frameRate: element.frameRate,
+                    repeat: element.repeat,
+                    repeatDelay: element.repeatDelay
+                };
+                _this.anims.animationManager.create(config);
+            });
             _this.on("animationcomplete", function () {
-                _this.play("player-idle");
+                _this.playAnimation("player-idle");
             }, _this);
             config = {
                 key: "beam",
@@ -5421,30 +5537,47 @@ var z89;
                 repeatDelay: 0
             };
             scene.anims.create(config);
-            _this.play("player-idle");
+            _this.playAnimation("player-idle");
             _this.setOrigin(0.5, 1)
                 .setScale(1)
                 .setY(608)
                 .setAlpha()
-                .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 80), Phaser.Geom.Rectangle.Contains).setName("player").on('pointerdown', function () {
+                .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 80), Phaser.Geom.Rectangle.Contains)
+                .setName("player")
+                .on("pointerdown", function () {
                 if (_this.scene.isInteractionDisabled())
                     return;
                 _this.scene.playerMenu.toggle();
             });
             scene.add.existing(_this);
             return _this;
+            //console.log(this.isTalking());
         }
+        Player.prototype.isMasked = function () {
+            return this._isMasked;
+        };
+        Player.prototype.useMask = function (value) {
+            this._isMasked = value;
+        };
+        Player.prototype.isTalking = function () {
+            return this._isTalking;
+        };
+        Player.prototype.setConversation = function (value) {
+            this._isTalking = value;
+        };
         Player.prototype.goTo = function (_x, _y, _item) {
             // console.log(_x, _y, _item, this.scene.currentItem);
             var _this = this;
+            //console.log(this.isTalking());
             this.hideBaloon();
             if (this.scene.conversationBaloon.isConversationActive() &&
                 (_x != this.x || _y != this.y - 5)) {
                 this.scene.conversationBaloon.stopConversation();
             }
-            if ((_item != undefined || _item != null)
-                && (this.scene.currentItem != undefined || this.scene.currentItem != null)
-                && (this.scene.currentItem.itemObj.id == _item.itemObj.id))
+            if ((_item != undefined || _item != null) &&
+                (this.scene.currentItem != undefined ||
+                    this.scene.currentItem != null) &&
+                this.scene.currentItem.itemObj.id == _item.itemObj.id)
                 return;
             // this.scene.playerActions.hide();
             /*
@@ -5462,7 +5595,7 @@ var z89;
             else {
                 //if (_item!=null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)>40)
                 // { console.log(Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y));
-                this.play("player-walk");
+                this.playAnimation("player-walk");
             }
             // else{}
             if (_item == undefined)
@@ -5519,8 +5652,11 @@ var z89;
                     _this.playerTween.stop();
                     _this.playerTween = null;
                     _this.scene.saveGameObj.updatePlayerPosition(_this.x, _this.y);
-                    _this.play("player-idle");
-                    if (_item != null && (Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) < 150 || _item.itemObj.type != 6)) {
+                    _this.playAnimation("player-idle");
+                    if (_item != null &&
+                        (Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) <
+                            150 ||
+                            _item.itemObj.type != 6)) {
                         _this.scene.setCurrentItem(_item);
                         if (_this.x < _item.x) {
                             if (_this.direction == PlayerDirection.LEFT)
@@ -5530,7 +5666,7 @@ var z89;
                             if (_this.direction == PlayerDirection.RIGHT)
                                 _this.changeDirection();
                         }
-                        _this.scene.doActionSequence(_item);
+                        _this.scene.playerActions.doActionSequence(_item);
                         // console.log(_item);
                         if (_item.isInteractive())
                             _this.scene.playerActions.show();
@@ -5549,7 +5685,7 @@ var z89;
             }
         };
         Player.prototype.illogicAction = function () {
-            this.showBaloon(this.illogicText[Phaser.Math.RND.integerInRange(0, this.illogicText.length - 1)]);
+            this.showBaloon(this.illogicText[z89.getLabel(Phaser.Math.RND.integerInRange(0, this.illogicText.length - 1))]);
         };
         Player.prototype.turnLeft = function () {
             this.scaleX = -1;
@@ -5700,6 +5836,14 @@ var z89;
         Player.prototype.hideBaloon = function () {
             this.scene.playerBaloon.hideBaloon();
         };
+        Player.prototype.playAnimation = function (animation) {
+            if (this.isMasked()) {
+                this.play(animation + "-mask");
+            }
+            else {
+                this.play(animation);
+            }
+        };
         Player.prototype.update = function () {
             //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
             this.setDepth(this.y);
@@ -5791,18 +5935,6 @@ var z89;
         function PlayerActions(scene) {
             var _this = _super.call(this, scene) || this;
             _this.isOpen = false;
-            _this.actionList = [
-                "PUSH",
-                "PULL",
-                "GIVE",
-                "OPEN",
-                "CLOSE",
-                "EXAMINE",
-                "USE",
-                "PICK UP",
-                "DROP",
-                "TALK TO"
-            ];
             _this.actionListFunctions = [
                 "PUSH",
                 "PULL",
@@ -5834,7 +5966,7 @@ var z89;
             //ACTION buttons
             var _btn;
             var _txt;
-            _this.actionList.forEach(function (element, index) {
+            gameData.actions[currentLang].forEach(function (element, index) {
                 _btn = _this.scene.add
                     .sprite(30, index * 55, "menuActionBtn")
                     .setZ(index)
@@ -5858,10 +5990,10 @@ var z89;
                         return;
                     _this.resetActions();
                     _this.currentAction = refBtn.z;
-                    _this.setText(_this.actionList[refBtn.z]);
+                    _this.setText(gameData.actions[currentLang][refBtn.z]);
                     var _txt = _this.actionBntsTxt[refBtn.z];
                     _txt.tint = 0x00ff00;
-                    _this.scene.doActionSequence();
+                    _this.doActionSequence();
                 }, _this);
                 _this.actionBnts.push(_btn);
                 _this.actionBntsTxt.push(_txt);
@@ -5893,7 +6025,7 @@ var z89;
                         }
                         else {
                             icon.setFrame(0);
-                            _this.scene.doActionSequence();
+                            _this.doActionSequence();
                         }
                     }
                     else {
@@ -5905,7 +6037,7 @@ var z89;
                                 return;
                             icon.setFrame(1);
                             _this.inventorySelected.push(icon.z);
-                            _this.scene.doActionSequence();
+                            _this.doActionSequence();
                         }
                     }
                 }, _this);
@@ -5913,11 +6045,19 @@ var z89;
                 _this.add(_icon);
             });
             _this.actionText = _this.scene.add.bitmapText(200, 690, "commodore", "", 20);
-            _this.actionText.setAlpha(0).setScrollFactor(0).setTint(0x00ff00);
+            _this.actionText
+                .setAlpha(0)
+                .setScrollFactor(0)
+                .setTint(0x00ff00);
             _this.add(_this.actionText);
             _this.scene.add.existing(_this);
             return _this;
         }
+        PlayerActions.prototype.setLanguage = function () {
+            this.actionBntsTxt.forEach(function (element, index) {
+                element.text = gameData.actions[currentLang][index];
+            });
+        };
         PlayerActions.prototype.isInverntoryItemSelected = function (itemIndex) {
             var _itemAt = this.inventorySelected.indexOf(itemIndex);
             if (_itemAt != -1) {
@@ -5933,6 +6073,9 @@ var z89;
         };
         PlayerActions.prototype.getInventory = function () {
             return this.inventory;
+        };
+        PlayerActions.prototype.setActionObject = function (value) {
+            this.logicCombination = value;
         };
         PlayerActions.prototype.getInventorySelected = function () {
             var _this = this;
@@ -5971,7 +6114,15 @@ var z89;
                         }
                     });
                     this.actionText.setAlpha(0).setX(-800);
-                    this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: -750, duration: 500, delay: 400, ease: "Quad.easeInOut", onComplete: function () { } });
+                    this.actionTextTween = this.scene.tweens.add({
+                        targets: this.actionText,
+                        alpha: 1,
+                        x: -750,
+                        duration: 500,
+                        delay: 400,
+                        ease: "Quad.easeInOut",
+                        onComplete: function () { }
+                    });
                 }
                 else {
                     this.scene.tweens.add({
@@ -5985,7 +6136,15 @@ var z89;
                         }
                     });
                     this.actionText.setAlpha(0).setX(280);
-                    this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 1, x: 320, duration: 500, delay: 400, ease: "Quad.easeInOut", onComplete: function () { } });
+                    this.actionTextTween = this.scene.tweens.add({
+                        targets: this.actionText,
+                        alpha: 1,
+                        x: 320,
+                        duration: 500,
+                        delay: 400,
+                        ease: "Quad.easeInOut",
+                        onComplete: function () { }
+                    });
                 }
             }
         };
@@ -5999,6 +6158,7 @@ var z89;
             this.currentAction = -1;
             this.inventorySelected = [];
             this.unselectInventoryIcons();
+            this.scene.currentItem = null;
         };
         PlayerActions.prototype.hide = function () {
             var _this = this;
@@ -6018,7 +6178,7 @@ var z89;
                         _this.deselectItems();
                         _this.resetActions();
                         _this.uncheckInventoryIcons();
-                        _this.scene.setActionObject(null);
+                        _this.setActionObject(null);
                         _this.setText("");
                     }
                 });
@@ -6036,7 +6196,7 @@ var z89;
                         _this.deselectItems();
                         _this.resetActions();
                         _this.uncheckInventoryIcons();
-                        _this.scene.setActionObject(null);
+                        _this.setActionObject(null);
                         _this.setText("");
                     }
                 });
@@ -6055,9 +6215,14 @@ var z89;
             if (this.actionTextTween != undefined)
                 this.actionTextTween.stop();
             //this.actionText.setAlpha(0).setX(200);
-            this.actionTextTween = this.scene.tweens.add({ targets: this.actionText, alpha: 0, duration: 500, delay: 200, ease: "Quad.easeInOut",
-                onComplete: function () {
-                } });
+            this.actionTextTween = this.scene.tweens.add({
+                targets: this.actionText,
+                alpha: 0,
+                duration: 500,
+                delay: 200,
+                ease: "Quad.easeInOut",
+                onComplete: function () { }
+            });
             // this.actionTextTween.onComplete.add(() => { this.actionText.x = 200; }, this);
         };
         PlayerActions.prototype.IsOpen = function () {
@@ -6070,7 +6235,7 @@ var z89;
             return this.actionListFunctions[this.currentAction];
         };
         PlayerActions.prototype.getCurrentActionLabel = function () {
-            return this.actionList[this.currentAction];
+            return gameData.actions[currentLang][this.currentAction];
         };
         PlayerActions.prototype.setText = function (_string) {
             //console.log("setText",_string)
@@ -6136,7 +6301,10 @@ var z89;
             var _this = this;
             this.inventory.forEach(function (element, index) {
                 var _inv = _this.scene.add.sprite(35, 35, element.itemObj.sprite);
-                _inv.setOrigin(0.5).setScrollFactor(0).setFrame(0);
+                _inv
+                    .setOrigin(0.5)
+                    .setScrollFactor(0)
+                    .setFrame(0);
                 Phaser.Display.Align.In.Center(_inv, _this.inventoryBtns[index]);
                 _this.inventoryBtnsItems.push(_inv);
                 _this.add(_inv);
@@ -6144,24 +6312,325 @@ var z89;
             //console.log(this.inventory, this.inventoryBtns, this.inventoryBtnsItems);
         };
         PlayerActions.prototype.addItem = function (item) {
-            item.inventoryIndex = this.inventory.length;
-            this.inventory.push(item);
-            var _icon = this.inventoryBtns[this.inventory.length - 1];
-            var _inv = this.scene.add.sprite(35, 35, item.itemObj.sprite);
-            _inv.setOrigin(0.5).setScrollFactor(0);
-            Phaser.Display.Align.In.Center(_inv, _icon);
-            this.inventoryBtnsItems.push(_inv);
-            this.add(_inv);
-            this.scene.saveGameObj.updatePlayerInventory(this.inventory);
+            if (!this.isInInventory(item.id)) {
+                item.inventoryIndex = this.inventory.length;
+                this.inventory.push(item);
+                var _icon = this.inventoryBtns[this.inventory.length - 1];
+                var _inv = this.scene.add.sprite(35, 35, item.itemObj.sprite);
+                _inv.setOrigin(0.5).setScrollFactor(0);
+                Phaser.Display.Align.In.Center(_inv, _icon);
+                this.inventoryBtnsItems.push(_inv);
+                this.add(_inv);
+                this.scene.saveGameObj.updatePlayerInventory(this.inventory);
+            }
         };
-        PlayerActions.prototype.isInInventory = function (item) {
+        PlayerActions.prototype.isInInventory = function (id) {
             var match = false;
             this.inventory.forEach(function (element) {
                 //console.log(item.itemObj.id, element.itemObj.id)
-                if (item.itemObj.id == element.itemObj.id)
+                if (id == element.itemObj.id)
                     match = true;
             });
             return match;
+        };
+        //private dropItem(): void {}
+        //  update(){console.log("update")}
+        PlayerActions.prototype.getActionObject = function () {
+            return this.logicCombination;
+        };
+        PlayerActions.prototype.doActionSequence = function (_item) {
+            var _this = this;
+            this.createActionObject(); //create the action object based on action/inventory/items selection
+            this.createActionText(); //create the action text based on the above selection
+            var _actionObj = this.getActionObject();
+            if (this.actionTimer != null)
+                this.actionTimer.remove(false);
+            //console.log(_actionObj);
+            if (_actionObj.action != -1 &&
+                (_actionObj.inventory.length > 0 || _actionObj.item != null) &&
+                this.executeActionLogic(_item)) {
+                this.hide();
+            }
+            else {
+                if (_actionObj.key != "noAction" &&
+                    _actionObj.key.indexOf("_") != -1 &&
+                    ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
+                        (_actionObj.inventory.length == 0 && _actionObj.item != undefined)))
+                    this.scene.player.illogicAction();
+            }
+            this.actionTimer = this.scene.time.delayedCall(3000, function () {
+                _this.resetActions();
+                _this.setActionObject(null);
+                _this.setText("");
+                _this.scene.playerBaloon.hideBaloon();
+            }, null, this);
+        };
+        PlayerActions.prototype.createActionObject = function (_itemSelected) {
+            var returnObj = {
+                key: null,
+                action: null,
+                inventory: null,
+                item: null
+            };
+            var _currentAction = this.getCurrentActionString();
+            var _currentActionValue = this.getCurrentAction();
+            if (_currentAction == undefined) {
+                _currentAction = "";
+                returnObj.action = _currentActionValue = -1;
+            }
+            else {
+                returnObj.action = _currentActionValue;
+            }
+            var _currentItem;
+            var _inventoryIds = [];
+            var _Inventoryitems = "";
+            returnObj.inventory = this.getInventorySelected();
+            //console.log(returnObj.inventory);
+            var _Item;
+            if (_itemSelected != undefined) {
+                _Item = _itemSelected;
+            }
+            else {
+                _Item = this.scene.getCurrentItem();
+            }
+            var ItemId = "";
+            returnObj.item = _Item;
+            if (returnObj.item != null)
+                ItemId = returnObj.item.id;
+            returnObj.inventory.forEach(function (element) {
+                if (element != undefined)
+                    _inventoryIds.push(element.itemObj.id);
+            });
+            if (_inventoryIds.length > 0)
+                _Inventoryitems = _inventoryIds.join("_");
+            if (ItemId != "" && _Inventoryitems != "")
+                _Inventoryitems = _Inventoryitems + "_";
+            var key = "";
+            if (_currentAction != "" && _Inventoryitems != "" && ItemId != "") {
+                returnObj.key = _currentAction + "_" + _Inventoryitems + ItemId;
+            }
+            else if (_currentAction != "" &&
+                _Inventoryitems != "" &&
+                ItemId == "") {
+                returnObj.key = _currentAction + "_" + _Inventoryitems;
+            }
+            else if (_currentAction != "" &&
+                _Inventoryitems == "" &&
+                ItemId != "") {
+                returnObj.key = _currentAction + "_" + ItemId;
+            }
+            else if (_currentAction != "" &&
+                _Inventoryitems == "" &&
+                ItemId == "") {
+                returnObj.key = _currentAction;
+            }
+            else if (_currentAction == "") {
+                returnObj.key = "noAction";
+            }
+            // console.log(returnObj);
+            this.logicCombination = returnObj;
+            //return this.logicCombination;
+        };
+        PlayerActions.prototype.createActionText = function () {
+            //console.log("createActionText")
+            var _actionObj = this.getActionObject();
+            var _actionText = "";
+            if (_actionObj == null) {
+                if (this.scene.getCurrentItem() != undefined)
+                    _actionText = this.scene.getCurrentItem().name;
+            }
+            else {
+                var _destText = "";
+                if (_actionObj.action == PlayerActionList.GIVE) {
+                    _destText = " to ";
+                }
+                else if (_actionObj.action == PlayerActionList.USE) {
+                    _destText = " on ";
+                }
+                if (_actionObj.inventory.length == 0 && _actionObj.item == null) {
+                    //console.log("case 1")
+                    _actionText = this.getCurrentActionLabel();
+                }
+                else if (_actionObj.action != -1 &&
+                    _actionObj.inventory.length == 0 &&
+                    _actionObj.item != null) {
+                    //console.log("case 2")
+                    _actionText =
+                        this.getCurrentActionLabel() + " " + _actionObj.item.name;
+                }
+                else if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
+                    //console.log("case 3")
+                    //console.log(_actionObj.inventory.length)
+                    if (_actionObj.inventory.length == 1) {
+                        _actionText =
+                            this.getCurrentActionLabel() + " " + _actionObj.inventory[0].name; //+ _destText;
+                    }
+                    else if (_actionObj.inventory.length == 2) {
+                        _actionText =
+                            this.getCurrentActionLabel() +
+                                " " +
+                                _actionObj.inventory[0].name +
+                                _destText +
+                                _actionObj.inventory[1].name;
+                    }
+                }
+                else if (_actionObj.inventory.length > 0 && _actionObj.item != null) {
+                    //console.log("case 4")
+                    if (_actionObj.inventory.length == 1) {
+                        _actionText =
+                            this.getCurrentActionLabel() +
+                                " " +
+                                _actionObj.inventory[0].name +
+                                _destText +
+                                _actionObj.item.name;
+                    }
+                }
+                else if (_actionObj.key == "noAction" && _actionObj.item != null) {
+                    //console.log("case 5", _actionObj.item.name);
+                    _actionText = _actionObj.item.name;
+                }
+            }
+            //console.log(_actionText);
+            this.setText(_actionText);
+        };
+        PlayerActions.prototype.checkCombinedItems = function () {
+            var _actionObj = this.getActionObject();
+            if (_actionObj.inventory.length == 2) {
+                var _key = this.getCurrentActionLabel() +
+                    "_" +
+                    _actionObj.inventory[0].id +
+                    "_" +
+                    _actionObj.inventory[1].id;
+                // console.log(_key)
+                if (gameData.ingame.logic[_key] != undefined)
+                    return true;
+                _key =
+                    this.getCurrentActionLabel() +
+                        "_" +
+                        _actionObj.inventory[1].id +
+                        "_" +
+                        _actionObj.inventory[0].id;
+                if (gameData.ingame.logic[_key] != undefined)
+                    return true;
+                // console.log(_key)
+            }
+            return false;
+        };
+        PlayerActions.prototype.checkCombinedItemsKey = function () {
+            var _actionObj = this.getActionObject();
+            if (_actionObj.inventory.length == 2) {
+                var _key = this.getCurrentActionLabel() +
+                    "_" +
+                    _actionObj.inventory[0].id +
+                    "_" +
+                    _actionObj.inventory[1].id;
+                // console.log(_key)
+                if (gameData.ingame.logic[_key] != undefined)
+                    return _key;
+                _key =
+                    this.getCurrentActionLabel() +
+                        "_" +
+                        _actionObj.inventory[1].id +
+                        "_" +
+                        _actionObj.inventory[0].id;
+                if (gameData.ingame.logic[_key] != undefined)
+                    return _key;
+                // console.log(_key)
+            }
+            return "";
+        };
+        PlayerActions.prototype.executeActionLogic = function (_item) {
+            var _actionObj = this.getActionObject();
+            //console.log(_actionObj);
+            //console.log(this.checkCombinedItems())
+            if (_actionObj.inventory.length > 0 && _actionObj.item == null) {
+                // console.log("logic 0");
+                //console.log(_actionObj.inventory.length, this.getCurrentActionString(), _actionObj.key)
+                if (_actionObj.inventory.length == 1 &&
+                    gameData.ingame.logic[_actionObj.key] != undefined) {
+                    //console.log("logic 1");
+                    gameData.ingame.logic[_actionObj.key](this.scene);
+                    return true;
+                }
+                else if (_actionObj.inventory.length == 2 &&
+                    this.checkCombinedItems()) {
+                    //console.log("logic item on item", _actionObj.key);
+                    gameData.ingame.logic[this.checkCombinedItemsKey()](this.scene);
+                    return true;
+                }
+            }
+            else if (_actionObj.inventory.length == 0 &&
+                _actionObj.item != null &&
+                gameData.ingame.logic[_actionObj.key] != undefined) {
+                //console.log("logic 2", _actionObj.key);
+                //if (_actionObj.item.itemObj.logic != undefined && _actionObj.item.itemObj.logic[this.getCurrentActionString()] != undefined) { _actionObj.item.itemObj.logic[this.getCurrentActionString()](this); return true; }
+                gameData.ingame.logic[_actionObj.key](this.scene);
+                return true;
+            }
+            else if (_actionObj.inventory.length > 0 &&
+                _actionObj.item != null &&
+                gameData.ingame.logic[_actionObj.key] != undefined) {
+                //console.log("logic 3", _actionObj.key);
+                gameData.ingame.logic[_actionObj.key](this.scene);
+                return true;
+            }
+            return false;
+        };
+        PlayerActions.prototype.returnMessage = function () {
+            var _currActionObj = this.getActionObject();
+            var _item;
+            if (_currActionObj.item == null) {
+                _item = _currActionObj.inventory[0];
+            }
+            else {
+                _item = _currActionObj.item;
+            }
+            var _mess = _item.itemObj.actions[_currActionObj.action].answer[Phaser.Math.RND.integerInRange(0, _item.itemObj.actions[_currActionObj.action].answer.length - 1)];
+            this.scene.player.showBaloon(_mess);
+        };
+        PlayerActions.prototype.addInventory = function (itemIndex, noAnimation) {
+            // console.log("addInventory", this.playerActions.isInInventory(itemIndex));
+            if (!this.scene.playerActions.isInInventory(itemIndex)) {
+                //  console.log("add to in");
+                this.scene.gameItemsUtils.addItem(itemIndex);
+                this.addInventoryItem(this.scene.gameItemsUtils.getItemById(itemIndex), noAnimation);
+            }
+        };
+        PlayerActions.prototype.addInventoryItem = function (item, noAnimation) {
+            if (item != undefined && this.isInInventory(item.itemObj.id)) {
+                this.scene.groupAll.remove(item, true, true);
+                this.scene.player.play("player-pickdrop");
+                return;
+            }
+            if (item != undefined) {
+                this.addItem(item);
+                this.scene.groupAll.remove(item, true, true);
+                if (noAnimation != undefined && !noAnimation)
+                    this.scene.playerAnimation("player-pickdrop");
+            }
+            else {
+                var _currActionObj = this.playerActions.getActionObject();
+                if (_currActionObj != undefined) {
+                    var _item = void 0;
+                    if (_currActionObj.item == null) {
+                        _item = _currActionObj.inventory[0];
+                    }
+                    else {
+                        _item = _currActionObj.item;
+                    }
+                    if (this.isInInventory(_item.id)) {
+                        this.scene.player.showBaloon(z89.getLabel(28));
+                        this.resetActions();
+                    }
+                    else {
+                        this.scene.playerAnimation("player-pickdrop");
+                        this.addItem(_item);
+                        this.scene.groupAll.remove(_item, true, true);
+                        this.scene.setCurrentItem(null);
+                    }
+                }
+            }
+            this.scene.saveGameObj.updateItems();
         };
         return PlayerActions;
     }(Phaser.GameObjects.Container));
@@ -6624,45 +7093,119 @@ var z89;
             //8 backspace
             //38 40 37 49 up down left right
             //private keys: Array<number> = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 13, 44, 32, 8, 38, 40, 37, 39, 188, 190];
-            _this.keys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "*", "\"", ",", ".", " ", "'"];
+            _this.keys = [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j",
+                "k",
+                "l",
+                "m",
+                "n",
+                "o",
+                "p",
+                "q",
+                "r",
+                "s",
+                "t",
+                "u",
+                "v",
+                "w",
+                "x",
+                "y",
+                "z",
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J",
+                "K",
+                "L",
+                "M",
+                "N",
+                "O",
+                "P",
+                "Q",
+                "R",
+                "S",
+                "T",
+                "U",
+                "V",
+                "W",
+                "X",
+                "Y",
+                "Z",
+                "*",
+                '"',
+                ",",
+                ".",
+                " ",
+                "'"
+            ];
             _this.scene = scene;
-            _this.setScrollFactor(0).setVisible(false).setAlpha(0);
+            _this.setScrollFactor(0)
+                .setVisible(false)
+                .setAlpha(0);
             var terminalBg = _this.scene.add.sprite(0, 0, "terminalBg");
             terminalBg.setOrigin(0);
-            var terminal = _this.scene.add.sprite((1080 - 640) / 2, ((720 - 500) / 2) - 20, "terminale");
+            var terminal = _this.scene.add.sprite((1080 - 640) / 2, (720 - 500) / 2 - 20, "terminale");
             terminal.setOrigin(0);
             var closeBtn = _this.scene.add.sprite(670, 470, "btn");
-            closeBtn.setOrigin(0).setInteractive().setAlpha(0)
-                .on('pointerdown', function () {
+            closeBtn
+                .setOrigin(0)
+                .setInteractive()
+                .setAlpha(0)
+                .on("pointerdown", function () {
                 _this.hide();
             }, _this);
-            _this.scene.input.keyboard.on('keydown', function (event) {
-                console.log(event.key);
+            _this.scene.input.keyboard.on("keydown", function (event) {
+                // console.log(event.key);
                 _this.addChar(event.key);
             });
             /*
-            if (!isMobile()) {
-
-                this.keys.forEach((element: number, index: number) => {
-
-                    this.keyboard.push(scene.input.keyboard.addKey(element));
-                    ////this.keyboard[index].on(this.addChar, this, null, this.keyboard[index]);
-
-                });
-
-            } else {
-
-
-                this.keys.forEach((element: number, index: number) => {
-
-                    this.keyboard.push(scene.input.keyboard.addKey(element));
-                    this.keyboard[index].isDown(this.addChar, this, null, this.keyboard[index]);
-
-                });
-
-            }
-
-            */
+                  if (!isMobile()) {
+      
+                      this.keys.forEach((element: number, index: number) => {
+      
+                          this.keyboard.push(scene.input.keyboard.addKey(element));
+                          ////this.keyboard[index].on(this.addChar, this, null, this.keyboard[index]);
+      
+                      });
+      
+                  } else {
+      
+      
+                      this.keys.forEach((element: number, index: number) => {
+      
+                          this.keyboard.push(scene.input.keyboard.addKey(element));
+                          this.keyboard[index].isDown(this.addChar, this, null, this.keyboard[index]);
+      
+                      });
+      
+                  }
+      
+                  */
             _this.add([terminalBg, terminal, closeBtn]);
             _this.TerminalLogic = new z89.TerminalLogic(_this.scene, _this, 0x00ff00);
             if (z89.isMobile()) {
@@ -6683,15 +7226,19 @@ var z89;
                 this.TerminalLogic.removeChar();
             }
             else if (key == "ArrowUp") {
+                //up
                 this.TerminalLogic.charUp();
             }
             else if (key == "ArrowDown") {
+                //down
                 this.TerminalLogic.charDown();
             }
             else if (key == "ArrowLeft") {
+                //left
                 this.TerminalLogic.charLeft();
             }
             else if (key == "ArrowRight") {
+                //right
                 this.TerminalLogic.charRight();
             }
             else {
@@ -6709,7 +7256,11 @@ var z89;
         Terminal.prototype.hide = function () {
             var _this = this;
             this.TerminalLogic.writeMultiple(this.TerminalLogic.returnStaticString(z89.msgs.disconnecting, 0));
-            this.scene.tweens.add({ targets: this, alpha: 0, duration: 400, onComplete: function () {
+            this.scene.tweens.add({
+                targets: this,
+                alpha: 0,
+                duration: 400,
+                onComplete: function () {
                     _this.setVisible(false);
                     _this.scene.enableInteraction();
                     _this.TerminalLogic.enableInput();
@@ -6911,30 +7462,30 @@ var z89;
     var TerminalLogic = (function () {
         function TerminalLogic(scene, terminal, tint) {
             this.rows = [
-                '                                        ',
-                '    **** COMMODORE 64  BASIC V5 ****    ',
-                ' 64K RAM SYSTEM    RUNNING IN WOPR MODE ',
-                'READY.                                  ',
-                'LIST OF COMMANDS:                       ',
-                '----------------------------------------',
-                'help, clear, quit, ver, credits, reset, ',
+                "                                        ",
+                "    **** COMMODORE 64  BASIC V5 ****    ",
+                " 64K RAM SYSTEM    RUNNING IN WOPR MODE ",
+                "READY.                                  ",
+                "LIST OF COMMANDS:                       ",
+                "----------------------------------------",
+                "help, clear, quit, ver, credits, reset, ",
                 'dir, load "gamename", run               ',
-                ' GREETINGS PROFESSOR FALKEN.            ',
-                ' WELCOME TO,                            ',
-                ' ###################################### ',
+                " GREETINGS PROFESSOR FALKEN.            ",
+                " WELCOME TO,                            ",
+                " ###################################### ",
                 ' #     "GLOBAL THERMONUCLEAR WAR"     # ',
-                ' PLEASE, ENTER THE LOCATION (LAT,LON)   ',
-                ' OF FIRST STRIKE! E.g. INTEGER,INTEGER  ',
-                'MEDIA CONSOLE VERSION 1.0               ',
-                '(C) FRANCESCO RAIMONDO 2018             ',
-                'HTTP://WWW.ZERO89.IT                    ',
-                'CREDIT LIST:                            ',
-                'CODE: FRANCESO RAIMONDO                 ',
-                'ART SPRITE: PAUL ROBERTSON              ',
-                'ART BG: JASON TAMMEMAGI                 ',
-                'ART MIXING: FRANCESO RAIMONDO           ',
-                'MUSIC:                                  ',
-                'ADDITIONAL FX: FRANCESO RAIMONDO        ',
+                " PLEASE, ENTER THE LOCATION (LAT,LON)   ",
+                " OF FIRST STRIKE! E.g. INTEGER,INTEGER  ",
+                "MEDIA CONSOLE VERSION 1.0               ",
+                "(C) FRANCESCO RAIMONDO 2018             ",
+                "HTTP://WWW.ZERO89.IT                    ",
+                "CREDIT LIST:                            ",
+                "CODE: FRANCESO RAIMONDO                 ",
+                "ART SPRITE: PAUL ROBERTSON              ",
+                "ART BG: JASON TAMMEMAGI                 ",
+                "ART MIXING: FRANCESO RAIMONDO           ",
+                "MUSIC:                                  ",
+                "ADDITIONAL FX: FRANCESO RAIMONDO        ",
                 '0 "GAME LIST                  " 32 2A   ',
                 '0    "BOCCONCINI DEV"              PRG  ',
                 '0    "XMAS2K16"                    PRG  ',
@@ -6942,69 +7493,69 @@ var z89;
                 '0    "FALKEN\'S MAZE"               PRG  ',
                 '0    "HWI20YEARS"                  PRG  ',
                 '0    "GTW"                         PRG  ',
-                '0 BLOCKS FREE.                     PRG  ',
-                '?ERROR                                  ',
-                'ACCESS DENIED!                          ',
-                'PLEASE, USE YOUR CREDENTIAL TO LOGIN.   ',
+                "0 BLOCKS FREE.                     PRG  ",
+                "?ERROR                                  ",
+                "ACCESS DENIED!                          ",
+                "PLEASE, USE YOUR CREDENTIAL TO LOGIN.   ",
                 'Try with "help" command.                ',
-                'Type quit to exit.                      ',
-                ' #          TARGET ACQUIRED!          # ',
-                '              STRIKE IN...              ',
-                '              555555555555              ',
-                '              55                        ',
-                '              55                        ',
-                '              555555555555              ',
-                '                        55              ',
-                '                        55              ',
-                '              555555555555              ',
-                '                      44                ',
-                '                    4444                ',
-                '                  44  44                ',
-                '                44    44                ',
-                '              444444444444              ',
-                '                      44                ',
-                '                      44                ',
-                '              333333333333              ',
-                '                        33              ',
-                '                        33              ',
-                '              333333333333              ',
-                '                        33              ',
-                '                        33              ',
-                '              333333333333              ',
-                '              222222222222              ',
-                '                        22              ',
-                '                        22              ',
-                '              222222222222              ',
-                '              22                        ',
-                '              22                        ',
-                '              222222222222              ',
-                '                    11                  ',
-                '                  1111                  ',
-                '                    11                  ',
-                '                    11                  ',
-                '                    11                  ',
-                '                    11                  ',
-                '                  111111                ',
-                ' #              TARGET HIT!           # ',
-                'SEARCHING FOR ',
-                'LOADING                                 ',
-                'RUNNING A GAME FROM:                    ',
-                '              ##############            ',
-                '              # PROCESSING #            ',
-                'Disconnecting....                       ',
-                '# Welcome to Amazon Teleport Prime.    #',
-                '# Enter the ATP Product Code followed  #',
+                "Type quit to exit.                      ",
+                " #          TARGET ACQUIRED!          # ",
+                "              STRIKE IN...              ",
+                "              555555555555              ",
+                "              55                        ",
+                "              55                        ",
+                "              555555555555              ",
+                "                        55              ",
+                "                        55              ",
+                "              555555555555              ",
+                "                      44                ",
+                "                    4444                ",
+                "                  44  44                ",
+                "                44    44                ",
+                "              444444444444              ",
+                "                      44                ",
+                "                      44                ",
+                "              333333333333              ",
+                "                        33              ",
+                "                        33              ",
+                "              333333333333              ",
+                "                        33              ",
+                "                        33              ",
+                "              333333333333              ",
+                "              222222222222              ",
+                "                        22              ",
+                "                        22              ",
+                "              222222222222              ",
+                "              22                        ",
+                "              22                        ",
+                "              222222222222              ",
+                "                    11                  ",
+                "                  1111                  ",
+                "                    11                  ",
+                "                    11                  ",
+                "                    11                  ",
+                "                    11                  ",
+                "                  111111                ",
+                " #              TARGET HIT!           # ",
+                "SEARCHING FOR ",
+                "LOADING                                 ",
+                "RUNNING A GAME FROM:                    ",
+                "              ##############            ",
+                "              # PROCESSING #            ",
+                "Disconnecting....                       ",
+                "# Welcome to Amazon Teleport Prime.    #",
+                "# Enter the ATP Product Code followed  #",
                 '0    "ATP"                         PRG  ',
-                '# by your Personal Id to purchase our  #',
-                '# products.   >:ProductId,yourID       #',
-                '########################################',
-                '# Dear Customer, thanks for your order #',
-                '# The product will be shipped in few   #',
-                '# seconds.                             #',
-                '# The ATP team.                        #',
-                '# For any questions or problems,       #',
-                '# contact our free h24 support.        #',
-                '#                                      #',
+                "# by your Personal Id to purchase our  #",
+                "# products.   >:ProductId,yourID       #",
+                "########################################",
+                "# Dear Customer, thanks for your order #",
+                "# The product will be shipped in few   #",
+                "# seconds.                             #",
+                "# The ATP team.                        #",
+                "# For any questions or problems,       #",
+                "# contact our free h24 support.        #",
+                "#                                      #" //93
             ];
             this.msgs = [
                 [0, 1, 0, 2, 0, 3],
@@ -7029,29 +7580,29 @@ var z89;
             this.emptyString = this.rows[0];
             this.readyString = this.rows[3];
             this.errors = [
-                'Too many fingers on keyboard error!     ',
-                'Syntax Terror!                          ',
-                'Something bad happened.                 ',
-                'Guru meditation error!                  ',
-                'Too much for this terminal.             ',
-                'Catastrophic Failure Error!             ',
-                'The master of all errors happened!      ',
-                'This time, it’s the human’s fault.      ',
-                'User fault, it’s not our error!         ',
-                'You performed an illegal operation.     ',
-                'Kernel Panic!                           ',
-                '404 File Not Found!                     ',
-                'Error 500 SERVER Not Found!             ',
-                'Random error just to annoy you!         ',
-                'User error - Replace user!              ',
-                'This error should not occour!           ',
-                'Run as fast as you can & don’t look back',
-                'User error. Go stand in the corner!     ',
+                "Too many fingers on keyboard error!     ",
+                "Syntax Terror!                          ",
+                "Something bad happened.                 ",
+                "Guru meditation error!                  ",
+                "Too much for this terminal.             ",
+                "Catastrophic Failure Error!             ",
+                "The master of all errors happened!      ",
+                "This time, it’s the human’s fault.      ",
+                "User fault, it’s not our error!         ",
+                "You performed an illegal operation.     ",
+                "Kernel Panic!                           ",
+                "404 File Not Found!                     ",
+                "Error 500 SERVER Not Found!             ",
+                "Random error just to annoy you!         ",
+                "User error - Replace user!              ",
+                "This error should not occour!           ",
+                "Run as fast as you can & don’t look back",
+                "User error. Go stand in the corner!     "
             ];
             this.clearString = { text: this.emptyString, delay: 0 };
             this.lettersObj = [];
             this.currentElement = 0;
-            this.tint = 0x6C5EB5;
+            this.tint = 0x6c5eb5;
             this.logged = false;
             this.isShell = false;
             this.shellStart = 0;
@@ -7100,7 +7651,7 @@ var z89;
             this.cursor.y = this.setCursorY(0);
             this.cursor.play("blink");
             for (var i = 0; i < 25; i++) {
-                this.lettersObj.push(this.scene.add.bitmapText(220, (16 * i) + 90, "commodore", "", 16));
+                this.lettersObj.push(this.scene.add.bitmapText(220, 16 * i + 90, "commodore", "", 16));
                 this.lettersObj[i].setTint(this.tint);
                 this.terminal.add(this.lettersObj[i]);
             }
@@ -7111,29 +7662,38 @@ var z89;
             this.cursor.y = this.setCursorY(y);
         };
         TerminalLogic.prototype.setCursorX = function (index) {
-            return (index * 16) + this.cursorOffsetX;
+            return index * 16 + this.cursorOffsetX;
         };
         TerminalLogic.prototype.setCursorY = function (index) {
-            return (index * 16) + this.cursorOffsetY;
+            return index * 16 + this.cursorOffsetY;
         };
         TerminalLogic.prototype.getCursorCol = function () {
             return (this.cursor.x - this.cursorOffsetX) / 16;
         };
-        ;
         TerminalLogic.prototype.getCursorRow = function () {
             return (this.cursor.y - this.cursorOffsetY) / 16;
         };
-        ;
         TerminalLogic.prototype.reset = function () {
             // console.log("reset")
             this.clear();
+            this.gameLoaded = "";
             this.writeMultiple(this.returnStaticString(msgs.reset, 0));
         };
-        ;
-        TerminalLogic.prototype.enableInput = function () { this.inputIsDisabled = false; this.showCursor(); };
-        TerminalLogic.prototype.disableInput = function () { console.log("disable"); this.inputIsDisabled = true; this.hideCursor(); };
-        TerminalLogic.prototype.hideCursor = function () { this.cursor.alpha = 0; };
-        TerminalLogic.prototype.showCursor = function () { this.cursor.alpha = 1; };
+        TerminalLogic.prototype.enableInput = function () {
+            this.inputIsDisabled = false;
+            this.showCursor();
+        };
+        TerminalLogic.prototype.disableInput = function () {
+            //console.log("disable");
+            this.inputIsDisabled = true;
+            this.hideCursor();
+        };
+        TerminalLogic.prototype.hideCursor = function () {
+            this.cursor.alpha = 0;
+        };
+        TerminalLogic.prototype.showCursor = function () {
+            this.cursor.alpha = 1;
+        };
         TerminalLogic.prototype.returnStaticString = function (msg, delay) {
             var _this = this;
             var _obj = [];
@@ -7155,13 +7715,27 @@ var z89;
             this.cursor.play("blink");
             return _ready;
         };
-        TerminalLogic.prototype.returnLogin = function () { return this.returnStaticString(msgs.loginError, 0); };
-        TerminalLogic.prototype.returnAtp = function () { return this.returnStaticString(msgs.amazonLogin, 0); };
-        TerminalLogic.prototype.returnCommands = function () { return this.returnStaticString(msgs.commandList, 0); };
-        TerminalLogic.prototype.returnGames = function () { return this.returnStaticString(msgs.gameList, 0); };
-        TerminalLogic.prototype.returnVersion = function () { return this.returnStaticString(msgs.version, 0); };
-        TerminalLogic.prototype.returnCredits = function () { return this.returnStaticString(msgs.credits, 0); };
-        TerminalLogic.prototype.returnProcessing = function () { return this.returnStaticString(msgs.processing, 0); };
+        TerminalLogic.prototype.returnLogin = function () {
+            return this.returnStaticString(msgs.loginError, 0);
+        };
+        TerminalLogic.prototype.returnAtp = function () {
+            return this.returnStaticString(msgs.amazonLogin, 0);
+        };
+        TerminalLogic.prototype.returnCommands = function () {
+            return this.returnStaticString(msgs.commandList, 0);
+        };
+        TerminalLogic.prototype.returnGames = function () {
+            return this.returnStaticString(msgs.gameList, 0);
+        };
+        TerminalLogic.prototype.returnVersion = function () {
+            return this.returnStaticString(msgs.version, 0);
+        };
+        TerminalLogic.prototype.returnCredits = function () {
+            return this.returnStaticString(msgs.credits, 0);
+        };
+        TerminalLogic.prototype.returnProcessing = function () {
+            return this.returnStaticString(msgs.processing, 0);
+        };
         TerminalLogic.prototype.returnError = function (error) {
             var _error = this.errors[Phaser.Math.RND.integerInRange(0, this.errors.length - 1)];
             if (error != undefined)
@@ -7180,7 +7754,7 @@ var z89;
                 { text: this.emptyString, delay: 0 },
                 { text: this.rows[75] + game, delay: 0 },
                 { text: this.rows[76], delay: 0 },
-                { text: this.rows[3], delay: 0 },
+                { text: this.rows[3], delay: 0 }
             ];
         };
         TerminalLogic.prototype.returnLoginError = function (error) {
@@ -7286,13 +7860,13 @@ var z89;
             }
         };
         TerminalLogic.prototype.addChar = function (key) {
-            console.log(this.inputIsDisabled);
             if (this.inputIsDisabled)
                 return;
+            console.log(key);
             var col = this.getCursorCol();
             var row = this.getCursorRow();
             if (this.isShell) {
-                if (col == (this.shellStart + this.shellEnd))
+                if (col == this.shellStart + this.shellEnd)
                     return;
                 this.login = this.login + key;
                 if (this.isShellLogin)
@@ -7345,61 +7919,13 @@ var z89;
                 this.writeMultiple(this.returnLoginError("ORDER NOT VALID!"));
             this.isShell = true;
             this.shellStart = shellString.length;
-            this.shellEnd = 20;
+            this.shellEnd = 10;
             this.isShellLogin = false;
             this.setCursor(shellString.length, this.returnAtp().length);
         };
         TerminalLogic.prototype.returnLogged = function (error) {
             if (error === void 0) { error = false; }
         };
-        /*
-        _gamecity.Terminal.TerminalLogic.returnLogged=function(_this,_error){
-
-            _this.logged = true;
-            _this.login = '';
-            _this.clear();
-            _this.writeMultiple(_this.returnStaticString(2, 0));
-            _this.write(this.returnReady('>:'), false);
-            _this.setCursor(0, _this.returnStaticString(2, 0).length + 1);
-
-            if (_error) {
-                _this.writeMultiple(_this.returnLoginError('INVALID COORDINATES'));
-              };
-
-            _this.isShell = true;
-            _this.shellStart = 2;
-            _this.shellEnd = 7;
-            _this.shellType = 1;
-            _this.isShellLogin = false;
-            _this.setCursor(2, 12);
-          
-          };
-
-
-            _gamecity.Terminal.TerminalLogic.returnLogged(_gamecity.Terminal.TerminalLogic);
-        */
-        /* returnOrder(_this,_error){
-
-             _this.logged = true;
-             _this.login = '';
-             _this.clear();
-             _this.writeMultiple(_this.returnStaticString(2, 0));
-             _this.write(this.returnReady('>:'), false);
-             _this.setCursor(0, _this.returnStaticString(2, 0).length + 1);
-
-             if (_error) {
-                 _this.writeMultiple(_this.returnLoginError('INVALID ORDER'));
-               };
-
-             _this.isShell = true;
-             _this.shellStart = 2;
-             _this.shellEnd = 7;
-             _this.shellType = 1;
-             _this.isShellLogin = false;
-             _this.setCursor(2, 12);
-           
-           };
-*/
         TerminalLogic.prototype.checkCoordinates = function (coordinates) {
             if (coordinates == "quit")
                 return 0;
@@ -7434,12 +7960,15 @@ var z89;
         TerminalLogic.prototype.openGame = function (url) {
             window.open(url, "_blank");
             this.gameLoaded = "";
-            this.writeMultiple([{ text: this.rows[77], delay: 0 }, { text: url, delay: 0 }]);
+            this.writeMultiple([
+                { text: this.rows[77], delay: 0 },
+                { text: url, delay: 0 }
+            ]);
             this.write(this.returnReady());
         };
         TerminalLogic.prototype.sendOrder = function (itemId) {
             var _this = this;
-            console.log(itemId);
+            //console.log(itemId);
             this.clear();
             this.clearShell();
             this.writeMultiple(this.returnStaticString(msgs.amazonOrder, 0));
@@ -7459,14 +7988,22 @@ var z89;
             this.clear();
             this.writeMultiple(this.returnStaticString(msgs.targetAquired, 0));
             var _loop_1 = function (i) {
-                this_1.scene.time.addEvent({ delay: 1000 * i, callback: function () {
+                this_1.scene.time.addEvent({
+                    delay: 1000 * i,
+                    callback: function () {
                         _this.writeMultiple(_this.returnStaticString(8 + i, 0));
                         if (i == 5)
-                            _this.scene.time.addEvent({ delay: 1000, callback: function () {
+                            _this.scene.time.addEvent({
+                                delay: 1000,
+                                callback: function () {
                                     _this.terminal.hide();
                                     _this.terminal.scene.shootFromHigh([27]);
-                                }, callbackScope: _this });
-                    }, callbackScope: this_1 });
+                                },
+                                callbackScope: _this
+                            });
+                    },
+                    callbackScope: this_1
+                });
             };
             var this_1 = this;
             for (var i = 0; i < 6; i++) {
@@ -7482,7 +8019,7 @@ var z89;
                 this.scrollDown();
                 this.cursor.y = this.setCursorY(row - 1);
             }
-            console.log("command: " + command, "login: " + this.login, "shelltype: " + this.shellType);
+            console.log("row: " + row, "command: " + command, "login: " + this.login, "shelltype: " + this.shellType);
             if (this.isShell) {
                 switch (this.shellType) {
                     case 0:
@@ -7520,7 +8057,7 @@ var z89;
                                 this.clearShell();
                                 break;
                             default:
-                                console.log("atp default case");
+                                //console.log("atp default case");
                                 this.ajaxCall({ who: "order", order: this.login });
                                 break;
                         }
@@ -7551,6 +8088,18 @@ var z89;
                             case "the wrong direction":
                                 this.openGame("http://twd.zero89.it");
                                 break;
+                            case "falken":
+                                this.writeMultiple([
+                                    { text: this.emptyString, delay: 0 },
+                                    {
+                                        text: "Sintax error on line " +
+                                            Phaser.Math.RND.integerInRange(1000, 2000),
+                                        delay: 0
+                                    },
+                                    { text: "File corrupted.", delay: 0 },
+                                    { text: this.rows[3], delay: 0 }
+                                ]);
+                                break;
                         }
                         break;
                     case "version":
@@ -7561,27 +8110,31 @@ var z89;
                     case "cred":
                         this.writeMultiple(this.returnCredits());
                         break;
-                    case "load \"bocconcini dev\"":
+                    case 'load "bocconcini dev"':
                         this.writeMultiple(this.returnLoading("BOCCONCINI DEV"));
                         this.gameLoaded = "bocconcini dev";
                         break;
-                    case "load \"xmas2k16\"":
+                    case 'load "xmas2k16"':
                         this.writeMultiple(this.returnLoading("XMAS2K16"));
                         this.gameLoaded = "xmas2k16";
                         break;
-                    case "load \"hwi20years\"":
+                    case 'load "hwi20years"':
                         this.writeMultiple(this.returnLoading("HWI20YEARS"));
                         this.gameLoaded = "hwi20years";
                         break;
-                    case "load \"the wrong direction\"":
+                    case 'load "the wrong direction"':
                         this.writeMultiple(this.returnLoading("THE WRONG DIRECTION"));
                         this.gameLoaded = "the wrong direction";
                         break;
-                    case "load \"atp\"":
+                    case 'load "falken\'s maze"':
+                        this.writeMultiple(this.returnLoading("FALKEN'S MAZE"));
+                        this.gameLoaded = "falken";
+                        break;
+                    case 'load "atp"':
                     case "load":
                         this.displayAtpShell(false);
                         break;
-                    case "load \"gtw\"":
+                    case 'load "gtw"':
                         //case "load":
                         if (!this.logged) {
                             this.shellType = shell.login;
@@ -7617,7 +8170,8 @@ var z89;
             }
         };
         TerminalLogic.prototype.ajaxCall = function (data) {
-            console.log(data);
+            var _this = this;
+            //console.log(data);
             this.disableInput();
             this.writeMultiple(this.returnProcessing());
             var _this = this;
@@ -7626,7 +8180,11 @@ var z89;
                 dataType: "script",
                 type: "GET",
                 data: data
-            }).done(function (data) { }).fail(function (xhr) {
+            })
+                .done(function () {
+                _this.enableInput();
+            })
+                .fail(function (xhr) {
                 //console.log(xhr)
             });
         };
@@ -7666,7 +8224,9 @@ var z89;
         };
         TerminalLogic.prototype.writeMultiple = function (letters) {
             var _this = this;
-            letters.forEach(function (element) { _this.write(element); });
+            letters.forEach(function (element) {
+                _this.write(element);
+            });
             //this.cursor.y+=16;
         };
         TerminalLogic.prototype.someLogic = function () {
@@ -7701,43 +8261,43 @@ var z89;
                 }
             }
             /*  if (cDelay == 0) {
-  
-                  textObj.text = element.text;
-  
-                  this.cursor.x=0;
-                  this.cursor.y=(row*16)+16;
-      
-                 
-                  
-  
-              } else {
-  
-                  let nextText = element.text.substring(0, i);
-                  let cursorX: number;
-                  for (var i = 0; i <= element.text.length; i++) {
-  
-                      let nextText = element.text.substring(0, i);
-  
-                      this.game.time.events.add((cDelay * i) + element.delay, () => {
-  
-                          textObj.text = nextText;
-                          cursorX = nextText.length * 16;
-                          this.cursor.y = 16 * row;
-  
-                          if (cursorX == 640) { cursorX = 0; this.cursor.y += 16; }
-                          this.cursor.x = cursorX;
-  
-                      });
-  
-                  }
-  
-                   
-   
-                   
-  
-              }
-  
-              */
+        
+                        textObj.text = element.text;
+        
+                        this.cursor.x=0;
+                        this.cursor.y=(row*16)+16;
+            
+                       
+                        
+        
+                    } else {
+        
+                        let nextText = element.text.substring(0, i);
+                        let cursorX: number;
+                        for (var i = 0; i <= element.text.length; i++) {
+        
+                            let nextText = element.text.substring(0, i);
+        
+                            this.game.time.events.add((cDelay * i) + element.delay, () => {
+        
+                                textObj.text = nextText;
+                                cursorX = nextText.length * 16;
+                                this.cursor.y = 16 * row;
+        
+                                if (cursorX == 640) { cursorX = 0; this.cursor.y += 16; }
+                                this.cursor.x = cursorX;
+        
+                            });
+        
+                        }
+        
+                         
+         
+                         
+        
+                    }
+        
+                    */
         };
         return TerminalLogic;
     }());
