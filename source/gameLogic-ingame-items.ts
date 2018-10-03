@@ -1,8 +1,76 @@
-// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
 
 gameData.ingame.scenes = [
   {
     name: "city",
+    cameraBounds: { x: 0, y: 0, width: 3670, height: 720 },
+    vertexList: {
+      v1: { x: 0, y: 600, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+      v2: { x: 3600, y: 600, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+      v3: { x: 3600, y: 720, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+      v4: { x: 0, y: 720, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+      v5: { x: 400, y: 620, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+      v6: { x: 600, y: 620, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+      v7: { x: 600, y: 660, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+      v8: { x: 400, y: 660, childs: [], exclude: ["v5", "v6", "v7", "v8"] }
+    },
+
+    parallax: [
+      {
+        s: "bg-level1",
+        x: 0,
+        y: 0,
+        w: 1080,
+        h: 642,
+        depth: 0,
+        scrollFactor: 0.2
+      },
+      {
+        s: "bg-level2",
+        x: 0,
+        y: 55,
+        w: 1080,
+        h: 548,
+        depth: 0,
+        scrollFactor: 0.7
+      },
+      {
+        s: "street-level1",
+        x: 0,
+        y: 655,
+        w: 1080,
+        h: 65,
+        depth: 0,
+        scrollFactor: 1.095
+      },
+      {
+        s: "street-level2",
+        x: 0,
+        y: 627,
+        w: 1080,
+        h: 720,
+        depth: 800,
+        scrollFactor: 1.25
+      }
+    ],
+    buildings: [
+      { s: "bg-home", x: 0, y: 592, sf: false, soZeroOne: true },
+      { s: "bg-devday", x: 624, y: 592, sf: false, soZeroOne: true },
+      { s: "bg-skills", x: 1114, y: 592, sf: false, soZeroOne: true },
+      { s: "bg-cake", x: 1550, y: 604, sf: false, soZeroOne: true },
+      { s: "bg-arcade", x: 1800, y: 592, sf: false, soZeroOne: true },
+      { s: "bg-aerosol", x: 2400, y: 592, sf: false, soZeroOne: true },
+      { s: "bg-contact", x: 3000, y: 604, sf: false, soZeroOne: true },
+      { s: "street-level0", x: 0, y: 592, sf: true, soZeroOne: false }
+    ],
+
+    bounds: [["v1", "v2"], ["v2", "v3"], ["v3", "v4"], ["v4", "v1"]],
+
+    obstacles: [
+      {
+        bounds: [["v5", "v6"], ["v6", "v7"], ["v7", "v8"], ["v8", "v5"]]
+      }
+    ],
     startItems: [
       1,
       2,
@@ -43,6 +111,62 @@ gameData.ingame.scenes = [
       106
     ],
     items: [],
+
+    playerStartPosition: { x: 300, y: 602 },
+    playerPosition: { x: null, y: null }
+  },
+
+  {
+    name: "house",
+    vertexList: {
+      v1: { x: 275, y: 435, childs: [], exclude: [] },
+      v2: { x: 265, y: 472, childs: [], exclude: [] },
+      v3: { x: 480, y: 472, childs: [], exclude: [] },
+      v4: { x: 472, y: 527, childs: [], exclude: [] },
+      v5: { x: 930, y: 527, childs: [], exclude: [] },
+      v6: { x: 854, y: 455, childs: [], exclude: [] },
+      v7: { x: 578, y: 455, childs: [], exclude: [] },
+      v8: { x: 578, y: 435, childs: [], exclude: [] }
+    },
+
+    parallax: [
+      {
+        s: "room-home",
+        x: 0,
+        y: 0,
+        w: 1080,
+        h: 720,
+        depth: 0,
+        scrollFactor: 0
+      }
+    ],
+    buildings: [
+      {
+        s: "room-home-bed",
+        x: 136,
+        y: 527,
+        sf: false,
+        depth: 490,
+        soZeroOne: true
+      }
+    ],
+
+    bounds: [
+      ["v1", "v2"],
+      ["v2", "v3"],
+      ["v3", "v4"],
+      ["v4", "v5"],
+      ["v5", "v6"],
+      ["v6", "v7"],
+      ["v7", "v8"],
+      ["v8", "v1"]
+    ],
+
+    obstacles: [],
+    cameraBounds: { x: 0, y: 0, width: 1080, height: 720 },
+    startItems: [36, 37, 38],
+    items: [],
+    playerStartPosition: { x: 852, y: 500 },
     playerPosition: { x: null, y: null }
   }
 ];
@@ -550,7 +674,7 @@ gameData.ingame.items = [
     id: 28,
     type: 1,
     sprite: "photonstorm",
-    name: "Photonstorm", //z89.getLabel(92),
+    name: 218,
     x: 345,
     y: 245,
     animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 4, loop: true }],
@@ -612,8 +736,8 @@ gameData.ingame.items = [
     sprite: "blockchain",
     onStart: false,
     name: 50,
-    x: 500,
-    y: 700 - 48,
+    x: 800,
+    y: 514,
     interactive: true,
     offsetX: 30,
     fixedToCamera: false,
@@ -658,6 +782,47 @@ gameData.ingame.items = [
     onStart: false,
     interactive: true,
     offsetX: 0,
+    fixedToCamera: false,
+    checkIntersect: false
+  },
+  {
+    id: 36,
+    type: 1,
+    sprite: "room-64",
+    name: 220,
+    x: 760,
+    y: 382,
+    animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
+    currentAnimation: "idle",
+    onStart: true,
+    interactive: true,
+    offsetX: 10,
+    fixedToCamera: false,
+    checkIntersect: false
+  },
+  {
+    id: 37,
+    type: 1,
+    sprite: "room-zak-poster",
+    name: 221,
+    x: 530,
+    y: 368,
+    onStart: true,
+    interactive: true,
+    offsetX: 10,
+    fixedToCamera: false,
+    checkIntersect: false
+  },
+  {
+    id: 38,
+    type: 1,
+    sprite: "room-foto-frame",
+    name: 222,
+    x: 625,
+    y: 375,
+    onStart: true,
+    interactive: true,
+    offsetX: 10,
     fixedToCamera: false,
     checkIntersect: false
   },

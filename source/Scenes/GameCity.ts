@@ -5,25 +5,30 @@ namespace z89 {
     playerMenu: PlayerMenu;
     playerActions: PlayerActions;
     playerBaloon: PlayerBaloon;
+    transition: Transition;
+    viewer: Viewer;
     conversationBaloon: conversationBaloon;
     currentItem: Items;
     Terminal: Terminal;
+    graphics: Phaser.GameObjects.Graphics;
+    private started: boolean = false;
 
     private gameCompleted: boolean = false;
 
     public mainCamera: Phaser.Cameras.Scene2D.Camera;
     private controls: Phaser.Cameras.Controls.SmoothedKeyControl;
-    private bgLevel1: Phaser.GameObjects.TileSprite;
+
+    /*private bgLevel1: Phaser.GameObjects.TileSprite;
     private bgLevel2: Phaser.GameObjects.TileSprite;
     private street: Phaser.GameObjects.TileSprite;
     private front: Phaser.GameObjects.TileSprite;
+*/
 
-    private groupStreet: Phaser.GameObjects.Group;
+    public sceneBounds: Array<Phaser.Geom.Line>;
+    public currentScene: any;
+
     public groupAll: Phaser.GameObjects.Group;
-    private groupBaloon: Phaser.GameObjects.Group;
-
     public groupCity: Phaser.GameObjects.Group;
-    private groupFront: Phaser.GameObjects.Group;
 
     // private filters: Array<Phaser.Filter>;
     private gameInteraction: boolean = true;
@@ -36,6 +41,8 @@ namespace z89 {
     public chapterTitleBg: Phaser.GameObjects.Image;
     public currentChapter: number = 0;
 
+    parallax: Array<Phaser.GameObjects.TileSprite> = [];
+
     constructor() {
       super({ key: "GameCity" });
     }
@@ -47,73 +54,21 @@ namespace z89 {
     create() {
       document.getElementsByTagName("body")[0].className = "game";
       console.log("GameCity:create");
-      this.cameras.main.setBounds(0, 0, 3670, 720);
+
       this.gameItemsUtils = new GameItemsUtils(this);
       this.gameUtils = new GameUtils(this);
       this.saveGameObj = new saveGame(this);
-      //this.physics.world.setBounds(0, 0, 3670, 720);
 
-      // +++++++++++++++++++++++++++++++++++++++
-      // group city
-      // +++++++++++++++++++++++++++++++++++++++
-      this.groupCity = this.add.group();
-
-      let bgLevel0: Phaser.GameObjects.Image = this.add
+      let backgroundPointer: Phaser.GameObjects.Image = this.add
         .image(0, 0, "bg-level0")
         .setInteractive()
         .setScrollFactor(0)
         .setOrigin(0, 0);
 
-      this.groupCity.add(bgLevel0);
-
-      //palazzi sfondo bg lvl1
-      this.bgLevel1 = this.add
-        .tileSprite(0, 0, 1080, 642, "bg-level1")
-        .setScrollFactor(0)
-        .setOrigin(0, 0);
-      this.groupCity.add(this.bgLevel1);
-
-      //palazzi group bg lvl2
-      this.bgLevel2 = this.add
-        .tileSprite(0, 55, 1080, 548, "bg-level2")
-        .setScrollFactor(0)
-        .setOrigin(0, 0);
-
-      this.groupCity.add(this.bgLevel2);
-
-      let street: Phaser.GameObjects.Image = this.add
-        .image(0, 592, "street-level0")
-        .setScrollFactor(0)
-        .setOrigin(0, 0);
-
-      this.groupCity.add(street);
-
-      let buildings: Array<any> = [
-        { s: "bg-home", x: 0, y: 640 - 48 },
-        { s: "bg-devday", x: 624, y: 640 - 48 },
-        { s: "bg-skills", x: 1114, y: 640 - 48 },
-        { s: "bg-cake", x: 1550, y: 640 - 36 },
-        { s: "bg-arcade", x: 1800, y: 640 - 48 },
-        { s: "bg-aerosol", x: 2400, y: 640 - 48 },
-        { s: "bg-contact", x: 3000, y: 640 - 36 }
-      ];
-      let building: Phaser.GameObjects.Image;
-
-      buildings.forEach(element => {
-        building = this.add.image(element.x, element.y, element.s, 0);
-        building.setOrigin(0, 1);
-      });
-
       // +++++++++++++++++++++++++++++++++++++++
-      // group street
+      // group city
       // +++++++++++++++++++++++++++++++++++++++
-      this.groupStreet = this.add.group();
-      this.street = this.add
-        .tileSprite(0, 703 - 48, 1080, 65, "street-level1")
-        .setScrollFactor(0)
-        .setOrigin(0, 0);
-
-      this.groupStreet.add(this.street);
+      this.groupCity = this.add.group();
 
       // +++++++++++++++++++++++++++++++++++++++
       // group All
@@ -121,35 +76,18 @@ namespace z89 {
       this.groupAll = this.add.group();
       this.groupAll.runChildUpdate = true;
 
-      this.player = new Player(this);
-
-      this.groupAll.add(this.player);
-
-      // +++++++++++++++++++++++++++++++++++++++
-      // group Front
-      // +++++++++++++++++++++++++++++++++++++++
-      this.groupFront = this.add.group();
-
-      this.front = this.add
-        .tileSprite(0, 768 - 93 - 48, 1080, 720, "street-level2")
-        .setScrollFactor(0)
-        .setOrigin(0, 0)
-        .setDepth(800);
-
-      this.groupFront.add(this.front);
-
       // +++++++++++++++++++++++++++++++++++++++
       // group Baloon
       // +++++++++++++++++++++++++++++++++++++++
-      this.groupBaloon = this.add.group();
+      // this.groupBaloon = this.add.group();
 
       this.playerBaloon = new PlayerBaloon(this);
       this.playerBaloon.setDepth(900);
-      this.groupBaloon.add(this.playerBaloon);
+      //this.groupBaloon.add(this.playerBaloon);
 
       this.conversationBaloon = new conversationBaloon(this, 0, 0);
       this.conversationBaloon.setDepth(900);
-      this.groupBaloon.add(this.conversationBaloon);
+      //this.groupBaloon.add(this.conversationBaloon);
 
       // +++++++++++++++++++++++++++++++++++++++
       // group Action
@@ -173,35 +111,30 @@ namespace z89 {
       this.Terminal.setDepth(2000);
 
       // +++++++++++++++++++++++++++++++++++++++
+      // group transition
+      // +++++++++++++++++++++++++++++++++++++++
+
+      this.transition = new Transition(this);
+      this.transition.setDepth(2001);
+
+      // +++++++++++++++++++++++++++++++++++++++
+      // group Action
+      // +++++++++++++++++++++++++++++++++++++++
+
+      this.viewer = new Viewer(this);
+      this.viewer.setDepth(2002);
+
+      // +++++++++++++++++++++++++++++++++++++++
       // saved game
       // +++++++++++++++++++++++++++++++++++++++
 
-      /*
-      if (this.saveGameObj.gameIsSaved()) {
-        this.processSavedGame();
-      } else {
-      
-        gameData.ingame.items.forEach(element => {
-          if (element.onStart) {
-            this.gameItemsUtils.addItem(element.id);
-          }
-        });
+      this.player = new Player(this);
+      this.player.setAlpha(0);
 
-        this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
-        this.saveGameObj.updateItems();
-
-        this.playerMenu.openOnStart();
-      }
-      */
-
-      if (this.saveGameObj.gameIsSaved()) {
-        this.processSavedGameMulti();
-      } else {
-        this.setUpScene("city");
-        this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
-        this.saveGameObj.updateItems();
-        this.playerMenu.openOnStart();
-      }
+      this.transition.show(() => {
+        this.start();
+        this.transition.hide();
+      }, 1);
 
       /* var cursors = this.input.keyboard.createCursorKeys();
 
@@ -220,14 +153,11 @@ namespace z89 {
         controlConfig
       );*/
 
-      this.mainCamera = this.cameras.main;
-      this.mainCamera.startFollow(this.player, true, 0.15, 1);
-
       // +++++++++++++++++++++++++++++++++++++++
       // GROUND
       // +++++++++++++++++++++++++++++++++++++++
 
-      bgLevel0.on(
+      backgroundPointer.on(
         "pointerdown",
         (ground: Phaser.GameObjects.Sprite) => {
           if (!this.gameInteraction) return;
@@ -296,38 +226,269 @@ namespace z89 {
 
       //accessible global instance for backend ajax call
       _gamecity = this;
+
+      /*
+      let dijkstra = new Dijkstra();
+      dijkstra.addVertex(
+        new Vertex(
+          "A",
+          [
+            { nameOfVertex: "C", weight: 3 },
+            { nameOfVertex: "E", weight: 7 },
+            { nameOfVertex: "B", weight: 4 }
+          ],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "B",
+          [
+            { nameOfVertex: "A", weight: 4 },
+            { nameOfVertex: "C", weight: 6 },
+            { nameOfVertex: "D", weight: 5 }
+          ],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "C",
+          [
+            { nameOfVertex: "A", weight: 3 },
+            { nameOfVertex: "B", weight: 6 },
+            { nameOfVertex: "E", weight: 8 },
+            { nameOfVertex: "D", weight: 11 }
+          ],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "D",
+          [
+            { nameOfVertex: "B", weight: 5 },
+            { nameOfVertex: "C", weight: 11 },
+            { nameOfVertex: "E", weight: 2 },
+            { nameOfVertex: "F", weight: 2 }
+          ],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "E",
+          [
+            { nameOfVertex: "A", weight: 7 },
+            { nameOfVertex: "C", weight: 8 },
+            { nameOfVertex: "D", weight: 2 },
+            { nameOfVertex: "G", weight: 5 }
+          ],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "F",
+          [{ nameOfVertex: "D", weight: 2 }, { nameOfVertex: "G", weight: 3 }],
+          1
+        )
+      );
+      dijkstra.addVertex(
+        new Vertex(
+          "G",
+          [
+            { nameOfVertex: "D", weight: 10 },
+            { nameOfVertex: "E", weight: 5 },
+            { nameOfVertex: "F", weight: 3 }
+          ],
+          1
+        )
+      );
+      console.log(dijkstra.findShortestWay("A", "F"));
+
+      */
+    }
+
+    start() {
+      if (this.saveGameObj.gameIsSaved()) {
+        this.processSavedGameMulti();
+      } else {
+        this.setUpScene("city");
+        this.playerMenu.openOnStart();
+        this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
+      }
+      this.mainCamera = this.cameras.main;
+      this.mainCamera.startFollow(this.player, true, 0.15, 1);
+      this.started = true;
     }
 
     setUpScene(name: string) {
-      console.log("setup scene");
+      //console.log("setup scene");
       gameData.ingame.scenes.forEach(element => {
         if (element.name === name) {
           this.saveGameObj.setScene(name);
+          this.currentScene = element;
+
+          /* clear all elements */
+          this.groupAll.runChildUpdate = false;
+          this.tweens.killAll();
+          this.time.removeAllEvents();
+          this.groupAll.clear(true, true);
+          this.groupCity.clear(true, true);
+          /* ---------------------------- */
+          this.setBackground(element.parallax, element.buildings);
+
           element.startItems.forEach(itemId => {
             this.gameItemsUtils.addItem(itemId);
           });
+
+          this.groupAll.runChildUpdate = true;
+
+          this.cameras.main.setBounds(
+            element.cameraBounds.x,
+            element.cameraBounds.y,
+            element.cameraBounds.width,
+            element.cameraBounds.height
+          );
+
+          if (
+            element.playerPosition.x != null &&
+            element.playerPosition.y != null
+          ) {
+            this.player
+              .setX(element.playerPosition.x)
+              .setY(element.playerPosition.y)
+              .setDepth(element.playerPosition.y);
+          } else {
+            this.player
+              .setX(element.playerStartPosition.x)
+              .setY(element.playerStartPosition.y)
+              .setDepth(element.playerStartPosition.y);
+          }
+
+          //this.gameUtils.composeVertexMap(element);
+          if (this.graphics != undefined) this.graphics.clear();
+          this.setSceneBounds(element.bounds, element.vertexList);
+          this.setSceneObstacles(element.obstacles, element.vertexList);
         }
       });
 
       this.saveGameObj.updateItems();
     }
 
+    setBackground(parallaxes: Array<any>, buildings: Array<any>) {
+      //console.log(parallaxes, buildings);
+      let parallax: Phaser.GameObjects.TileSprite;
+
+      parallaxes.forEach(element => {
+        parallax = this.add.tileSprite(
+          element.x,
+          element.y,
+          element.w,
+          element.h,
+          element.s
+        );
+        parallax
+          .setZ(element.scrollFactor)
+          .setScrollFactor(0)
+          .setOrigin(0, 0)
+          .setDepth(element.depth);
+
+        this.parallax.push(parallax);
+
+        this.groupCity.add(parallax);
+      });
+
+      //console.log(this.parallax);
+
+      let building: Phaser.GameObjects.Image;
+
+      buildings.forEach(element => {
+        building = this.add.image(element.x, element.y, element.s, 0);
+
+        if (element.sf) building.setScrollFactor(0);
+        if (element.depth != undefined) building.setDepth(element.depth);
+        if (element.soZeroOne) {
+          building.setOrigin(0, 1);
+        } else {
+          building.setOrigin(0, 0);
+        }
+        this.groupCity.add(building);
+      });
+    }
+
+    setSceneObstacles(obstacles: Array<any>, vertexList: any): void {
+      return;
+
+      obstacles.forEach(obstacle => {
+        obstacle.bounds.forEach((bound: any) => {
+          this.graphics = this.add.graphics();
+          this.graphics.lineStyle(2, 0x00ff00, 1);
+          this.graphics.lineBetween(
+            vertexList[bound[0]].x,
+            vertexList[bound[0]].y,
+            vertexList[bound[1]].x,
+            vertexList[bound[1]].y
+          );
+        });
+      });
+    }
+
+    setSceneBounds(bounds: Array<any>, vertexList: any): void {
+      this.sceneBounds = [];
+      bounds.forEach((bound: any) => {
+        this.sceneBounds.push(
+          new Phaser.Geom.Line(
+            vertexList[bound[0]].x,
+            vertexList[bound[0]].y,
+            vertexList[bound[1]].x,
+            vertexList[bound[1]].y
+          )
+        );
+
+        /* this.graphics = this.add.graphics();
+        this.graphics.lineStyle(2, 0x00ff00, 1);
+        this.graphics.lineBetween(
+          vertexList[bound[0]].x,
+          vertexList[bound[0]].y,
+          vertexList[bound[1]].x,
+          vertexList[bound[1]].y
+        );*/
+      });
+    }
+
     processSavedGameMulti(): void {
       let _saved = this.saveGameObj.getSaved();
 
-      console.log(_saved);
+      //console.log(_saved);
 
       this.currentChapter = _saved.chapter.current;
       if (_saved.chapter.choice == null) {
         this.displayChapterOptions();
       }
 
+      //this.setUpScene(_saved.currentScene);
+
       _saved.scenes.forEach(element => {
         if (element.name == _saved.currentScene) {
-          console.log(element);
+          //console.log(element);
           _saved.items = element.items;
+          this.cameras.main.setBounds(
+            element.cameraBounds.x,
+            element.cameraBounds.y,
+            element.cameraBounds.width,
+            element.cameraBounds.height
+          );
           this.player.x = element.playerPosition.x;
           this.player.y = element.playerPosition.y;
+          this.currentScene = element;
+          //console.log(element);
+          this.setBackground(element.parallax, element.buildings);
+          // this.gameUtils.composeVertexMap(element);
+          if (this.graphics != undefined) this.graphics.clear();
+          this.setSceneBounds(element.bounds, element.vertexList);
+          this.setSceneObstacles(element.obstacles, element.vertexList);
         }
       });
 
@@ -381,11 +542,10 @@ namespace z89 {
     }
 
     update(time, delta) {
-      if (this.mainCamera.scrollX >= 0 && this.mainCamera.scrollX <= 2590) {
-        this.bgLevel1.tilePositionX = this.mainCamera.scrollX * 0.2;
-        this.bgLevel2.tilePositionX = this.mainCamera.scrollX * 0.7;
-        this.street.tilePositionX = this.mainCamera.scrollX * 1.1;
-        this.front.tilePositionX = this.mainCamera.scrollX * 1.25;
+      if (this.started) {
+        this.parallax.forEach(element => {
+          element.tilePositionX = this.mainCamera.scrollX * element.z;
+        });
       }
 
       // console.log([ 'x: ' + this.mainCamera.scrollX, 'y: ' + this.mainCamera.scrollY ]);
@@ -397,42 +557,6 @@ namespace z89 {
         if (!element.completed) element.complete(this);
       });
       this.enableInteraction();
-    }
-
-    processSavedGame(): void {
-      let _saved = this.saveGameObj.getSaved();
-
-      //console.log(_saved);
-      this.currentChapter = _saved.chapter.current;
-      if (_saved.chapter.choice == null) {
-        this.displayChapterOptions();
-      }
-
-      this.player.x = _saved.position.x;
-      this.player.y = _saved.position.y;
-
-      if (_saved.items != undefined) {
-        this.gameItemsUtils.addSavedItems(_saved.items);
-      }
-
-      if (_saved.inventory != undefined && _saved.inventory.length > 0) {
-        _saved.inventory.forEach(element => {
-          //console.log("add from cache" + element);
-          if (!this.playerActions.isInInventory(element.id)) {
-            let item: any;
-            // console.log(element.type )
-            switch (element.type) {
-              default:
-                this.groupAll.add(new Items(this, element));
-                break;
-            }
-
-            //console.log(element,this.getItemSpriteId(element))
-
-            this.addInventoryItem(this.gameItemsUtils.getItemById(element.id));
-          }
-        });
-      }
     }
 
     getItem(id: number) {
@@ -465,6 +589,15 @@ namespace z89 {
       this.player.showBaloonExtra(_obj);
     }
 */
+
+    transitionShow(callback: any): void {
+      this.transition.show(callback, 1);
+    }
+
+    transitionHide(): void {
+      this.transition.hide();
+    }
+
     setCurrentItem(_item: Items): void {
       this.currentItem = _item;
     }
@@ -711,6 +844,11 @@ namespace z89 {
 
     updateItems(): void {
       this.saveGameObj.updateItems();
+    }
+
+    showViewer(images: Array<any>, callback?: any): void {
+      this.viewer.show(images, callback);
+      //console.log("showViewer");
     }
   }
 }

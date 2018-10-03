@@ -31,7 +31,7 @@ namespace z89 {
 
       this.id = itemObj.id;
       this.itemObj = itemObj;
-      this.name = itemObj.name;
+      this.name = z89.getLabel(itemObj.name);
       this.interactive = itemObj.interactive;
       this.contexts = itemObj.contexts;
       if (isOnline()) {
@@ -47,6 +47,8 @@ namespace z89 {
         .setTint(0x555555)
         .setDepth(this.y + 1)
         .setName("contentImage");
+
+      this.scene.groupCity.add(this.contentImage);
 
       Phaser.Display.Align.In.TopCenter(this.contentImage, this);
 
@@ -67,12 +69,21 @@ namespace z89 {
       // content text
       //+++++++++++++++++++++++++
 
+      this.guru = this.scene.add.sprite(0, 0, "guru-meditation");
+      this.guru.setOrigin(0.5).setDepth(this.y + 1);
 
-      this.guru=this.scene.add.sprite(0,0,"guru-meditation");
-      this.guru.setOrigin(.5).setDepth(this.y + 1);
+      this.guruTween = this.scene.tweens.add({
+        targets: this.guru,
+        delay: 1000,
+        duration: 1000,
+        alpha: 0,
+        yoyo: true,
+        loopDelay: 1000,
+        loop: -1
+      });
+      Phaser.Display.Align.In.TopCenter(this.guru, this.contentImage, 0, -20);
 
-      this.guruTween=this.scene.tweens.add({targets:this.guru,delay:1000, duration:1000, alpha:0, yoyo:true,  loopDelay: 1000, loop:-1})
-      Phaser.Display.Align.In.TopCenter(this.guru, this.contentImage,0,-20);
+      this.scene.groupCity.add(this.guru);
 
       let _style = {
         fill: "#00ff00",
@@ -80,7 +91,12 @@ namespace z89 {
         //stroke: "#000000",
         //strokeThickness: 5
       };
-      this.contentTextTitle = this.scene.add.text(0, 0, "        Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338", _style);
+      this.contentTextTitle = this.scene.add.text(
+        0,
+        0,
+        "        Software Failure.         Press any key to continue\n    Guru Meditation          #00000025.65045338",
+        _style
+      );
       this.contentTextTitle
         .setFontFamily("Roboto")
         .setFontSize(16)
@@ -88,8 +104,14 @@ namespace z89 {
         .setDepth(this.y + 1)
         .setWordWrapWidth(380);
 
-      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this.contentImage,-20,-40);
+      Phaser.Display.Align.In.TopCenter(
+        this.contentTextTitle,
+        this.contentImage,
+        -20,
+        -40
+      );
 
+      this.scene.groupCity.add(this.contentTextTitle);
 
       this.contentTextDescription = this.scene.add.text(0, 0, "", _style);
       this.contentTextDescription
@@ -99,10 +121,16 @@ namespace z89 {
         .setDepth(this.y + 1)
         .setWordWrapWidth(380);
 
-      Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle,-20,-20);
-      
+      Phaser.Display.Align.To.BottomCenter(
+        this.contentTextDescription,
+        this.contentTextTitle,
+        -20,
+        -20
+      );
 
-      this.contentTextDate= this.scene.add.text(0, 0, "", _style);
+      this.scene.groupCity.add(this.contentTextDescription);
+
+      this.contentTextDate = this.scene.add.text(0, 0, "", _style);
       this.contentTextDate
         .setFontFamily("Roboto")
         .setFontSize(16)
@@ -110,7 +138,14 @@ namespace z89 {
         .setDepth(this.y + 1)
         .setWordWrapWidth(380);
 
-      Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription,-20,-20);
+      Phaser.Display.Align.To.BottomCenter(
+        this.contentTextDate,
+        this.contentTextDescription,
+        -20,
+        -20
+      );
+
+      this.scene.groupCity.add(this.contentTextDate);
 
       //+++++++++++++++++++++++++
       // spinner
@@ -121,6 +156,8 @@ namespace z89 {
         .setAlpha(0)
         .setDepth(this.y + 1);
       Phaser.Display.Align.In.Center(this.spinner, this.contentImage);
+
+      this.scene.groupCity.add(this.spinner);
 
       //+++++++++++++++++++++++++
       // Arrow left
@@ -150,7 +187,7 @@ namespace z89 {
         },
         this
       );
-
+      this.scene.groupCity.add(this.arrowLeft);
       //+++++++++++++++++++++++++
       // Arrow right
       //+++++++++++++++++++++++++
@@ -179,6 +216,7 @@ namespace z89 {
         },
         this
       );
+      this.scene.groupCity.add(this.arrowRight);
 
       //+++++++++++++++++++++++++
       // readmore
@@ -203,13 +241,22 @@ namespace z89 {
         54
       );
 
+      this.scene.groupCity.add(this.btnGo);
 
-      this.btnGoText = this.scene.add.bitmapText(0, 0, "commodore", "Read More", 16);
+      this.btnGoText = this.scene.add.bitmapText(
+        0,
+        0,
+        "commodore",
+        "Read More",
+        16
+      );
       this.btnGoText
         .setOrigin(0.5)
         .setAlpha(0)
-        .setDepth(this.y + 1)
+        .setDepth(this.y + 1);
       Phaser.Display.Align.In.Center(this.btnGoText, this.btnGo);
+
+      this.scene.groupCity.add(this.btnGoText);
 
       this.scene.add.existing(this);
 
@@ -221,14 +268,14 @@ namespace z89 {
       // this.filtersArr.push(new convergenceShader(this.game));
       // if (this.itemObj.isStarted) this.start();
 
-
       if (this.itemObj.isStarted) this.start();
     }
 
     start(): void {
-
-      if(!isOnline()){ this.displayOffline(); return;}
-
+      if (!isOnline()) {
+        this.displayOffline();
+        return;
+      }
 
       this.guruTween.stop();
       this.guru.destroy();
@@ -241,7 +288,7 @@ namespace z89 {
       });
 
       this.scene.tweens.add({
-        targets: [this.btnGo,this.arrowLeft, this.arrowRight, this.btnGoText],
+        targets: [this.btnGo, this.arrowLeft, this.arrowRight, this.btnGoText],
         alpha: 1,
         onComplete: () => {}
       });
@@ -325,20 +372,24 @@ namespace z89 {
       return this.interactive;
     }
 
-
-   displayOffline():void{
-
-
-
-   };
+    displayOffline(): void {}
 
     hideContent(): void {
-
-      if(!isOnline()){ this.displayOffline(); return;}
+      if (!isOnline()) {
+        this.displayOffline();
+        return;
+      }
       this.isAnimating = true;
 
       this.scene.tweens.add({
-        targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.contentImage, this.btnGo, this.btnGoText],
+        targets: [
+          this.contentTextTitle,
+          this.contentTextDescription,
+          this.contentTextDate,
+          this.contentImage,
+          this.btnGo,
+          this.btnGoText
+        ],
         alpha: 0,
         duration: 300
       });
@@ -364,45 +415,64 @@ namespace z89 {
     }
 
     showContent(): void {
-      if(!isOnline()){ this.displayOffline(); return;}
+      if (!isOnline()) {
+        this.displayOffline();
+        return;
+      }
       this.scene.tweens.add({ targets: this.spinner, alpha: 0, duration: 300 });
-      let _title:string="", _description="", _date="";
+      let _title: string = "",
+        _description = "",
+        _date = "";
 
-  
       if (this.contents[this.currentIndex].a != undefined) {
         let _json = JSON.parse(this.contents[this.currentIndex].a);
-
 
         if (_json.link != undefined) {
           this.contents[this.currentIndex].url = _json.link;
         }
 
         if (_json.dd != undefined) {
-          _title = "DEVDAY " + _json.dd
+          _title = "DEVDAY " + _json.dd;
           _description = this.contents[this.currentIndex].t;
-
-        }else{
-
+        } else {
           _title = this.contents[this.currentIndex].t;
-
         }
 
-        if (_json.date != undefined)  _date =  _json.date;
+        if (_json.date != undefined) _date = _json.date;
       }
 
       //console.log(_title,_description,_date)
 
-      this.contentTextTitle.setText(_title).setColor("#ffffff").setFontSize(30);
-      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this,null, -20);
+      this.contentTextTitle
+        .setText(_title)
+        .setColor("#ffffff")
+        .setFontSize(30);
+      Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this, null, -20);
 
       this.contentTextDescription.setText(_description).setFontSize(20);
-      Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle,null,10);
+      Phaser.Display.Align.To.BottomCenter(
+        this.contentTextDescription,
+        this.contentTextTitle,
+        null,
+        10
+      );
 
       this.contentTextDate.setText(_date).setColor("#ffffff");
-      Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription,null,20);
+      Phaser.Display.Align.To.BottomCenter(
+        this.contentTextDate,
+        this.contentTextDescription,
+        null,
+        20
+      );
 
       this.scene.tweens.add({
-        targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],
+        targets: [
+          this.contentTextTitle,
+          this.contentTextDescription,
+          this.contentTextDate,
+          this.btnGo,
+          this.btnGoText
+        ],
         alpha: 1,
         duration: 500,
         onComplete: () => {

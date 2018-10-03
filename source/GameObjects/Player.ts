@@ -15,8 +15,8 @@ namespace z89 {
 
   export class Player extends Phaser.GameObjects.Sprite {
     scene: GameCity;
-    private yMin: number = 654 - 48;
-    private yMax: number = 720;
+    // private yMin: number = 606;
+    // private yMax: number = 720;
     private direction: PlayerDirection = PlayerDirection.RIGHT;
     private playerState: PlayerStates = PlayerStates.IDLE;
     private playerTween: Phaser.Tweens.Tween;
@@ -106,17 +106,17 @@ namespace z89 {
     private customPipeline: any;
 
     constructor(scene: GameCity) {
-      super(scene, 300, 650 - 48, "player");
+      super(scene, 0, 0, "player");
 
       //this.setPipeline("testPipeline");
       //this.pipeline.setFloat2('uResolution', this.width, this.height);
-      this.scene.input.keyboard.on("keyup", event => {
+      /*this.scene.input.keyboard.on("keyup", event => {
         //console.log("player",event.key);
         if (event.key == "p") {
           // console.log("punch");
           this.playAnimation("player-punch");
         }
-      });
+      });*/
 
       this.scene = scene;
 
@@ -160,6 +160,7 @@ namespace z89 {
         .setScale(1)
         .setY(608)
         .setAlpha()
+        .setDepth(this.y)
 
         .setInteractive(
           new Phaser.Geom.Rectangle(33, 0, 60, 80),
@@ -193,7 +194,7 @@ namespace z89 {
     }
 
     goTo(_x: number, _y: number, _item?: Items): void {
-      // console.log(_x, _y, _item, this.scene.currentItem);
+      //console.log(_x, _y, _item, this.scene.currentItem);
 
       //console.log(this.isTalking());
       this.hideBaloon();
@@ -213,12 +214,6 @@ namespace z89 {
       )
         return;
 
-      // this.scene.playerActions.hide();
-
-      /*
-      if (this.scene.currentItem == undefined && _item == undefined)
-        this.scene.playerActions.hide();
- */
       if (
         this.scene.playerActions.IsOpen() &&
         // (this.scene.currentItem == undefined || this.scene.currentItem == null) &&
@@ -228,13 +223,6 @@ namespace z89 {
         this.scene.playerActions.hide();
       }
 
-      if (this.playerTween != null) {
-        this.playerTween.stop();
-      } else {
-        //if (_item!=null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)>40)
-        // { console.log(Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y));
-        this.playAnimation("player-walk");
-      }
       // else{}
 
       if (_item == undefined) this.scene.currentItem = null;
@@ -251,31 +239,83 @@ namespace z89 {
 
       let _intersect: any = this.checkIntersect({ x1: _x, y1: _y + 1 });
 
+      //console.log(_intersect);
+
       if (_intersect.point != null) {
-        let _offset: number = 0;
+        let _offsetY: number = 0;
+        let _offsetX: number = 0;
+
         if (this.y < _intersect.point.y) {
-          _offset = -5;
+          _offsetY = -5;
         } else {
-          _offset = +5;
+          _offsetY = 5;
         }
-        _x = _intersect.point.x;
-        _y = _intersect.point.y + _offset;
-        _item = null;
+
+        if (this.x < _intersect.point.x) {
+          _offsetX = -5;
+        } else {
+          _offsetX = 5;
+        }
+
+        _x = _intersect.point.x + _offsetX;
+        _y = _intersect.point.y + _offsetY;
         this.intersect = true;
+
+        /*  var graphics = this.scene.add.graphics({
+          fillStyle: { color: 0xff0000 }
+        });
+        var point1 = new Phaser.Geom.Point(_x, _y); // point at 0/0
+        graphics.fillPointShape(point1, 2);
+        */
       }
 
-      if (_y > this.yMax) _y = this.yMax;
-      if (_y < this.yMin) _y = this.yMin;
+      let distance: number = Phaser.Math.Distance.Between(
+        this.x,
+        this.y,
+        _x,
+        _y
+      );
 
-      let distance: number;
       let distanceX: number = Phaser.Math.Distance.Between(this.x, 0, _x, 0);
       let distanceY: number = Phaser.Math.Distance.Between(0, this.y, 0, _y);
+      //console.log("distance:" + distance, "y:" + distanceX, "x:" + distanceY);
 
+      if (this.playerTween != null) {
+        this.playerTween.stop();
+      } else {
+        this.playAnimation("player-walk");
+      }
+
+      if (distance < 10 || (distanceX < 10 && distanceY < 10)) {
+        this.playAnimation("player-idle");
+
+        this.setDepth(this.y);
+        this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
+
+        if (_item != null) {
+          this.scene.setCurrentItem(_item);
+
+          if (this.x < _item.x) {
+            if (this.direction == PlayerDirection.LEFT) this.changeDirection();
+          } else {
+            if (this.direction == PlayerDirection.RIGHT) this.changeDirection();
+          }
+
+          this.scene.playerActions.doActionSequence(_item);
+
+          // console.log(_item);
+          if (_item.isInteractive()) this.scene.playerActions.show();
+        }
+
+        return;
+      }
+
+      /*
       if (distanceX > distanceY) {
         distance = distanceX;
       } else {
         distance = distanceY;
-      }
+      }*/
 
       this.playerTween = this.scene.tweens.add({
         targets: this,
@@ -285,20 +325,18 @@ namespace z89 {
         duration: 7.5 * distance,
         loop: 0,
         onCompleteParams: [this.intersect],
+        onUpdate: () => {
+          this.setDepth(this.y);
+        },
         onComplete: () => {
-          //console.log(this.x,this.y);
-          this.depth = this.y;
+          //console.log(this.x, this.y, _item);
+
           this.playerTween.stop();
           this.playerTween = null;
           this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
           this.playAnimation("player-idle");
 
-          if (
-            _item != null &&
-            (Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y) <
-              150 ||
-              _item.itemObj.type != 6)
-          ) {
+          if (_item != null) {
             this.scene.setCurrentItem(_item);
 
             if (this.x < _item.x) {
@@ -357,6 +395,12 @@ namespace z89 {
         this.x,
         this.y
       );
+
+      let toLeft: boolean = false;
+      let intersectPoints: Array<Phaser.Geom.Point> = [];
+
+      if (this.x > _toPosition.x1) toLeft = true;
+
       let line2: Phaser.Geom.Line;
       let intersectPoint: Phaser.Geom.Point = new Phaser.Geom.Point();
 
@@ -375,11 +419,58 @@ namespace z89 {
           intersectPoint.setTo(0, 0);
 
           if (Phaser.Geom.Intersects.LineToLine(line1, line2, intersectPoint)) {
-            // console.log(intersectPoint);
-            _obj.point = intersectPoint;
+            //console.log("item intersect", intersectPoint);
+            _obj.point = JSON.parse(JSON.stringify(intersectPoint));
           }
         }
       }, this);
+
+      let distance: number = null;
+      let currentDistance: number = null;
+      let index: number = 0;
+
+      if (_obj.point == null) {
+        this.scene.sceneBounds.forEach((bound: Phaser.Geom.Line) => {
+          intersectPoint.setTo(0, 0);
+
+          if (
+            Phaser.Geom.Intersects.LineToLine(
+              line1,
+              new Phaser.Geom.Line(bound.x1, bound.y1, bound.x2, bound.y2),
+              intersectPoint
+            )
+          ) {
+            //console.log("intersect");
+            //console.log("intersect", intersectPoint);
+
+            intersectPoints.push(JSON.parse(JSON.stringify(intersectPoint)));
+
+            if (toLeft) {
+              //console.log("toleft", intersectPoints[index].x);
+              //intersectPoints[index].x = intersectPoints[index].x + 10;
+            } else {
+              //console.log("tor", intersectPoints[index].x);
+              //intersectPoints[index].x = intersectPoints[index].x - 10;
+            }
+
+            distance = Phaser.Math.Distance.Between(
+              this.x,
+              this.y,
+              intersectPoints[index].x,
+              intersectPoints[index].y
+            );
+
+            if (distance < currentDistance || currentDistance == null) {
+              currentDistance = distance;
+              //console.log(currentDistance);
+              _obj.point = intersectPoints[index];
+            }
+            index++;
+          }
+        });
+      }
+
+      // console.log(_obj);
 
       return _obj;
     }
@@ -415,7 +506,7 @@ namespace z89 {
       let color2 = new Phaser.Display.Color(255, 255, 255);
       let color1 = new Phaser.Display.Color(0, 255, 0);
       this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
-
+      this.setDepth(this.y);
       let tweenBeam: Phaser.Tweens.Tween = this.scene.tweens.add({
         targets: beam,
         scaleX: 1,
@@ -535,10 +626,8 @@ namespace z89 {
     }
 
     update(): void {
+      //console.log("update player");
       //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
-
-      this.setDepth(this.y);
-
       //  console.log(this.name,this.depth)
       /*
             this.body.velocity.x = 0;

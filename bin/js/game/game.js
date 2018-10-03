@@ -22,81 +22,86 @@ var z89;
             graphics.fillStyle(0xffff00, 1);
             graphics.fillRect(0, 0, 265, 50);
             graphics.generateTexture("roundedBtn", 265, 50);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 1080, 720);
             graphics.generateTexture("menu-phone-bg", 1080, 720);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 40, 40);
             graphics.generateTexture("keyboardKey", 40, 40);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 250, 50);
             graphics.generateTexture("menuActionBtn", 250, 50);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 300, 720);
             graphics.generateTexture("menuAction", 300, 720);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 340, 50);
             graphics.generateTexture("baloonBg", 340, 50);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0xffffff, 1);
             graphics.fillRect(0, 0, 340, 5);
             graphics.generateTexture("baloonBorder", 340, 5);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0xffffff, 1);
             graphics.fillTriangle(0, 12.5, 25, 12.5, 12.5, 25);
             graphics.generateTexture("baloonPin", 25, 25);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x00ff00, 1);
             graphics.fillRect(0, 0, 300, 50);
             graphics.generateTexture("forkBtn", 300, 50);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x00ff00, 1);
             graphics.fillRect(0, 0, 50, 50);
             graphics.generateTexture("btn", 50, 50);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x00ff00, 1);
             graphics.fillRect(0, 0, 316, 52);
             graphics.generateTexture("skill", 316, 52);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x000000, 1);
             graphics.fillRect(0, 0, 640, 400);
             graphics.generateTexture("terminale", 640, 400);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.fillStyle(0x206000, 1);
             graphics.fillRect(0, 0, 300, 20);
             graphics.generateTexture("phone-options", 300, 20);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
             graphics.lineStyle(10, 0x00ff00, 1);
             graphics.strokeRect(0, 0, 380, 80);
             graphics.generateTexture("guru-meditation", 380, 80);
-            graphics.clear();
+            //graphics.clear();
             graphics = this.make.graphics({ x: 0, y: 0, add: false });
-            graphics.fillStyle(0x000000, .75);
+            graphics.fillStyle(0x000000, 0.75);
             graphics.fillRect(0, 0, 1080, 200);
             graphics.generateTexture("chapterTitleBg", 1080, 200);
-            graphics.clear();
-            var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
+            //graphics.clear();
+            graphics = this.make.graphics({ x: 0, y: 0, add: false });
+            graphics.fillStyle(0x000000, 1);
+            graphics.fillRect(0, 0, 73, 73);
+            graphics.generateTexture("transitionBlock", 73, 73);
+            //graphics.clear();
+            /*var graphics2 = this.make.graphics({ x: 0, y: 0, add: false });
             graphics2.fillRect(0, 0, 50, 126);
             graphics2.generateTexture("playerHitArea", 50, 126);
-            graphics2.clear();
+            graphics2.clear();*/
             this.load.bitmapFont("commodore", "assets/fonts/64_0.png", "assets/fonts/64.xml");
             this.load.bitmapFont("commodore2", "assets/fonts/64x32_0.png", "assets/fonts/64x32.xml");
             this.load.spritesheet("cursor", "assets/images/game/terminal/cursor.png", {
@@ -104,7 +109,10 @@ var z89;
                 frameHeight: 16,
                 endFrame: 2
             });
-            if (this.game.device.input.touch && (this.game.device.os.iOS || this.game.device.os.android || this.game.device.os.windowsPhone)) {
+            if (this.game.device.input.touch &&
+                (this.game.device.os.iOS ||
+                    this.game.device.os.android ||
+                    this.game.device.os.windowsPhone)) {
                 z89.setDevice(true);
             }
             else {
@@ -229,10 +237,12 @@ var z89;
         __extends(GameCity, _super);
         function GameCity() {
             var _this = _super.call(this, { key: "GameCity" }) || this;
+            _this.started = false;
             _this.gameCompleted = false;
             // private filters: Array<Phaser.Filter>;
             _this.gameInteraction = true;
             _this.currentChapter = 0;
+            _this.parallax = [];
             return _this;
         }
         GameCity.prototype.preload = function () {
@@ -242,88 +252,33 @@ var z89;
             var _this = this;
             document.getElementsByTagName("body")[0].className = "game";
             console.log("GameCity:create");
-            this.cameras.main.setBounds(0, 0, 3670, 720);
             this.gameItemsUtils = new z89.GameItemsUtils(this);
             this.gameUtils = new z89.GameUtils(this);
             this.saveGameObj = new z89.saveGame(this);
-            //this.physics.world.setBounds(0, 0, 3670, 720);
-            // +++++++++++++++++++++++++++++++++++++++
-            // group city
-            // +++++++++++++++++++++++++++++++++++++++
-            this.groupCity = this.add.group();
-            var bgLevel0 = this.add
+            var backgroundPointer = this.add
                 .image(0, 0, "bg-level0")
                 .setInteractive()
                 .setScrollFactor(0)
                 .setOrigin(0, 0);
-            this.groupCity.add(bgLevel0);
-            //palazzi sfondo bg lvl1
-            this.bgLevel1 = this.add
-                .tileSprite(0, 0, 1080, 642, "bg-level1")
-                .setScrollFactor(0)
-                .setOrigin(0, 0);
-            this.groupCity.add(this.bgLevel1);
-            //palazzi group bg lvl2
-            this.bgLevel2 = this.add
-                .tileSprite(0, 55, 1080, 548, "bg-level2")
-                .setScrollFactor(0)
-                .setOrigin(0, 0);
-            this.groupCity.add(this.bgLevel2);
-            var street = this.add
-                .image(0, 592, "street-level0")
-                .setScrollFactor(0)
-                .setOrigin(0, 0);
-            this.groupCity.add(street);
-            var buildings = [
-                { s: "bg-home", x: 0, y: 640 - 48 },
-                { s: "bg-devday", x: 624, y: 640 - 48 },
-                { s: "bg-skills", x: 1114, y: 640 - 48 },
-                { s: "bg-cake", x: 1550, y: 640 - 36 },
-                { s: "bg-arcade", x: 1800, y: 640 - 48 },
-                { s: "bg-aerosol", x: 2400, y: 640 - 48 },
-                { s: "bg-contact", x: 3000, y: 640 - 36 }
-            ];
-            var building;
-            buildings.forEach(function (element) {
-                building = _this.add.image(element.x, element.y, element.s, 0);
-                building.setOrigin(0, 1);
-            });
             // +++++++++++++++++++++++++++++++++++++++
-            // group street
+            // group city
             // +++++++++++++++++++++++++++++++++++++++
-            this.groupStreet = this.add.group();
-            this.street = this.add
-                .tileSprite(0, 703 - 48, 1080, 65, "street-level1")
-                .setScrollFactor(0)
-                .setOrigin(0, 0);
-            this.groupStreet.add(this.street);
+            this.groupCity = this.add.group();
             // +++++++++++++++++++++++++++++++++++++++
             // group All
             // +++++++++++++++++++++++++++++++++++++++
             this.groupAll = this.add.group();
             this.groupAll.runChildUpdate = true;
-            this.player = new z89.Player(this);
-            this.groupAll.add(this.player);
-            // +++++++++++++++++++++++++++++++++++++++
-            // group Front
-            // +++++++++++++++++++++++++++++++++++++++
-            this.groupFront = this.add.group();
-            this.front = this.add
-                .tileSprite(0, 768 - 93 - 48, 1080, 720, "street-level2")
-                .setScrollFactor(0)
-                .setOrigin(0, 0)
-                .setDepth(800);
-            this.groupFront.add(this.front);
             // +++++++++++++++++++++++++++++++++++++++
             // group Baloon
             // +++++++++++++++++++++++++++++++++++++++
-            this.groupBaloon = this.add.group();
+            // this.groupBaloon = this.add.group();
             this.playerBaloon = new z89.PlayerBaloon(this);
             this.playerBaloon.setDepth(900);
-            this.groupBaloon.add(this.playerBaloon);
+            //this.groupBaloon.add(this.playerBaloon);
             this.conversationBaloon = new z89.conversationBaloon(this, 0, 0);
             this.conversationBaloon.setDepth(900);
-            this.groupBaloon.add(this.conversationBaloon);
+            //this.groupBaloon.add(this.conversationBaloon);
             // +++++++++++++++++++++++++++++++++++++++
             // group Action
             // +++++++++++++++++++++++++++++++++++++++
@@ -340,34 +295,24 @@ var z89;
             this.Terminal = new z89.Terminal(this);
             this.Terminal.setDepth(2000);
             // +++++++++++++++++++++++++++++++++++++++
+            // group transition
+            // +++++++++++++++++++++++++++++++++++++++
+            this.transition = new z89.Transition(this);
+            this.transition.setDepth(2001);
+            // +++++++++++++++++++++++++++++++++++++++
+            // group Action
+            // +++++++++++++++++++++++++++++++++++++++
+            this.viewer = new z89.Viewer(this);
+            this.viewer.setDepth(2002);
+            // +++++++++++++++++++++++++++++++++++++++
             // saved game
             // +++++++++++++++++++++++++++++++++++++++
-            /*
-            if (this.saveGameObj.gameIsSaved()) {
-              this.processSavedGame();
-            } else {
-            
-              gameData.ingame.items.forEach(element => {
-                if (element.onStart) {
-                  this.gameItemsUtils.addItem(element.id);
-                }
-              });
-      
-              this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
-              this.saveGameObj.updateItems();
-      
-              this.playerMenu.openOnStart();
-            }
-            */
-            if (this.saveGameObj.gameIsSaved()) {
-                this.processSavedGameMulti();
-            }
-            else {
-                this.setUpScene("city");
-                this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
-                this.saveGameObj.updateItems();
-                this.playerMenu.openOnStart();
-            }
+            this.player = new z89.Player(this);
+            this.player.setAlpha(0);
+            this.transition.show(function () {
+                _this.start();
+                _this.transition.hide();
+            }, 1);
             /* var cursors = this.input.keyboard.createCursorKeys();
       
             var controlConfig = {
@@ -384,12 +329,10 @@ var z89;
             this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(
               controlConfig
             );*/
-            this.mainCamera = this.cameras.main;
-            this.mainCamera.startFollow(this.player, true, 0.15, 1);
             // +++++++++++++++++++++++++++++++++++++++
             // GROUND
             // +++++++++++++++++++++++++++++++++++++++
-            bgLevel0.on("pointerdown", function (ground) {
+            backgroundPointer.on("pointerdown", function (ground) {
                 if (!_this.gameInteraction)
                     return;
                 //if (this.playerActions.IsOpen()) this.playerActions.hide();
@@ -441,34 +384,224 @@ var z89;
             //this.shootFromHigh([27]);
             //accessible global instance for backend ajax call
             _gamecity = this;
+            /*
+            let dijkstra = new Dijkstra();
+            dijkstra.addVertex(
+              new Vertex(
+                "A",
+                [
+                  { nameOfVertex: "C", weight: 3 },
+                  { nameOfVertex: "E", weight: 7 },
+                  { nameOfVertex: "B", weight: 4 }
+                ],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "B",
+                [
+                  { nameOfVertex: "A", weight: 4 },
+                  { nameOfVertex: "C", weight: 6 },
+                  { nameOfVertex: "D", weight: 5 }
+                ],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "C",
+                [
+                  { nameOfVertex: "A", weight: 3 },
+                  { nameOfVertex: "B", weight: 6 },
+                  { nameOfVertex: "E", weight: 8 },
+                  { nameOfVertex: "D", weight: 11 }
+                ],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "D",
+                [
+                  { nameOfVertex: "B", weight: 5 },
+                  { nameOfVertex: "C", weight: 11 },
+                  { nameOfVertex: "E", weight: 2 },
+                  { nameOfVertex: "F", weight: 2 }
+                ],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "E",
+                [
+                  { nameOfVertex: "A", weight: 7 },
+                  { nameOfVertex: "C", weight: 8 },
+                  { nameOfVertex: "D", weight: 2 },
+                  { nameOfVertex: "G", weight: 5 }
+                ],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "F",
+                [{ nameOfVertex: "D", weight: 2 }, { nameOfVertex: "G", weight: 3 }],
+                1
+              )
+            );
+            dijkstra.addVertex(
+              new Vertex(
+                "G",
+                [
+                  { nameOfVertex: "D", weight: 10 },
+                  { nameOfVertex: "E", weight: 5 },
+                  { nameOfVertex: "F", weight: 3 }
+                ],
+                1
+              )
+            );
+            console.log(dijkstra.findShortestWay("A", "F"));
+      
+            */
+        };
+        GameCity.prototype.start = function () {
+            if (this.saveGameObj.gameIsSaved()) {
+                this.processSavedGameMulti();
+            }
+            else {
+                this.setUpScene("city");
+                this.playerMenu.openOnStart();
+                this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
+            }
+            this.mainCamera = this.cameras.main;
+            this.mainCamera.startFollow(this.player, true, 0.15, 1);
+            this.started = true;
         };
         GameCity.prototype.setUpScene = function (name) {
             var _this = this;
-            console.log("setup scene");
+            //console.log("setup scene");
             gameData.ingame.scenes.forEach(function (element) {
                 if (element.name === name) {
                     _this.saveGameObj.setScene(name);
+                    _this.currentScene = element;
+                    /* clear all elements */
+                    _this.groupAll.runChildUpdate = false;
+                    _this.tweens.killAll();
+                    _this.time.removeAllEvents();
+                    _this.groupAll.clear(true, true);
+                    _this.groupCity.clear(true, true);
+                    /* ---------------------------- */
+                    _this.setBackground(element.parallax, element.buildings);
                     element.startItems.forEach(function (itemId) {
                         _this.gameItemsUtils.addItem(itemId);
                     });
+                    _this.groupAll.runChildUpdate = true;
+                    _this.cameras.main.setBounds(element.cameraBounds.x, element.cameraBounds.y, element.cameraBounds.width, element.cameraBounds.height);
+                    if (element.playerPosition.x != null &&
+                        element.playerPosition.y != null) {
+                        _this.player
+                            .setX(element.playerPosition.x)
+                            .setY(element.playerPosition.y)
+                            .setDepth(element.playerPosition.y);
+                    }
+                    else {
+                        _this.player
+                            .setX(element.playerStartPosition.x)
+                            .setY(element.playerStartPosition.y)
+                            .setDepth(element.playerStartPosition.y);
+                    }
+                    //this.gameUtils.composeVertexMap(element);
+                    if (_this.graphics != undefined)
+                        _this.graphics.clear();
+                    _this.setSceneBounds(element.bounds, element.vertexList);
+                    _this.setSceneObstacles(element.obstacles, element.vertexList);
                 }
             });
             this.saveGameObj.updateItems();
         };
+        GameCity.prototype.setBackground = function (parallaxes, buildings) {
+            var _this = this;
+            //console.log(parallaxes, buildings);
+            var parallax;
+            parallaxes.forEach(function (element) {
+                parallax = _this.add.tileSprite(element.x, element.y, element.w, element.h, element.s);
+                parallax
+                    .setZ(element.scrollFactor)
+                    .setScrollFactor(0)
+                    .setOrigin(0, 0)
+                    .setDepth(element.depth);
+                _this.parallax.push(parallax);
+                _this.groupCity.add(parallax);
+            });
+            //console.log(this.parallax);
+            var building;
+            buildings.forEach(function (element) {
+                building = _this.add.image(element.x, element.y, element.s, 0);
+                if (element.sf)
+                    building.setScrollFactor(0);
+                if (element.depth != undefined)
+                    building.setDepth(element.depth);
+                if (element.soZeroOne) {
+                    building.setOrigin(0, 1);
+                }
+                else {
+                    building.setOrigin(0, 0);
+                }
+                _this.groupCity.add(building);
+            });
+        };
+        GameCity.prototype.setSceneObstacles = function (obstacles, vertexList) {
+            var _this = this;
+            return;
+            obstacles.forEach(function (obstacle) {
+                obstacle.bounds.forEach(function (bound) {
+                    _this.graphics = _this.add.graphics();
+                    _this.graphics.lineStyle(2, 0x00ff00, 1);
+                    _this.graphics.lineBetween(vertexList[bound[0]].x, vertexList[bound[0]].y, vertexList[bound[1]].x, vertexList[bound[1]].y);
+                });
+            });
+        };
+        GameCity.prototype.setSceneBounds = function (bounds, vertexList) {
+            var _this = this;
+            this.sceneBounds = [];
+            bounds.forEach(function (bound) {
+                _this.sceneBounds.push(new Phaser.Geom.Line(vertexList[bound[0]].x, vertexList[bound[0]].y, vertexList[bound[1]].x, vertexList[bound[1]].y));
+                /* this.graphics = this.add.graphics();
+                this.graphics.lineStyle(2, 0x00ff00, 1);
+                this.graphics.lineBetween(
+                  vertexList[bound[0]].x,
+                  vertexList[bound[0]].y,
+                  vertexList[bound[1]].x,
+                  vertexList[bound[1]].y
+                );*/
+            });
+        };
         GameCity.prototype.processSavedGameMulti = function () {
             var _this = this;
             var _saved = this.saveGameObj.getSaved();
-            console.log(_saved);
+            //console.log(_saved);
             this.currentChapter = _saved.chapter.current;
             if (_saved.chapter.choice == null) {
                 this.displayChapterOptions();
             }
+            //this.setUpScene(_saved.currentScene);
             _saved.scenes.forEach(function (element) {
                 if (element.name == _saved.currentScene) {
-                    console.log(element);
+                    //console.log(element);
                     _saved.items = element.items;
+                    _this.cameras.main.setBounds(element.cameraBounds.x, element.cameraBounds.y, element.cameraBounds.width, element.cameraBounds.height);
                     _this.player.x = element.playerPosition.x;
                     _this.player.y = element.playerPosition.y;
+                    _this.currentScene = element;
+                    //console.log(element);
+                    _this.setBackground(element.parallax, element.buildings);
+                    // this.gameUtils.composeVertexMap(element);
+                    if (_this.graphics != undefined)
+                        _this.graphics.clear();
+                    _this.setSceneBounds(element.bounds, element.vertexList);
+                    _this.setSceneObstacles(element.obstacles, element.vertexList);
                 }
             });
             if (_saved.items != undefined) {
@@ -512,11 +645,11 @@ var z89;
             //console.log("restart game");
         };
         GameCity.prototype.update = function (time, delta) {
-            if (this.mainCamera.scrollX >= 0 && this.mainCamera.scrollX <= 2590) {
-                this.bgLevel1.tilePositionX = this.mainCamera.scrollX * 0.2;
-                this.bgLevel2.tilePositionX = this.mainCamera.scrollX * 0.7;
-                this.street.tilePositionX = this.mainCamera.scrollX * 1.1;
-                this.front.tilePositionX = this.mainCamera.scrollX * 1.25;
+            var _this = this;
+            if (this.started) {
+                this.parallax.forEach(function (element) {
+                    element.tilePositionX = _this.mainCamera.scrollX * element.z;
+                });
             }
             // console.log([ 'x: ' + this.mainCamera.scrollX, 'y: ' + this.mainCamera.scrollY ]);
         };
@@ -528,36 +661,6 @@ var z89;
                     element.complete(_this);
             });
             this.enableInteraction();
-        };
-        GameCity.prototype.processSavedGame = function () {
-            var _this = this;
-            var _saved = this.saveGameObj.getSaved();
-            //console.log(_saved);
-            this.currentChapter = _saved.chapter.current;
-            if (_saved.chapter.choice == null) {
-                this.displayChapterOptions();
-            }
-            this.player.x = _saved.position.x;
-            this.player.y = _saved.position.y;
-            if (_saved.items != undefined) {
-                this.gameItemsUtils.addSavedItems(_saved.items);
-            }
-            if (_saved.inventory != undefined && _saved.inventory.length > 0) {
-                _saved.inventory.forEach(function (element) {
-                    //console.log("add from cache" + element);
-                    if (!_this.playerActions.isInInventory(element.id)) {
-                        var item = void 0;
-                        // console.log(element.type )
-                        switch (element.type) {
-                            default:
-                                _this.groupAll.add(new z89.Items(_this, element));
-                                break;
-                        }
-                        //console.log(element,this.getItemSpriteId(element))
-                        _this.addInventoryItem(_this.gameItemsUtils.getItemById(element.id));
-                    }
-                });
-            }
         };
         GameCity.prototype.getItem = function (id) {
             return this.gameItemsUtils.getItemById(id);
@@ -585,6 +688,12 @@ var z89;
           this.player.showBaloonExtra(_obj);
         }
     */
+        GameCity.prototype.transitionShow = function (callback) {
+            this.transition.show(callback, 1);
+        };
+        GameCity.prototype.transitionHide = function () {
+            this.transition.hide();
+        };
         GameCity.prototype.setCurrentItem = function (_item) {
             this.currentItem = _item;
         };
@@ -776,6 +885,10 @@ var z89;
         GameCity.prototype.updateItems = function () {
             this.saveGameObj.updateItems();
         };
+        GameCity.prototype.showViewer = function (images, callback) {
+            this.viewer.show(images, callback);
+            //console.log("showViewer");
+        };
         return GameCity;
     }(Phaser.Scene));
     z89.GameCity = GameCity;
@@ -852,6 +965,8 @@ var z89;
         };
         GameItemsUtils.prototype.beamIn = function (item, callback) {
             var _this = this;
+            if (item == undefined)
+                return;
             item.setAlpha(0);
             var beam = this.scene.add.sprite(item.x, 0, "beam");
             beam
@@ -860,6 +975,7 @@ var z89;
                 .setAlpha(0)
                 .setDepth(item.y)
                 .play("beam");
+            this.scene.groupAll.add(beam);
             /*
             let color2 = new Phaser.Display.Color(255, 255, 255);
             let color1 = new Phaser.Display.Color(0, 255, 0);
@@ -874,6 +990,8 @@ var z89;
                 delay: 1000,
                 repeat: 0,
                 onComplete: function () {
+                    if (item == undefined)
+                        return;
                     _this.scene.tweens.add({
                         targets: item,
                         alpha: 1,
@@ -897,6 +1015,7 @@ var z89;
             var _this = this;
             if (item != undefined) {
                 var beam_1 = this.scene.add.sprite(item.x, 0, "beam");
+                this.scene.groupAll.add(beam_1);
                 beam_1
                     .setScale(0.5, item.y / 200)
                     .setOrigin(0.5, 0)
@@ -1132,6 +1251,11 @@ var z89;
           },
       },*/
     };
+    var transitionType;
+    (function (transitionType) {
+        transitionType[transitionType["standard"] = 0] = "standard";
+        transitionType[transitionType["spiral"] = 1] = "spiral";
+    })(transitionType = z89.transitionType || (z89.transitionType = {}));
     var c64ColorsEnum;
     (function (c64ColorsEnum) {
         c64ColorsEnum[c64ColorsEnum["black"] = 0] = "black";
@@ -1482,9 +1606,16 @@ var languages = {
         "Cake",
         "Cloak of Invisibility",
         "Galaga clone",
-        "Phaser gala",
+        "Phaser congress",
         "Interphone",
-        "Stairs" //217
+        "Stairs",
+        "Photonstorm",
+        "I can't teleport from this location",
+        "commodore 64",
+        "Zak Mc Kracken Poster",
+        "Photo frame",
+        "I was a Phaser speaker @ UNIVERSAL JS DAY 2017.\n Great experience!",
+        "View more" //224
     ],
     it: [
         "distributore bevande",
@@ -1702,9 +1833,16 @@ var languages = {
         "Torta",
         "Mantello di invisibilità",
         "Galaga clone",
-        "Phaser gala",
+        "Phaser Day",
         "Citofono",
-        "Scale" //216
+        "Scale",
+        "Photonstorm",
+        "Non posso teletrasportarmi da qui!",
+        "commodore 64",
+        "Zak Mc Kracken Poster",
+        "Photo frame",
+        "Sono stato speaker agli Universal JS Day 2017.\n Bella esperienza.",
+        "Scopri" //224
     ]
 };
 var actions = {
@@ -1741,6 +1879,7 @@ var gameData = {
     menuBlink: null,
     menuBtns: null,
     actions: actions,
+    transitions: null,
     tips: {
         delay: 10,
         nomore: [112, 113],
@@ -1764,8 +1903,356 @@ var gameData = {
         { s: "clm", v: 80 },
         { s: "tsql", v: 70 },
         { s: "firebase", v: 60 }
-    ]
+    ],
+    photos: {
+        phaser: [
+            {
+                image: "phaser-foto-1",
+                text: "Universal JS day - Ferrara 2017",
+                link: "https://vimeo.com/218937256"
+            },
+            { image: "phaser-foto-2", text: "Hello all!" },
+            { image: "phaser-foto-3", text: "Let's start with phaser!" },
+            { image: "phaser-foto-4", text: "Alert! The game is started..." },
+            { image: "phaser-foto-5", text: "Game Over!" },
+            { image: "phaser-foto-6", text: "Multiplayer example with Firebase..." },
+            { image: "phaser-foto-7", text: "...ready to run!" },
+            { image: "phaser-foto-8", text: "...winners and loosers!" }
+        ],
+        cake: [
+            {
+                image: "cake-foto-1",
+                text: "Angry birds... Daniel 4th!"
+            },
+            { image: "cake-foto-2", text: "Angry birds detail... Daniel 4th!" },
+            { image: "cake-foto-3", text: "Angry birds... Daniel 4th!" },
+            { image: "cake-foto-4", text: "Simple halloween..." },
+            { image: "cake-foto-5", text: "Little doll... Noemi 1th!" },
+            { image: "cake-foto-6", text: "The padawan... Daniel 5th!" },
+            { image: "cake-foto-7", text: "Peppa... Noemi 2nd!" },
+            { image: "cake-foto-8", text: "Dalton... Daniel 6th!" },
+            { image: "cake-foto-9", text: "Minions... Noemi 3th!" },
+            { image: "cake-foto-10", text: "The Dark side... Daniel 7th!" },
+            { image: "cake-foto-11", text: "Frozen... Noemi 4th!" }
+        ]
+    }
 };
+gameData.transitions = [
+    {
+        delay: 5,
+        end: 150,
+        sequence: [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [3, 0],
+            [4, 0],
+            [5, 0],
+            [6, 0],
+            [7, 0],
+            [8, 0],
+            [9, 0],
+            [10, 0],
+            [11, 0],
+            [12, 0],
+            [13, 0],
+            [14, 0],
+            [15, 0],
+            [16, 0],
+            [17, 0],
+            [18, 0],
+            [19, 0],
+            [20, 0],
+            [21, 0],
+            [22, 0],
+            [23, 0],
+            [24, 0],
+            [25, 0],
+            [26, 0],
+            [27, 0],
+            [28, 0],
+            [29, 0],
+            [30, 0],
+            [31, 0],
+            [32, 0],
+            [33, 0],
+            [34, 0],
+            [35, 0],
+            [36, 0],
+            [37, 0],
+            [38, 0],
+            [39, 0],
+            [40, 0],
+            [41, 0],
+            [42, 0],
+            [43, 0],
+            [44, 0],
+            [45, 0],
+            [46, 0],
+            [47, 0],
+            [48, 0],
+            [49, 0],
+            [50, 0],
+            [51, 0],
+            [52, 0],
+            [53, 0],
+            [54, 0],
+            [55, 0],
+            [56, 0],
+            [57, 0],
+            [58, 0],
+            [59, 0],
+            [60, 0],
+            [61, 0],
+            [62, 0],
+            [63, 0],
+            [64, 0],
+            [65, 0],
+            [66, 0],
+            [67, 0],
+            [68, 0],
+            [69, 0],
+            [70, 0],
+            [71, 0],
+            [72, 0],
+            [73, 0],
+            [74, 0],
+            [75, 0],
+            [76, 0],
+            [77, 0],
+            [78, 0],
+            [79, 0],
+            [80, 0],
+            [81, 0],
+            [82, 0],
+            [83, 0],
+            [84, 0],
+            [85, 0],
+            [86, 0],
+            [87, 0],
+            [88, 0],
+            [89, 0],
+            [90, 0],
+            [91, 0],
+            [92, 0],
+            [93, 0],
+            [94, 0],
+            [95, 0],
+            [96, 0],
+            [97, 0],
+            [98, 0],
+            [99, 0],
+            [100, 0],
+            [101, 0],
+            [102, 0],
+            [103, 0],
+            [104, 0],
+            [105, 0],
+            [106, 0],
+            [107, 0],
+            [108, 0],
+            [109, 0],
+            [110, 0],
+            [111, 0],
+            [112, 0],
+            [113, 0],
+            [114, 0],
+            [115, 0],
+            [116, 0],
+            [117, 0],
+            [118, 0],
+            [119, 0],
+            [120, 0],
+            [121, 0],
+            [122, 0],
+            [123, 0],
+            [124, 0],
+            [125, 0],
+            [126, 0],
+            [127, 0],
+            [128, 0],
+            [129, 0],
+            [130, 0],
+            [131, 0],
+            [132, 0],
+            [133, 0],
+            [134, 0],
+            [135, 0],
+            [136, 0],
+            [137, 0],
+            [138, 0],
+            [139, 0],
+            [140, 0],
+            [141, 0],
+            [142, 0],
+            [143, 0],
+            [144, 0],
+            [145, 0],
+            [146, 0],
+            [147, 0],
+            [148, 0],
+            [149, 0],
+            [150, 0]
+        ]
+    },
+    {
+        delay: 5,
+        end: 80,
+        sequence: [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [3, 0],
+            [4, 0],
+            [5, 0],
+            [6, 0],
+            [7, 0],
+            [8, 0],
+            [9, 0],
+            [10, 0],
+            [11, 0],
+            [12, 0],
+            [13, 0],
+            [14, 0],
+            [15, 0],
+            [30, 0],
+            [45, 0],
+            [60, 0],
+            [75, 0],
+            [90, 0],
+            [105, 0],
+            [120, 0],
+            [135, 0],
+            [150, 0],
+            [149, 0],
+            [148, 0],
+            [147, 0],
+            [146, 0],
+            [145, 0],
+            [144, 0],
+            [143, 0],
+            [142, 0],
+            [141, 0],
+            [140, 0],
+            [139, 0],
+            [138, 0],
+            [137, 0],
+            [136, 0],
+            [121, 0],
+            [106, 0],
+            [91, 0],
+            [76, 0],
+            [61, 0],
+            [46, 0],
+            [31, 0],
+            [16, 0],
+            [17, 0],
+            [18, 0],
+            [19, 0],
+            [20, 0],
+            [21, 0],
+            [22, 0],
+            [23, 0],
+            [24, 0],
+            [25, 0],
+            [26, 0],
+            [27, 0],
+            [28, 0],
+            [29, 0],
+            [44, 0],
+            [59, 0],
+            [74, 0],
+            [89, 0],
+            [104, 0],
+            [119, 0],
+            [134, 0],
+            [133, 0],
+            [132, 0],
+            [131, 0],
+            [130, 0],
+            [129, 0],
+            [128, 0],
+            [127, 0],
+            [126, 0],
+            [125, 0],
+            [124, 0],
+            [123, 0],
+            [122, 0],
+            [107, 0],
+            [92, 0],
+            [77, 0],
+            [62, 0],
+            [47, 0],
+            [32, 0],
+            [33, 0],
+            [34, 0],
+            [35, 0],
+            [36, 0],
+            [37, 0],
+            [38, 0],
+            [39, 0],
+            [40, 0],
+            [41, 0],
+            [42, 0],
+            [43, 0],
+            [58, 0],
+            [73, 0],
+            [88, 0],
+            [103, 0],
+            [118, 0],
+            [117, 0],
+            [116, 0],
+            [115, 0],
+            [114, 0],
+            [113, 0],
+            [112, 0],
+            [111, 0],
+            [110, 0],
+            [109, 0],
+            [108, 0],
+            [93, 0],
+            [78, 0],
+            [63, 0],
+            [48, 0],
+            [49, 0],
+            [50, 0],
+            [51, 0],
+            [52, 0],
+            [53, 0],
+            [54, 0],
+            [55, 0],
+            [56, 0],
+            [57, 0],
+            [72, 0],
+            [87, 0],
+            [102, 0],
+            [101, 0],
+            [100, 0],
+            [99, 0],
+            [98, 0],
+            [97, 0],
+            [96, 0],
+            [95, 0],
+            [94, 0],
+            [79, 0],
+            [64, 0],
+            [65, 0],
+            [66, 0],
+            [67, 0],
+            [68, 0],
+            [69, 0],
+            [70, 0],
+            [71, 0],
+            [86, 0],
+            [85, 0],
+            [84, 0],
+            [83, 0],
+            [82, 0],
+            [81, 0],
+            [80, 0]
+        ]
+    }
+];
 var eases = [
     "Linear",
     "Quad.easeIn",
@@ -1972,6 +2459,13 @@ gameData.assets = {
             width: 18,
             height: 27,
             frames: 2
+        },
+        {
+            name: "room-64",
+            path: "assets/images/game/rooms/room-64.png",
+            width: 83,
+            height: 59,
+            frames: 2
         }
     ],
     images: [
@@ -2022,7 +2516,42 @@ gameData.assets = {
         { name: "bottle", path: "assets/images/game/items/bottle.png" },
         { name: "door", path: "assets/images/game/items/door.png" },
         { name: "stairs", path: "assets/images/game/items/stairs.png" },
-        { name: "mask", path: "assets/images/game/items/mask.png" }
+        { name: "mask", path: "assets/images/game/items/mask.png" },
+        { name: "room-home", path: "assets/images/game/rooms/room-home.png" },
+        {
+            name: "room-home-bed",
+            path: "assets/images/game/rooms/room-home-bed.png"
+        },
+        {
+            name: "room-zak-poster",
+            path: "assets/images/game/rooms/room-zak-poster.png"
+        },
+        {
+            name: "room-foto-frame",
+            path: "assets/images/game/rooms/room-foto-frame.png"
+        },
+        /*
+        Photos
+        -------------------------------------------------------------*/
+        { name: "phaser-foto-1", path: "assets/images/foto/phaser/1.jpg" },
+        { name: "phaser-foto-2", path: "assets/images/foto/phaser/2.jpg" },
+        { name: "phaser-foto-3", path: "assets/images/foto/phaser/3.jpg" },
+        { name: "phaser-foto-4", path: "assets/images/foto/phaser/4.jpg" },
+        { name: "phaser-foto-5", path: "assets/images/foto/phaser/5.jpg" },
+        { name: "phaser-foto-6", path: "assets/images/foto/phaser/6.jpg" },
+        { name: "phaser-foto-7", path: "assets/images/foto/phaser/7.jpg" },
+        { name: "phaser-foto-8", path: "assets/images/foto/phaser/8.jpg" },
+        { name: "cake-foto-1", path: "assets/images/foto/cake/1.jpg" },
+        { name: "cake-foto-2", path: "assets/images/foto/cake/2.jpg" },
+        { name: "cake-foto-3", path: "assets/images/foto/cake/3.jpg" },
+        { name: "cake-foto-4", path: "assets/images/foto/cake/4.jpg" },
+        { name: "cake-foto-5", path: "assets/images/foto/cake/5.jpg" },
+        { name: "cake-foto-6", path: "assets/images/foto/cake/6.jpg" },
+        { name: "cake-foto-7", path: "assets/images/foto/cake/7.jpg" },
+        { name: "cake-foto-8", path: "assets/images/foto/cake/8.jpg" },
+        { name: "cake-foto-9", path: "assets/images/foto/cake/9.jpg" },
+        { name: "cake-foto-10", path: "assets/images/foto/cake/10.jpg" },
+        { name: "cake-foto-11", path: "assets/images/foto/cake/11.jpg" }
     ],
     sounds: [
         {
@@ -2153,6 +2682,25 @@ gameData.ingame.conversation = {
                 text: gameData.ingame.conversation.MANAGE_TIP_LIST(cs),
                 isItem: false,
                 fork: false
+            }
+        ];
+    },
+    PHASER: function (cs) {
+        return [
+            {
+                text: z89.getLabel(223),
+                isItem: false,
+                fork: false,
+                options: [
+                    {
+                        option: z89.getLabel(224),
+                        action: function (cs, target) {
+                            cs.showViewer(gameData.photos.phaser, function () {
+                                cs.playerBaloon.showBaloon("What a flashback! :D");
+                            });
+                        }
+                    }
+                ]
             }
         ];
     },
@@ -2622,10 +3170,75 @@ gameData.ingame.conversation = {
     }
 };
 /*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
-// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
 gameData.ingame.scenes = [
     {
         name: "city",
+        cameraBounds: { x: 0, y: 0, width: 3670, height: 720 },
+        vertexList: {
+            v1: { x: 0, y: 600, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+            v2: { x: 3600, y: 600, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+            v3: { x: 3600, y: 720, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+            v4: { x: 0, y: 720, childs: [], exclude: ["v1", "v2", "v3", "v4"] },
+            v5: { x: 400, y: 620, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+            v6: { x: 600, y: 620, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+            v7: { x: 600, y: 660, childs: [], exclude: ["v5", "v6", "v7", "v8"] },
+            v8: { x: 400, y: 660, childs: [], exclude: ["v5", "v6", "v7", "v8"] }
+        },
+        parallax: [
+            {
+                s: "bg-level1",
+                x: 0,
+                y: 0,
+                w: 1080,
+                h: 642,
+                depth: 0,
+                scrollFactor: 0.2
+            },
+            {
+                s: "bg-level2",
+                x: 0,
+                y: 55,
+                w: 1080,
+                h: 548,
+                depth: 0,
+                scrollFactor: 0.7
+            },
+            {
+                s: "street-level1",
+                x: 0,
+                y: 655,
+                w: 1080,
+                h: 65,
+                depth: 0,
+                scrollFactor: 1.095
+            },
+            {
+                s: "street-level2",
+                x: 0,
+                y: 627,
+                w: 1080,
+                h: 720,
+                depth: 800,
+                scrollFactor: 1.25
+            }
+        ],
+        buildings: [
+            { s: "bg-home", x: 0, y: 592, sf: false, soZeroOne: true },
+            { s: "bg-devday", x: 624, y: 592, sf: false, soZeroOne: true },
+            { s: "bg-skills", x: 1114, y: 592, sf: false, soZeroOne: true },
+            { s: "bg-cake", x: 1550, y: 604, sf: false, soZeroOne: true },
+            { s: "bg-arcade", x: 1800, y: 592, sf: false, soZeroOne: true },
+            { s: "bg-aerosol", x: 2400, y: 592, sf: false, soZeroOne: true },
+            { s: "bg-contact", x: 3000, y: 604, sf: false, soZeroOne: true },
+            { s: "street-level0", x: 0, y: 592, sf: true, soZeroOne: false }
+        ],
+        bounds: [["v1", "v2"], ["v2", "v3"], ["v3", "v4"], ["v4", "v1"]],
+        obstacles: [
+            {
+                bounds: [["v5", "v6"], ["v6", "v7"], ["v7", "v8"], ["v8", "v5"]]
+            }
+        ],
         startItems: [
             1,
             2,
@@ -2666,6 +3279,57 @@ gameData.ingame.scenes = [
             106
         ],
         items: [],
+        playerStartPosition: { x: 300, y: 602 },
+        playerPosition: { x: null, y: null }
+    },
+    {
+        name: "house",
+        vertexList: {
+            v1: { x: 275, y: 435, childs: [], exclude: [] },
+            v2: { x: 265, y: 472, childs: [], exclude: [] },
+            v3: { x: 480, y: 472, childs: [], exclude: [] },
+            v4: { x: 472, y: 527, childs: [], exclude: [] },
+            v5: { x: 930, y: 527, childs: [], exclude: [] },
+            v6: { x: 854, y: 455, childs: [], exclude: [] },
+            v7: { x: 578, y: 455, childs: [], exclude: [] },
+            v8: { x: 578, y: 435, childs: [], exclude: [] }
+        },
+        parallax: [
+            {
+                s: "room-home",
+                x: 0,
+                y: 0,
+                w: 1080,
+                h: 720,
+                depth: 0,
+                scrollFactor: 0
+            }
+        ],
+        buildings: [
+            {
+                s: "room-home-bed",
+                x: 136,
+                y: 527,
+                sf: false,
+                depth: 490,
+                soZeroOne: true
+            }
+        ],
+        bounds: [
+            ["v1", "v2"],
+            ["v2", "v3"],
+            ["v3", "v4"],
+            ["v4", "v5"],
+            ["v5", "v6"],
+            ["v6", "v7"],
+            ["v7", "v8"],
+            ["v8", "v1"]
+        ],
+        obstacles: [],
+        cameraBounds: { x: 0, y: 0, width: 1080, height: 720 },
+        startItems: [36, 37, 38],
+        items: [],
+        playerStartPosition: { x: 852, y: 500 },
         playerPosition: { x: null, y: null }
     }
 ];
@@ -3150,7 +3814,7 @@ gameData.ingame.items = [
         id: 28,
         type: 1,
         sprite: "photonstorm",
-        name: "Photonstorm",
+        name: 218,
         x: 345,
         y: 245,
         animations: [{ name: "idle", frames: [0, 1, 2, 3], rate: 4, loop: true }],
@@ -3208,8 +3872,8 @@ gameData.ingame.items = [
         sprite: "blockchain",
         onStart: false,
         name: 50,
-        x: 500,
-        y: 700 - 48,
+        x: 800,
+        y: 514,
         interactive: true,
         offsetX: 30,
         fixedToCamera: false,
@@ -3253,6 +3917,47 @@ gameData.ingame.items = [
         onStart: false,
         interactive: true,
         offsetX: 0,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 36,
+        type: 1,
+        sprite: "room-64",
+        name: 220,
+        x: 760,
+        y: 382,
+        animations: [{ name: "idle", frames: [0, 1], rate: 1, loop: true }],
+        currentAnimation: "idle",
+        onStart: true,
+        interactive: true,
+        offsetX: 10,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 37,
+        type: 1,
+        sprite: "room-zak-poster",
+        name: 221,
+        x: 530,
+        y: 368,
+        onStart: true,
+        interactive: true,
+        offsetX: 10,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 38,
+        type: 1,
+        sprite: "room-foto-frame",
+        name: 222,
+        x: 625,
+        y: 375,
+        onStart: true,
+        interactive: true,
+        offsetX: 10,
         fixedToCamera: false,
         checkIntersect: false
     },
@@ -3564,6 +4269,16 @@ gameData.ingame.logic = {
             cs.showPlayerBaloon(81);
         }
     },
+    // examine foto frame
+    EXAMINE_38: function (cs) { },
+    // examine phaser logo
+    EXAMINE_15: function (cs) {
+        cs.setUpConversation(z89.conversationObj("PHASER", cs.currentItem));
+    },
+    // examine phaser logo
+    EXAMINE_5: function (cs) {
+        cs.showViewer(gameData.photos.cake);
+    },
     EXAMINE_14: function (cs) {
         cs.showPlayerBaloon(139);
     },
@@ -3772,28 +4487,41 @@ gameData.ingame.logic = {
         cs.removeInventoryItems();
         cs.player.setAlpha(0.5);
     },
-    //use door
+    //use stairs
     USE_33: function (cs) {
-        cs.disableInteraction();
-        cs.addDelay(500, function () {
-            cs.addTween({ targets: cs.player, alpha: 0 });
-            cs.getItem(50).start();
-            cs.addDelay(2500, function () {
-                cs.addTween({
-                    targets: cs.player,
-                    alpha: 1,
-                    duration: 500,
-                    onComplete: function () {
-                        cs.enableInteraction();
-                        cs.chapterCompleted();
-                    }
-                });
-                var _item = cs.getItem(34);
-                cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
-                _item.itemObj.open = false;
-                cs.updateItems();
-            });
+        cs.addTween({
+            targets: cs.player,
+            alpha: 1,
+            duration: 500,
+            onComplete: function () {
+                cs.transition.show(function () {
+                    cs.setUpScene("house");
+                    cs.transitionHide();
+                }, 1);
+            }
         });
+        /*
+        cs.addDelay(500, () => {
+          cs.addTween({ targets: cs.player, alpha: 0 });
+          cs.getItem(50).start();
+    
+          cs.addDelay(2500, () => {
+            cs.addTween({
+              targets: cs.player,
+              alpha: 1,
+              duration: 500,
+              onComplete: () => {
+                cs.enableInteraction();
+                cs.chapterCompleted();
+              }
+            });
+            const _item = cs.getItem(34);
+            cs.addTween({ targets: _item, x: _item.x - 76, ease: "Quad.easeOut" });
+            _item.itemObj.open = false;
+            cs.updateItems();
+          });
+        });
+        */
     },
     //use zak mask
     USE_35: function (cs) {
@@ -3860,6 +4588,7 @@ gameData.ingame.logic = {
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
+    //open door
     OPEN_34: function (cs) {
         cs.playerAnimation("player-use");
         var _item = cs.getItem(34);
@@ -3928,6 +4657,12 @@ gameData.ingame.logic = {
     },
     //pickup blockchain
     PICKUP_32: function (cs) {
+        //to test scene transition
+        /*cs.transition.show(() => {
+          cs.setUpScene("city");
+          cs.transitionHide();
+        }, 1);
+        */
         cs.addInventoryItem(cs.getItem(32), false);
     },
     //pickup jumper
@@ -4101,12 +4836,14 @@ var z89;
             this.updateSaveObj();
         };
         saveGame.prototype.updateItems = function () {
-            var _itemsObj = [];
-            this.scene.groupAll.children.each(function (element) {
-                if (element.itemObj != undefined)
-                    _itemsObj.push(element.itemObj);
+            /*let _itemsObj: Array<any> = [];
+      
+            this.scene.groupAll.children.each((element: Items) => {
+              if (element.itemObj != undefined) _itemsObj.push(element.itemObj);
             }, this);
+      
             this.items = _itemsObj;
+      */
             this.updateSceneItems();
             this.updateSaveObj();
         };
@@ -4572,7 +5309,10 @@ var z89;
         }
         GameUtils.prototype.addDelay = function (delay, callback) {
             // this.scene.time.events.add(delay, callback);
-            this.scene.time.addEvent({ delay: delay, callback: callback });
+            this.scene.time.addEvent({
+                delay: delay,
+                callback: callback
+            });
         };
         GameUtils.prototype.itemOverEffect = function (item) {
             this.scene.gameUtils.tweenTint(item, new Phaser.Display.Color(255, 255, 255), new Phaser.Display.Color(0, 255, 0), 100);
@@ -4613,9 +5353,160 @@ var z89;
                 onComplete: callback
             });
         };
+        GameUtils.prototype.composeVertexMap = function (sceneObj) {
+            sceneObj.lines = [];
+            /*sceneObj.bounds.forEach((bound: any) => {
+              sceneObj.lines.push(
+                new Phaser.Geom.Line(
+                  sceneObj.vertexList[bound[0]].x,
+                  sceneObj.vertexList[bound[0]].y,
+                  sceneObj.vertexList[bound[1]].x,
+                  sceneObj.vertexList[bound[1]].y
+                )
+              );
+            });*/
+            sceneObj.obstacles.forEach(function (obstacle) {
+                //this.sceneBounds.push(new Phaser.Geom.Line(bound.x1, bound.y1, bound.x2, bound.y2));
+                obstacle.bounds.forEach(function (bound) {
+                    sceneObj.lines.push(new Phaser.Geom.Line(sceneObj.vertexList[bound[0]].x, sceneObj.vertexList[bound[0]].y, sceneObj.vertexList[bound[1]].x, sceneObj.vertexList[bound[1]].y));
+                });
+            });
+            // console.log(sceneObj.lines);
+            var intersect = false;
+            var _loop_1 = function (key1) {
+                //console.log(sceneObj.vertexList.v1);
+                var _loop_2 = function (key2) {
+                    /*console.log(
+                    key1,
+                    key2,
+                    sceneObj.vertexList[key1].exclude.indexOf(key2) == -1
+                  );*/
+                    intersect = false;
+                    if (sceneObj.vertexList[key1].exclude.indexOf(key2) == -1) {
+                        sceneObj.lines.forEach(function (element) {
+                            if (Phaser.Geom.Intersects.LineToLine(new Phaser.Geom.Line(sceneObj.vertexList[key1].x + 2, sceneObj.vertexList[key1].y + 2, sceneObj.vertexList[key2].x - 2, sceneObj.vertexList[key2].y - 2), element)) {
+                                intersect = true;
+                                /* console.log("intersect", key1, key2);*/
+                            }
+                            else {
+                                /* var graphics = this.scene.add.graphics();
+                              graphics.lineStyle(2, 0x00ff00, 1);
+                              graphics.lineBetween(
+                                sceneObj.vertexList[key1].x,
+                                sceneObj.vertexList[key1].y,
+                                sceneObj.vertexList[key2].x,
+                                sceneObj.vertexList[key2].y
+                              );*/
+                                /*console.log(
+                              "not intersect",
+                              key1,
+                              sceneObj.vertexList[key1].childs,
+                              key2
+                            );*/
+                            }
+                            //console.log(element, key1, key2, intersect);
+                        });
+                        if (!intersect) {
+                            graphics = this_1.scene.add.graphics();
+                            graphics.lineStyle(2, 0x00ff00, 1);
+                            graphics.lineBetween(sceneObj.vertexList[key1].x + 1, sceneObj.vertexList[key1].y + 1, sceneObj.vertexList[key2].x - 1, sceneObj.vertexList[key2].y - 1);
+                            if (sceneObj.vertexList[key1].childs.indexOf(key2) == -1)
+                                sceneObj.vertexList[key1].childs.push(key2);
+                        }
+                        else {
+                            graphics = this_1.scene.add.graphics();
+                            graphics.lineStyle(2, 0xff0000, 1);
+                            graphics.lineBetween(sceneObj.vertexList[key1].x + 1, sceneObj.vertexList[key1].y + 1, sceneObj.vertexList[key2].x - 1, sceneObj.vertexList[key2].y - 1);
+                        }
+                        //console.log(sceneObj.vertexList[key1], sceneObj.vertexList[key2]);
+                    }
+                };
+                for (var key2 in sceneObj.vertexList) {
+                    _loop_2(key2);
+                }
+                console.log(sceneObj.vertexList);
+            };
+            var this_1 = this, graphics, graphics;
+            for (var key1 in sceneObj.vertexList) {
+                _loop_1(key1);
+            }
+        };
         return GameUtils;
     }());
     z89.GameUtils = GameUtils;
+    var NodeVertex = (function () {
+        function NodeVertex() {
+        }
+        return NodeVertex;
+    }());
+    z89.NodeVertex = NodeVertex;
+    var Vertex = (function () {
+        function Vertex(theName, theNodes, theWeight) {
+            this.name = theName;
+            this.nodes = theNodes;
+            this.weight = theWeight;
+        }
+        return Vertex;
+    }());
+    z89.Vertex = Vertex;
+    var Dijkstra = (function () {
+        function Dijkstra() {
+            this.vertices = {};
+        }
+        Dijkstra.prototype.addVertex = function (vertex) {
+            this.vertices[vertex.name] = vertex;
+        };
+        Dijkstra.prototype.findPointsOfShortestWay = function (start, finish, weight) {
+            var nextVertex = finish;
+            var arrayWithVertex = [];
+            while (nextVertex !== start) {
+                var minWeigth = Number.MAX_VALUE;
+                var minVertex = "";
+                for (var _i = 0, _a = this.vertices[nextVertex].nodes; _i < _a.length; _i++) {
+                    var i = _a[_i];
+                    if (i.weight + this.vertices[i.nameOfVertex].weight < minWeigth) {
+                        minWeigth = this.vertices[i.nameOfVertex].weight;
+                        minVertex = i.nameOfVertex;
+                    }
+                }
+                arrayWithVertex.push(minVertex);
+                nextVertex = minVertex;
+            }
+            return arrayWithVertex;
+        };
+        Dijkstra.prototype.findShortestWay = function (start, finish) {
+            var _this = this;
+            var nodes = {};
+            var visitedVertex = [];
+            for (var i in this.vertices) {
+                if (this.vertices[i].name === start) {
+                    this.vertices[i].weight = 0;
+                }
+                else {
+                    this.vertices[i].weight = Number.MAX_VALUE;
+                }
+                nodes[this.vertices[i].name] = this.vertices[i].weight;
+            }
+            while (Object.keys(nodes).length !== 0) {
+                var sortedVisitedByWeight = Object.keys(nodes).sort(function (a, b) { return _this.vertices[a].weight - _this.vertices[b].weight; });
+                var currentVertex = this.vertices[sortedVisitedByWeight[0]];
+                for (var _i = 0, _a = currentVertex.nodes; _i < _a.length; _i++) {
+                    var j = _a[_i];
+                    var calculateWeight = currentVertex.weight + j.weight;
+                    if (calculateWeight < this.vertices[j.nameOfVertex].weight) {
+                        this.vertices[j.nameOfVertex].weight = calculateWeight;
+                    }
+                }
+                delete nodes[sortedVisitedByWeight[0]];
+            }
+            var finishWeight = this.vertices[finish].weight;
+            var arrayWithVertex = this.findPointsOfShortestWay(start, finish, finishWeight).reverse();
+            arrayWithVertex.push(finish);
+            return arrayWithVertex;
+        };
+        return Dijkstra;
+    }());
+    z89.Dijkstra = Dijkstra;
 })(z89 || (z89 = {}));
 var z89;
 (function (z89) {
@@ -4766,7 +5657,7 @@ var z89;
                 _this.setScale(itemObj.scale);
             _this.id = itemObj.id;
             _this.itemObj = itemObj;
-            _this.name = itemObj.name;
+            _this.name = z89.getLabel(itemObj.name);
             _this.interactive = itemObj.interactive;
             _this.contexts = itemObj.contexts;
             if (z89.isOnline()) {
@@ -4781,6 +5672,7 @@ var z89;
                 .setTint(0x555555)
                 .setDepth(_this.y + 1)
                 .setName("contentImage");
+            _this.scene.groupCity.add(_this.contentImage);
             Phaser.Display.Align.In.TopCenter(_this.contentImage, _this);
             var shape = _this.scene.make.graphics({
                 x: _this.contentImage.x + 1,
@@ -4796,9 +5688,18 @@ var z89;
             // content text
             //+++++++++++++++++++++++++
             _this.guru = _this.scene.add.sprite(0, 0, "guru-meditation");
-            _this.guru.setOrigin(.5).setDepth(_this.y + 1);
-            _this.guruTween = _this.scene.tweens.add({ targets: _this.guru, delay: 1000, duration: 1000, alpha: 0, yoyo: true, loopDelay: 1000, loop: -1 });
+            _this.guru.setOrigin(0.5).setDepth(_this.y + 1);
+            _this.guruTween = _this.scene.tweens.add({
+                targets: _this.guru,
+                delay: 1000,
+                duration: 1000,
+                alpha: 0,
+                yoyo: true,
+                loopDelay: 1000,
+                loop: -1
+            });
             Phaser.Display.Align.In.TopCenter(_this.guru, _this.contentImage, 0, -20);
+            _this.scene.groupCity.add(_this.guru);
             var _style = {
                 fill: "#00ff00",
                 align: "center"
@@ -4813,6 +5714,7 @@ var z89;
                 .setDepth(_this.y + 1)
                 .setWordWrapWidth(380);
             Phaser.Display.Align.In.TopCenter(_this.contentTextTitle, _this.contentImage, -20, -40);
+            _this.scene.groupCity.add(_this.contentTextTitle);
             _this.contentTextDescription = _this.scene.add.text(0, 0, "", _style);
             _this.contentTextDescription
                 .setFontFamily("Roboto")
@@ -4821,6 +5723,7 @@ var z89;
                 .setDepth(_this.y + 1)
                 .setWordWrapWidth(380);
             Phaser.Display.Align.To.BottomCenter(_this.contentTextDescription, _this.contentTextTitle, -20, -20);
+            _this.scene.groupCity.add(_this.contentTextDescription);
             _this.contentTextDate = _this.scene.add.text(0, 0, "", _style);
             _this.contentTextDate
                 .setFontFamily("Roboto")
@@ -4829,6 +5732,7 @@ var z89;
                 .setDepth(_this.y + 1)
                 .setWordWrapWidth(380);
             Phaser.Display.Align.To.BottomCenter(_this.contentTextDate, _this.contentTextDescription, -20, -20);
+            _this.scene.groupCity.add(_this.contentTextDate);
             //+++++++++++++++++++++++++
             // spinner
             //+++++++++++++++++++++++++
@@ -4838,6 +5742,7 @@ var z89;
                 .setAlpha(0)
                 .setDepth(_this.y + 1);
             Phaser.Display.Align.In.Center(_this.spinner, _this.contentImage);
+            _this.scene.groupCity.add(_this.spinner);
             //+++++++++++++++++++++++++
             // Arrow left
             //+++++++++++++++++++++++++
@@ -4857,6 +5762,7 @@ var z89;
             _this.arrowLeft.on("pointerup", function () {
                 _this.arrowLeft.tint = 0xffffff;
             }, _this);
+            _this.scene.groupCity.add(_this.arrowLeft);
             //+++++++++++++++++++++++++
             // Arrow right
             //+++++++++++++++++++++++++
@@ -4876,6 +5782,7 @@ var z89;
             _this.arrowRight.on("pointerup", function () {
                 _this.arrowRight.tint = 0xffffff;
             }, _this);
+            _this.scene.groupCity.add(_this.arrowRight);
             //+++++++++++++++++++++++++
             // readmore
             //+++++++++++++++++++++++++
@@ -4888,12 +5795,14 @@ var z89;
                 _this.goDetail();
             }, _this);
             Phaser.Display.Align.In.BottomCenter(_this.btnGo, _this.contentImage, 0, 54);
+            _this.scene.groupCity.add(_this.btnGo);
             _this.btnGoText = _this.scene.add.bitmapText(0, 0, "commodore", "Read More", 16);
             _this.btnGoText
                 .setOrigin(0.5)
                 .setAlpha(0)
                 .setDepth(_this.y + 1);
             Phaser.Display.Align.In.Center(_this.btnGoText, _this.btnGo);
+            _this.scene.groupCity.add(_this.btnGoText);
             _this.scene.add.existing(_this);
             // let cropRect = new Phaser.Rectangle(0, 0, 400, 200);
             // this.contentImage.crop(cropRect);
@@ -4981,9 +5890,7 @@ var z89;
         ItemsContent.prototype.isInteractive = function () {
             return this.interactive;
         };
-        ItemsContent.prototype.displayOffline = function () {
-        };
-        ;
+        ItemsContent.prototype.displayOffline = function () { };
         ItemsContent.prototype.hideContent = function () {
             var _this = this;
             if (!z89.isOnline()) {
@@ -4992,7 +5899,14 @@ var z89;
             }
             this.isAnimating = true;
             this.scene.tweens.add({
-                targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.contentImage, this.btnGo, this.btnGoText],
+                targets: [
+                    this.contentTextTitle,
+                    this.contentTextDescription,
+                    this.contentTextDate,
+                    this.contentImage,
+                    this.btnGo,
+                    this.btnGoText
+                ],
                 alpha: 0,
                 duration: 300
             });
@@ -5037,14 +5951,23 @@ var z89;
                     _date = _json.date;
             }
             //console.log(_title,_description,_date)
-            this.contentTextTitle.setText(_title).setColor("#ffffff").setFontSize(30);
+            this.contentTextTitle
+                .setText(_title)
+                .setColor("#ffffff")
+                .setFontSize(30);
             Phaser.Display.Align.In.TopCenter(this.contentTextTitle, this, null, -20);
             this.contentTextDescription.setText(_description).setFontSize(20);
             Phaser.Display.Align.To.BottomCenter(this.contentTextDescription, this.contentTextTitle, null, 10);
             this.contentTextDate.setText(_date).setColor("#ffffff");
             Phaser.Display.Align.To.BottomCenter(this.contentTextDate, this.contentTextDescription, null, 20);
             this.scene.tweens.add({
-                targets: [this.contentTextTitle, this.contentTextDescription, this.contentTextDate, this.btnGo, this.btnGoText],
+                targets: [
+                    this.contentTextTitle,
+                    this.contentTextDescription,
+                    this.contentTextDate,
+                    this.btnGo,
+                    this.btnGoText
+                ],
                 alpha: 1,
                 duration: 500,
                 onComplete: function () {
@@ -5121,6 +6044,7 @@ var z89;
             _this.behaviour = true;
             _this.beaming = false;
             _this.distanceUpdate = true;
+            _this.stopped = false;
             _this.setAlpha(0).setX(itemObj.startX);
             _this.playAnim(_this.itemObj.id + "-idle");
             _this.movingTimer = _this.scene.time.delayedCall(Phaser.Math.RND.integerInRange(0, 5000), function (scene) {
@@ -5128,8 +6052,18 @@ var z89;
             }, null, _this);
             return _this;
         }
+        ItemsWalking.prototype.stop = function () {
+            console.log("walker destroy:" + this.name);
+            this.stopped = true;
+            this.movingTimer.remove(false);
+            if (this.movingTween != undefined)
+                this.movingTween.stop();
+            //this.destroy();
+        };
         ItemsWalking.prototype.beamIn = function () {
             var _this = this;
+            if (this.stopped)
+                return;
             this.beaming = true;
             this.scene.gameItemsUtils.beamIn(this, function () {
                 _this.beaming = false;
@@ -5165,6 +6099,8 @@ var z89;
         ItemsWalking.prototype.startPath = function (direction) {
             var _this = this;
             //console.log("startpath")
+            if (this.stopped)
+                return;
             var _walk = Phaser.Math.RND.integerInRange(this.itemObj.walkRange.step.min, this.itemObj.walkRange.step.max);
             var _walkSpeed = _walk * 10;
             if (direction == 0) {
@@ -5182,6 +6118,8 @@ var z89;
                 y: this.setDestinationY(false),
                 duration: _walkSpeed,
                 onUpdate: function () {
+                    if (_this.stopped)
+                        return;
                     _this.setDepth(_this.y);
                     if (_this.checkBounds() &&
                         _this.itemObj.insight.behaviour != "runner") {
@@ -5229,16 +6167,22 @@ var z89;
             });
         };
         ItemsWalking.prototype.setXPosition = function (value) {
+            if (this.stopped)
+                return;
             this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + value);
             this.setX(value);
         };
         ItemsWalking.prototype.setYPosition = function (value) {
+            if (this.stopped)
+                return;
             this.updateItemObj("y", value);
             this.setY(value).setDepth(value);
         };
         ItemsWalking.prototype.nextDirection = function (_setDirection) {
             var _this = this;
             //console.log("nextDirection",_setDirection);
+            if (this.stopped)
+                return;
             var _action = Phaser.Math.RND.integerInRange(0, 100);
             var _direction = Phaser.Math.RND.integerInRange(0, 1);
             if (_setDirection != undefined)
@@ -5279,7 +6223,8 @@ var z89;
         };
         ItemsWalking.prototype.update = function () {
             var _this = this;
-            if (this.scene.player.alpha < 1 ||
+            if (this.stopped ||
+                this.scene.player.alpha < 1 ||
                 (this.scene.player.isMasked() && this.itemObj.id == 102)) {
                 //this.setAlpha(0.5);
                 return;
@@ -5326,6 +6271,8 @@ var z89;
                                     y: this.setDestinationY(false),
                                     duration: _runSpeed,
                                     onUpdate: function () {
+                                        if (_this.stopped)
+                                            return;
                                         _this.setDepth(_this.y);
                                     },
                                     onComplete: function () {
@@ -5419,9 +6366,9 @@ var z89;
     var Player = (function (_super) {
         __extends(Player, _super);
         function Player(scene) {
-            var _this = _super.call(this, scene, 300, 650 - 48, "player") || this;
-            _this.yMin = 654 - 48;
-            _this.yMax = 720;
+            var _this = _super.call(this, scene, 0, 0, "player") || this;
+            // private yMin: number = 606;
+            // private yMax: number = 720;
             _this.direction = PlayerDirection.RIGHT;
             _this.playerState = PlayerStates.IDLE;
             _this._isMasked = false;
@@ -5502,13 +6449,13 @@ var z89;
             ];
             //this.setPipeline("testPipeline");
             //this.pipeline.setFloat2('uResolution', this.width, this.height);
-            _this.scene.input.keyboard.on("keyup", function (event) {
-                //console.log("player",event.key);
-                if (event.key == "p") {
-                    // console.log("punch");
-                    _this.playAnimation("player-punch");
-                }
-            });
+            /*this.scene.input.keyboard.on("keyup", event => {
+              //console.log("player",event.key);
+              if (event.key == "p") {
+                // console.log("punch");
+                this.playAnimation("player-punch");
+              }
+            });*/
             _this.scene = scene;
             var config;
             _this.animations.forEach(function (element) {
@@ -5542,6 +6489,7 @@ var z89;
                 .setScale(1)
                 .setY(608)
                 .setAlpha()
+                .setDepth(_this.y)
                 .setInteractive(new Phaser.Geom.Rectangle(33, 0, 60, 80), Phaser.Geom.Rectangle.Contains)
                 .setName("player")
                 .on("pointerdown", function () {
@@ -5566,7 +6514,7 @@ var z89;
             this._isTalking = value;
         };
         Player.prototype.goTo = function (_x, _y, _item) {
-            // console.log(_x, _y, _item, this.scene.currentItem);
+            //console.log(_x, _y, _item, this.scene.currentItem);
             var _this = this;
             //console.log(this.isTalking());
             this.hideBaloon();
@@ -5579,23 +6527,10 @@ var z89;
                     this.scene.currentItem != null) &&
                 this.scene.currentItem.itemObj.id == _item.itemObj.id)
                 return;
-            // this.scene.playerActions.hide();
-            /*
-            if (this.scene.currentItem == undefined && _item == undefined)
-              this.scene.playerActions.hide();
-       */
             if (this.scene.playerActions.IsOpen() &&
                 // (this.scene.currentItem == undefined || this.scene.currentItem == null) &&
                 (_item == undefined || _item == null)) {
                 this.scene.playerActions.hide();
-            }
-            if (this.playerTween != null) {
-                this.playerTween.stop();
-            }
-            else {
-                //if (_item!=null && Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y)>40)
-                // { console.log(Phaser.Math.Distance.Between(this.x, this.y, _item.x, _item.y));
-                this.playAnimation("player-walk");
             }
             // else{}
             if (_item == undefined)
@@ -5612,32 +6547,69 @@ var z89;
             }
             this.intersect = false;
             var _intersect = this.checkIntersect({ x1: _x, y1: _y + 1 });
+            //console.log(_intersect);
             if (_intersect.point != null) {
-                var _offset = 0;
+                var _offsetY = 0;
+                var _offsetX = 0;
                 if (this.y < _intersect.point.y) {
-                    _offset = -5;
+                    _offsetY = -5;
                 }
                 else {
-                    _offset = +5;
+                    _offsetY = 5;
                 }
-                _x = _intersect.point.x;
-                _y = _intersect.point.y + _offset;
-                _item = null;
+                if (this.x < _intersect.point.x) {
+                    _offsetX = -5;
+                }
+                else {
+                    _offsetX = 5;
+                }
+                _x = _intersect.point.x + _offsetX;
+                _y = _intersect.point.y + _offsetY;
                 this.intersect = true;
+                /*  var graphics = this.scene.add.graphics({
+                  fillStyle: { color: 0xff0000 }
+                });
+                var point1 = new Phaser.Geom.Point(_x, _y); // point at 0/0
+                graphics.fillPointShape(point1, 2);
+                */
             }
-            if (_y > this.yMax)
-                _y = this.yMax;
-            if (_y < this.yMin)
-                _y = this.yMin;
-            var distance;
+            var distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
             var distanceX = Phaser.Math.Distance.Between(this.x, 0, _x, 0);
             var distanceY = Phaser.Math.Distance.Between(0, this.y, 0, _y);
-            if (distanceX > distanceY) {
-                distance = distanceX;
+            //console.log("distance:" + distance, "y:" + distanceX, "x:" + distanceY);
+            if (this.playerTween != null) {
+                this.playerTween.stop();
             }
             else {
-                distance = distanceY;
+                this.playAnimation("player-walk");
             }
+            if (distance < 10 || (distanceX < 10 && distanceY < 10)) {
+                this.playAnimation("player-idle");
+                this.setDepth(this.y);
+                this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
+                if (_item != null) {
+                    this.scene.setCurrentItem(_item);
+                    if (this.x < _item.x) {
+                        if (this.direction == PlayerDirection.LEFT)
+                            this.changeDirection();
+                    }
+                    else {
+                        if (this.direction == PlayerDirection.RIGHT)
+                            this.changeDirection();
+                    }
+                    this.scene.playerActions.doActionSequence(_item);
+                    // console.log(_item);
+                    if (_item.isInteractive())
+                        this.scene.playerActions.show();
+                }
+                return;
+            }
+            /*
+            if (distanceX > distanceY) {
+              distance = distanceX;
+            } else {
+              distance = distanceY;
+            }*/
             this.playerTween = this.scene.tweens.add({
                 targets: this,
                 x: _x,
@@ -5646,17 +6618,16 @@ var z89;
                 duration: 7.5 * distance,
                 loop: 0,
                 onCompleteParams: [this.intersect],
+                onUpdate: function () {
+                    _this.setDepth(_this.y);
+                },
                 onComplete: function () {
-                    //console.log(this.x,this.y);
-                    _this.depth = _this.y;
+                    //console.log(this.x, this.y, _item);
                     _this.playerTween.stop();
                     _this.playerTween = null;
                     _this.scene.saveGameObj.updatePlayerPosition(_this.x, _this.y);
                     _this.playAnimation("player-idle");
-                    if (_item != null &&
-                        (Phaser.Math.Distance.Between(_this.x, _this.y, _item.x, _item.y) <
-                            150 ||
-                            _item.itemObj.type != 6)) {
+                    if (_item != null) {
                         _this.scene.setCurrentItem(_item);
                         if (_this.x < _item.x) {
                             if (_this.direction == PlayerDirection.LEFT)
@@ -5696,8 +6667,13 @@ var z89;
             this.direction = PlayerDirection.RIGHT;
         };
         Player.prototype.checkIntersect = function (_toPosition) {
+            var _this = this;
             var _obj = { point: null };
             var line1 = new Phaser.Geom.Line(_toPosition.x1, _toPosition.y1, this.x, this.y);
+            var toLeft = false;
+            var intersectPoints = [];
+            if (this.x > _toPosition.x1)
+                toLeft = true;
             var line2;
             var intersectPoint = new Phaser.Geom.Point();
             this.scene.groupAll.children.each(function (sprite) {
@@ -5707,11 +6683,40 @@ var z89;
                     line2 = new Phaser.Geom.Line(sprite.x - sprite.width / 2 - 10, sprite.y, sprite.x + sprite.width / 2 + 10, sprite.y);
                     intersectPoint.setTo(0, 0);
                     if (Phaser.Geom.Intersects.LineToLine(line1, line2, intersectPoint)) {
-                        // console.log(intersectPoint);
-                        _obj.point = intersectPoint;
+                        //console.log("item intersect", intersectPoint);
+                        _obj.point = JSON.parse(JSON.stringify(intersectPoint));
                     }
                 }
             }, this);
+            var distance = null;
+            var currentDistance = null;
+            var index = 0;
+            if (_obj.point == null) {
+                this.scene.sceneBounds.forEach(function (bound) {
+                    intersectPoint.setTo(0, 0);
+                    if (Phaser.Geom.Intersects.LineToLine(line1, new Phaser.Geom.Line(bound.x1, bound.y1, bound.x2, bound.y2), intersectPoint)) {
+                        //console.log("intersect");
+                        //console.log("intersect", intersectPoint);
+                        intersectPoints.push(JSON.parse(JSON.stringify(intersectPoint)));
+                        if (toLeft) {
+                            //console.log("toleft", intersectPoints[index].x);
+                            //intersectPoints[index].x = intersectPoints[index].x + 10;
+                        }
+                        else {
+                            //console.log("tor", intersectPoints[index].x);
+                            //intersectPoints[index].x = intersectPoints[index].x - 10;
+                        }
+                        distance = Phaser.Math.Distance.Between(_this.x, _this.y, intersectPoints[index].x, intersectPoints[index].y);
+                        if (distance < currentDistance || currentDistance == null) {
+                            currentDistance = distance;
+                            //console.log(currentDistance);
+                            _obj.point = intersectPoints[index];
+                        }
+                        index++;
+                    }
+                });
+            }
+            // console.log(_obj);
             return _obj;
         };
         Player.prototype.blinkTo = function (_x) {
@@ -5738,6 +6743,7 @@ var z89;
             var color2 = new Phaser.Display.Color(255, 255, 255);
             var color1 = new Phaser.Display.Color(0, 255, 0);
             this.scene.gameUtils.tweenTint(this, color1, color2, 300, 300, null);
+            this.setDepth(this.y);
             var tweenBeam = this.scene.tweens.add({
                 targets: beam,
                 scaleX: 1,
@@ -5845,8 +6851,8 @@ var z89;
             }
         };
         Player.prototype.update = function () {
+            //console.log("update player");
             //this.pipeline.setFloat1('rand', Phaser.Math.RND.realInRange(0, 1));
-            this.setDepth(this.y);
             //  console.log(this.name,this.depth)
             /*
                   this.body.velocity.x = 0;
@@ -6755,7 +7761,12 @@ var z89;
                     .setName("iconsBtn")
                     .on("pointerdown", function () {
                     _this.hide();
-                    _this.scene.player.blinkTo(element.to);
+                    if (_this.scene.currentScene.name == "city") {
+                        _this.scene.player.blinkTo(element.to);
+                    }
+                    else {
+                        _this.scene.showPlayerBaloon(219);
+                    }
                 }, _this)
                     .on("pointerover", function () {
                     _this.scene.gameUtils.iconOverEffect(element.sprite);
@@ -7987,8 +8998,8 @@ var z89;
             this.clearShell();
             this.clear();
             this.writeMultiple(this.returnStaticString(msgs.targetAquired, 0));
-            var _loop_1 = function (i) {
-                this_1.scene.time.addEvent({
+            var _loop_3 = function (i) {
+                this_2.scene.time.addEvent({
                     delay: 1000 * i,
                     callback: function () {
                         _this.writeMultiple(_this.returnStaticString(8 + i, 0));
@@ -8002,12 +9013,12 @@ var z89;
                                 callbackScope: _this
                             });
                     },
-                    callbackScope: this_1
+                    callbackScope: this_2
                 });
             };
-            var this_1 = this;
+            var this_2 = this;
             for (var i = 0; i < 6; i++) {
-                _loop_1(i);
+                _loop_3(i);
             }
         };
         TerminalLogic.prototype.submitCommand = function () {
@@ -8302,6 +9313,274 @@ var z89;
         return TerminalLogic;
     }());
     z89.TerminalLogic = TerminalLogic;
+})(z89 || (z89 = {}));
+var z89;
+(function (z89) {
+    var Transition = (function (_super) {
+        __extends(Transition, _super);
+        function Transition(scene) {
+            var _this = _super.call(this, scene, 0, 0) || this;
+            _this.transitions = gameData.transitions;
+            _this.scene = scene;
+            _this.setScrollFactor(0);
+            _this.transitions = gameData.transitions;
+            _this.blocksGroup = _this.scene.add.group({
+                key: "transitionBlock",
+                repeat: 150,
+                setScale: { x: 0, y: 0 }
+            });
+            Phaser.Actions.GridAlign(_this.blocksGroup.getChildren(), {
+                width: 15,
+                cellWidth: 72,
+                cellHeight: 72,
+                x: 36,
+                y: 36
+            });
+            _this.scene.add.existing(_this);
+            return _this;
+        }
+        Transition.prototype.show = function (callback, type) {
+            this.scene.disableInteraction();
+            type = 1;
+            this.doTransition(true, type, callback);
+        };
+        Transition.prototype.hide = function () {
+            this.scene.enableInteraction();
+            this.scene.player.setAlpha(1);
+            this.doTransition(false, 1);
+        };
+        Transition.prototype.doTransition = function (isIn, type, callback) {
+            var _this = this;
+            var _transition = this.transitions[type];
+            var _scaleX = 1;
+            var _scaleY = 1;
+            if (!isIn) {
+                _scaleX = 0;
+                _scaleY = 0;
+            }
+            switch (type) {
+                case z89.transitionType.standard:
+                    _transition.sequence.forEach(function (element, index) {
+                        //console.log(element, index);
+                        var child = _this.blocksGroup.getFirstNth(index, true);
+                        child
+                            .setDepth(2000)
+                            .setName("child-" + index)
+                            .setScrollFactor(0);
+                        //console.log(child);
+                        _this.scene.tweens.add({
+                            targets: child,
+                            scaleX: _scaleX,
+                            scaleY: _scaleY,
+                            angle: 180,
+                            _ease: "Sine.easeInOut",
+                            ease: "Power2",
+                            duration: 500,
+                            delay: index * _transition.delay,
+                            repeat: 0,
+                            onComplete: function () {
+                                if (child.name == "child-" + _transition.end && isIn) {
+                                    if (callback != undefined)
+                                        callback();
+                                }
+                            }
+                        });
+                    });
+                    break;
+                case z89.transitionType.spiral:
+                    _transition.sequence.forEach(function (element, index) {
+                        //console.log(element, index);
+                        var child = _this.blocksGroup.getFirstNth(element[0], true);
+                        child
+                            .setDepth(2000)
+                            .setName("child-" + element[0])
+                            .setScrollFactor(0);
+                        //console.log(child);
+                        _this.scene.tweens.add({
+                            targets: child,
+                            scaleX: _scaleX,
+                            scaleY: _scaleY,
+                            angle: 180,
+                            _ease: "Sine.easeInOut",
+                            ease: "Power2",
+                            duration: 500,
+                            delay: index * _transition.delay,
+                            repeat: 0,
+                            onComplete: function () {
+                                if (child.name == "child-" + _transition.end && isIn) {
+                                    if (callback != undefined)
+                                        callback();
+                                }
+                            }
+                        });
+                    });
+                    break;
+            }
+        };
+        return Transition;
+    }(Phaser.GameObjects.Container));
+    z89.Transition = Transition;
+})(z89 || (z89 = {}));
+var z89;
+(function (z89) {
+    var Viewer = (function (_super) {
+        __extends(Viewer, _super);
+        function Viewer(scene) {
+            var _this = _super.call(this, scene, -1080, 0) || this;
+            _this.currentIndex = 0;
+            _this.isAnim = false;
+            _this.fontFamily = "commodore";
+            _this.scene = scene;
+            _this.setScrollFactor(0).setAlpha(0);
+            _this.layer = _this.scene.add.sprite(540, 360, "menu-phone-bg");
+            _this.layer
+                .setInteractive()
+                .setAlpha(0.75)
+                .setScrollFactor(0)
+                .addListener("pointerdown", function () {
+                _this.hide();
+            });
+            _this.textLayer = _this.scene.add.sprite(540, 680, "chapterTitleBg");
+            _this.textLayer.setAlpha(0.85);
+            _this.text = _this.scene.add
+                .bitmapText(540, 640, _this.fontFamily, "", 20)
+                .setOrigin(0.5, 0)
+                .setTint(0x00ff00)
+                .setDepth(3000)
+                .setScrollFactor(0);
+            _this.add(_this.layer);
+            _this.arrowLeft = _this.scene.add.sprite(100, 360, "triangleBtn");
+            _this.image = _this.scene.add.image(540, 360, "");
+            _this.arrowLeft
+                .setInteractive()
+                .setAngle(-90)
+                .setScale(2)
+                .setScrollFactor(0);
+            _this.arrowLeft.addListener("pointerdown", function () {
+                _this.prevImage();
+            });
+            _this.arrowRight = _this.scene.add.sprite(980, 360, "triangleBtn");
+            _this.arrowRight
+                .setInteractive()
+                .setAngle(90)
+                .setScale(2)
+                .setScrollFactor(0);
+            _this.arrowRight.addListener("pointerdown", function () {
+                _this.nextImage();
+            });
+            _this.add([
+                _this.layer,
+                _this.image,
+                _this.arrowLeft,
+                _this.arrowRight,
+                _this.textLayer,
+                _this.text
+            ]);
+            _this.scene.add.existing(_this);
+            return _this;
+        }
+        Viewer.prototype.prevImage = function () {
+            if (this.isAnim)
+                return;
+            this.currentIndex--;
+            if (this.currentIndex < 0)
+                this.currentIndex = this.images.length - 1;
+            console.log("prev", this.currentIndex);
+            this.displayImage();
+        };
+        Viewer.prototype.nextImage = function () {
+            if (this.isAnim)
+                return;
+            this.currentIndex++;
+            if (this.currentIndex > this.images.length - 1)
+                this.currentIndex = 0;
+            console.log("next", this.currentIndex);
+            this.displayImage();
+        };
+        Viewer.prototype.displayImage = function () {
+            var _this = this;
+            this.isAnim = true;
+            this.scene.tweens.add({
+                targets: this.text,
+                duration: 100,
+                alpha: 0,
+                onComplete: function () {
+                    _this.text.setText("");
+                }
+            });
+            this.scene.tweens.add({
+                targets: this.image,
+                scaleY: 0,
+                scaleX: 0,
+                alpha: 0,
+                ease: null,
+                duration: 200,
+                onComplete: function () {
+                    if (_this.images[_this.currentIndex].text != undefined)
+                        _this.text.setText(_this.images[_this.currentIndex].text);
+                    else
+                        _this.text.setText("");
+                    _this.image.setTexture(_this.images[_this.currentIndex].image);
+                    _this.scene.tweens.add({
+                        targets: [_this.image, _this.text],
+                        scaleY: 1,
+                        scaleX: 1,
+                        alpha: 1,
+                        ease: "Bounce.easeOut",
+                        duration: 500,
+                        onComplete: function () {
+                            _this.isAnim = false;
+                        }
+                    });
+                }
+            });
+        };
+        Viewer.prototype.show = function (images, callback) {
+            this.images = images;
+            if (callback != undefined)
+                this.callback = callback;
+            if (this.images.length == 1) {
+                this.arrowLeft.setAlpha(0);
+                this.arrowLeft.setAlpha(0);
+            }
+            this.setX(0);
+            this.scene.disableInteraction();
+            this.image.setTexture(images[0].image);
+            if (this.images[this.currentIndex].text != undefined)
+                this.text.setText(this.images[this.currentIndex].text).setAlpha(1);
+            else
+                this.text.setText("").setAlpha(1);
+            this.scene.tweens.add({
+                targets: this,
+                scaleY: 1,
+                scaleX: 1,
+                alpha: 1,
+                ease: null,
+                duration: 200,
+                onComplete: function () { }
+            });
+        };
+        Viewer.prototype.hide = function () {
+            var _this = this;
+            this.currentIndex = 0;
+            this.scene.enableInteraction();
+            this.scene.tweens.add({
+                targets: [this, this.text],
+                scaleY: 1,
+                scaleX: 1,
+                alpha: 0,
+                ease: null,
+                duration: 200,
+                onComplete: function () {
+                    _this.setX(-1080);
+                    if (_this.callback != undefined)
+                        _this.callback();
+                }
+            });
+        };
+        return Viewer;
+    }(Phaser.GameObjects.Container));
+    z89.Viewer = Viewer;
 })(z89 || (z89 = {}));
 var z89;
 (function (z89) {

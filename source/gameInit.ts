@@ -61,6 +61,10 @@ namespace z89 {
       },
   },*/
   };
+  export enum transitionType {
+    standard,
+    spiral
+  }
 
   export enum c64ColorsEnum {
     black = 0x000000,

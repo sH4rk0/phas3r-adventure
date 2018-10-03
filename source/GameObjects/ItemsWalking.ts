@@ -6,6 +6,7 @@ namespace z89 {
     private behaviour: boolean = true;
     private beaming: boolean = false;
     private distanceUpdate: boolean = true;
+    private stopped: boolean = false;
 
     constructor(scene: GameCity, itemObj: any) {
       super(scene, itemObj);
@@ -24,10 +25,20 @@ namespace z89 {
       );
     }
 
+    stop() {
+      console.log("walker destroy:" + this.name);
+      this.stopped = true;
+      this.movingTimer.remove(false);
+      if (this.movingTween != undefined) this.movingTween.stop();
+      //this.destroy();
+    }
+
     beamIn() {
+      if (this.stopped) return;
       this.beaming = true;
       this.scene.gameItemsUtils.beamIn(this, () => {
         this.beaming = false;
+
         this.movingTimer = this.scene.time.delayedCall(
           1000,
           () => {
@@ -66,6 +77,7 @@ namespace z89 {
 
     startPath(direction: number): void {
       //console.log("startpath")
+      if (this.stopped) return;
       let _walk: number = Phaser.Math.RND.integerInRange(
         this.itemObj.walkRange.step.min,
         this.itemObj.walkRange.step.max
@@ -88,6 +100,7 @@ namespace z89 {
         y: this.setDestinationY(false),
         duration: _walkSpeed,
         onUpdate: () => {
+          if (this.stopped) return;
           this.setDepth(this.y);
 
           if (
@@ -159,17 +172,20 @@ namespace z89 {
     }
 
     setXPosition(value: number): void {
+      if (this.stopped) return;
       this.updateItemObj("x", this.scene.mainCamera.scrollX * 0.095 + value);
       this.setX(value);
     }
 
     setYPosition(value: number): void {
+      if (this.stopped) return;
       this.updateItemObj("y", value);
       this.setY(value).setDepth(value);
     }
 
     nextDirection(_setDirection?: number): void {
       //console.log("nextDirection",_setDirection);
+      if (this.stopped) return;
       let _action: number = Phaser.Math.RND.integerInRange(0, 100);
       let _direction: number = Phaser.Math.RND.integerInRange(0, 1);
 
@@ -220,6 +236,7 @@ namespace z89 {
 
     update() {
       if (
+        this.stopped ||
         this.scene.player.alpha < 1 ||
         (this.scene.player.isMasked() && this.itemObj.id == 102)
       ) {
@@ -288,6 +305,7 @@ namespace z89 {
                   y: this.setDestinationY(false),
                   duration: _runSpeed,
                   onUpdate: () => {
+                    if (this.stopped) return;
                     this.setDepth(this.y);
                   },
                   onComplete: () => {

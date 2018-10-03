@@ -105,6 +105,26 @@ gameData.ingame.conversation = {
     ];
   },
 
+  PHASER: (cs: z89.GameCity) => {
+    return [
+      {
+        text: z89.getLabel(223),
+        isItem: false,
+        fork: false,
+        options: [
+          {
+            option: z89.getLabel(224),
+            action: (cs: z89.GameCity, target: z89.Items) => {
+              cs.showViewer(gameData.photos.phaser, () => {
+                cs.playerBaloon.showBaloon("What a flashback! :D");
+              });
+            }
+          }
+        ]
+      }
+    ];
+  },
+
   RESTART: (cs: z89.GameCity) => {
     return [
       {

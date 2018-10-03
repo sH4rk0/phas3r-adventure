@@ -92,7 +92,11 @@ namespace z89 {
             "pointerdown",
             () => {
               this.hide();
-              this.scene.player.blinkTo(element.to);
+              if (this.scene.currentScene.name == "city") {
+                this.scene.player.blinkTo(element.to);
+              } else {
+                this.scene.showPlayerBaloon(219);
+              }
             },
             this
           )

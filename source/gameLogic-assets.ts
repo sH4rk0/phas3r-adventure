@@ -177,6 +177,13 @@ gameData.assets = {
       width: 18,
       height: 27,
       frames: 2
+    },
+    {
+      name: "room-64",
+      path: "assets/images/game/rooms/room-64.png",
+      width: 83,
+      height: 59,
+      frames: 2
     }
   ],
 
@@ -237,7 +244,45 @@ gameData.assets = {
     { name: "bottle", path: "assets/images/game/items/bottle.png" },
     { name: "door", path: "assets/images/game/items/door.png" },
     { name: "stairs", path: "assets/images/game/items/stairs.png" },
-    { name: "mask", path: "assets/images/game/items/mask.png" }
+    { name: "mask", path: "assets/images/game/items/mask.png" },
+    { name: "room-home", path: "assets/images/game/rooms/room-home.png" },
+    {
+      name: "room-home-bed",
+      path: "assets/images/game/rooms/room-home-bed.png"
+    },
+
+    {
+      name: "room-zak-poster",
+      path: "assets/images/game/rooms/room-zak-poster.png"
+    },
+    {
+      name: "room-foto-frame",
+      path: "assets/images/game/rooms/room-foto-frame.png"
+    },
+
+    /*
+    Photos
+    -------------------------------------------------------------*/
+    { name: "phaser-foto-1", path: "assets/images/foto/phaser/1.jpg" },
+    { name: "phaser-foto-2", path: "assets/images/foto/phaser/2.jpg" },
+    { name: "phaser-foto-3", path: "assets/images/foto/phaser/3.jpg" },
+    { name: "phaser-foto-4", path: "assets/images/foto/phaser/4.jpg" },
+    { name: "phaser-foto-5", path: "assets/images/foto/phaser/5.jpg" },
+    { name: "phaser-foto-6", path: "assets/images/foto/phaser/6.jpg" },
+    { name: "phaser-foto-7", path: "assets/images/foto/phaser/7.jpg" },
+    { name: "phaser-foto-8", path: "assets/images/foto/phaser/8.jpg" },
+
+    { name: "cake-foto-1", path: "assets/images/foto/cake/1.jpg" },
+    { name: "cake-foto-2", path: "assets/images/foto/cake/2.jpg" },
+    { name: "cake-foto-3", path: "assets/images/foto/cake/3.jpg" },
+    { name: "cake-foto-4", path: "assets/images/foto/cake/4.jpg" },
+    { name: "cake-foto-5", path: "assets/images/foto/cake/5.jpg" },
+    { name: "cake-foto-6", path: "assets/images/foto/cake/6.jpg" },
+    { name: "cake-foto-7", path: "assets/images/foto/cake/7.jpg" },
+    { name: "cake-foto-8", path: "assets/images/foto/cake/8.jpg" },
+    { name: "cake-foto-9", path: "assets/images/foto/cake/9.jpg" },
+    { name: "cake-foto-10", path: "assets/images/foto/cake/10.jpg" },
+    { name: "cake-foto-11", path: "assets/images/foto/cake/11.jpg" }
   ],
 
   sounds: [

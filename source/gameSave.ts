@@ -66,14 +66,14 @@ namespace z89 {
     }
 
     updateItems(): void {
-      let _itemsObj: Array<any> = [];
+      /*let _itemsObj: Array<any> = [];
 
       this.scene.groupAll.children.each((element: Items) => {
         if (element.itemObj != undefined) _itemsObj.push(element.itemObj);
       }, this);
 
       this.items = _itemsObj;
-
+*/
       this.updateSceneItems();
 
       this.updateSaveObj();

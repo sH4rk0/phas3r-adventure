@@ -83,6 +83,7 @@ namespace z89 {
     }
 
     beamIn(item: Items, callback?: any) {
+      if (item == undefined) return;
       item.setAlpha(0);
 
       let beam: Phaser.GameObjects.Sprite = this.scene.add.sprite(
@@ -96,6 +97,7 @@ namespace z89 {
         .setAlpha(0)
         .setDepth(item.y)
         .play("beam");
+      this.scene.groupAll.add(beam);
 
       /*
       let color2 = new Phaser.Display.Color(255, 255, 255);
@@ -111,6 +113,7 @@ namespace z89 {
         delay: 1000,
         repeat: 0,
         onComplete: () => {
+          if (item == undefined) return;
           this.scene.tweens.add({
             targets: item,
             alpha: 1,
@@ -137,6 +140,7 @@ namespace z89 {
           0,
           "beam"
         );
+        this.scene.groupAll.add(beam);
         beam
           .setScale(0.5, item.y / 200)
           .setOrigin(0.5, 0)

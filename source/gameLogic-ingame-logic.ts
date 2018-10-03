@@ -14,6 +14,17 @@ gameData.ingame.logic = {
       cs.showPlayerBaloon(81);
     }
   },
+  // examine foto frame
+  EXAMINE_38: (cs: z89.GameCity) => {},
+  // examine phaser logo
+  EXAMINE_15: (cs: z89.GameCity) => {
+    cs.setUpConversation(z89.conversationObj("PHASER", cs.currentItem));
+  },
+
+  // examine phaser logo
+  EXAMINE_5: (cs: z89.GameCity) => {
+    cs.showViewer(gameData.photos.cake);
+  },
 
   EXAMINE_14: (cs: z89.GameCity) => {
     cs.showPlayerBaloon(139);
@@ -252,10 +263,21 @@ gameData.ingame.logic = {
     cs.player.setAlpha(0.5);
   },
 
-  //use door
+  //use stairs
   USE_33: (cs: z89.GameCity) => {
-    cs.disableInteraction();
+    cs.addTween({
+      targets: cs.player,
+      alpha: 1,
+      duration: 500,
+      onComplete: () => {
+        cs.transition.show(() => {
+          cs.setUpScene("house");
+          cs.transitionHide();
+        }, 1);
+      }
+    });
 
+    /*
     cs.addDelay(500, () => {
       cs.addTween({ targets: cs.player, alpha: 0 });
       cs.getItem(50).start();
@@ -276,6 +298,7 @@ gameData.ingame.logic = {
         cs.updateItems();
       });
     });
+    */
   },
 
   //use zak mask
@@ -350,6 +373,7 @@ gameData.ingame.logic = {
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    */
 
+  //open door
   OPEN_34: (cs: z89.GameCity) => {
     cs.playerAnimation("player-use");
     const _item = cs.getItem(34);
@@ -427,6 +451,13 @@ gameData.ingame.logic = {
 
   //pickup blockchain
   PICKUP_32: (cs: z89.GameCity) => {
+    //to test scene transition
+
+    /*cs.transition.show(() => {
+      cs.setUpScene("city");
+      cs.transitionHide();
+    }, 1);
+    */
     cs.addInventoryItem(cs.getItem(32), false);
   },
 
