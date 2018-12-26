@@ -15,17 +15,13 @@ namespace z89 {
 
   export class Player extends Phaser.GameObjects.Sprite {
     scene: GameCity;
-    // private yMin: number = 606;
-    // private yMax: number = 720;
+
     private direction: PlayerDirection = PlayerDirection.RIGHT;
     private playerState: PlayerStates = PlayerStates.IDLE;
     private playerTween: Phaser.Tweens.Tween;
     private _isMasked: boolean = false;
     private _isTalking: boolean = false;
-    //private money: number = 10;
-    //private inventory: Array<string> = [];
     private intersect: boolean;
-    // private myArea: Phaser.GameObjects.Sprite;
 
     private illogicText: Array<number> = [19, 20, 13, 21];
 
@@ -110,13 +106,15 @@ namespace z89 {
 
       //this.setPipeline("testPipeline");
       //this.pipeline.setFloat2('uResolution', this.width, this.height);
-      /*this.scene.input.keyboard.on("keyup", event => {
+
+      /* this.scene.input.keyboard.on("keyup", event => {
         //console.log("player",event.key);
         if (event.key == "p") {
           // console.log("punch");
           this.playAnimation("player-punch");
         }
-      });*/
+      });
+      */
 
       this.scene = scene;
 
@@ -261,12 +259,37 @@ namespace z89 {
         _y = _intersect.point.y + _offsetY;
         this.intersect = true;
 
-        /*  var graphics = this.scene.add.graphics({
+        if (_item != null) {
+          //console.log("my case");
+          //console.log(_item.itemObj.x, _x, _item.itemObj.y, _y);
+
+          if (_item.itemObj.y <= _y || _item.itemObj.y >= _y) {
+            if (_item.itemObj.x <= _x) {
+              _x = _item.itemObj.x + _item.itemObj.offsetX;
+            } else {
+              _x = _item.itemObj.x - _item.itemObj.offsetX;
+            }
+          } else if (_item.itemObj.x < _x || _item.itemObj.x > _x) {
+            if (_item.itemObj.y <= _y) {
+              _y = _item.itemObj.y - _item.itemObj.offsetY;
+            } else {
+              _y = _item.itemObj.y + _item.itemObj.offsetY;
+            }
+          }
+        }
+        /**
+         * print destination point
+         */
+        /* var graphics = this.scene.add.graphics({
           fillStyle: { color: 0xff0000 }
         });
         var point1 = new Phaser.Geom.Point(_x, _y); // point at 0/0
         graphics.fillPointShape(point1, 2);
-        */
+        *
+        /
+        /**
+         *
+         */
       }
 
       let distance: number = Phaser.Math.Distance.Between(
@@ -288,7 +311,6 @@ namespace z89 {
 
       if (distance < 10 || (distanceX < 10 && distanceY < 10)) {
         this.playAnimation("player-idle");
-
         this.setDepth(this.y);
         this.scene.saveGameObj.updatePlayerPosition(this.x, this.y);
 
@@ -308,6 +330,27 @@ namespace z89 {
         }
 
         return;
+      } else {
+        if (_item != null && _intersect.point != null) {
+          //console.log("my case");
+          //console.log(_item.itemObj.x, _x, _item.itemObj.y, _y);
+
+          if (_item.itemObj.y <= _y || _item.itemObj.y >= _y) {
+            if (_item.itemObj.x <= _x) {
+              _x = _item.itemObj.x + _item.itemObj.offsetX;
+            } else {
+              _x = _item.itemObj.x - _item.itemObj.offsetX;
+            }
+            distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
+          } else if (_item.itemObj.x < _x || _item.itemObj.x > _x) {
+            if (_item.itemObj.y <= _y) {
+              _y = _item.itemObj.y - _item.itemObj.offsetY;
+            } else {
+              _y = _item.itemObj.y + _item.itemObj.offsetY;
+            }
+            distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
+          }
+        }
       }
 
       /*
@@ -329,6 +372,7 @@ namespace z89 {
           this.setDepth(this.y);
         },
         onComplete: () => {
+          //console.log(this.x, this.y, _x, _y, _item);
           //console.log(this.x, this.y, _item);
 
           this.playerTween.stop();
@@ -368,11 +412,11 @@ namespace z89 {
 
     illogicAction() {
       this.showBaloon(
-        this.illogicText[
-          z89.getLabel(
+        z89.getLabel(
+          this.illogicText[
             Phaser.Math.RND.integerInRange(0, this.illogicText.length - 1)
-          )
-        ]
+          ]
+        )
       );
     }
 

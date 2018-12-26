@@ -1,4 +1,4 @@
-// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "governor", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 39 "tree", 40 "room door", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
 
 gameData.ingame.scenes = [
   {
@@ -96,11 +96,12 @@ gameData.ingame.scenes = [
       24,
       25,
       26,
-      27,
+      //27,//governor
       28,
       29,
       33,
       34,
+      39,
       50,
       100,
       101,
@@ -164,7 +165,7 @@ gameData.ingame.scenes = [
 
     obstacles: [],
     cameraBounds: { x: 0, y: 0, width: 1080, height: 720 },
-    startItems: [36, 37, 38],
+    startItems: [36, 37, 38, 40],
     items: [],
     playerStartPosition: { x: 852, y: 500 },
     playerPosition: { x: null, y: null }
@@ -203,7 +204,7 @@ gameData.ingame.items = [
       { name: "working", frames: [5, 6], rate: 1, loop: true }
     ],
     currentAnimation: "notWorking",
-    working: true,
+    working: false,
     name: 12,
     x: 1214,
     y: 596,
@@ -357,7 +358,7 @@ gameData.ingame.items = [
     type: 1,
     sprite: "jukebox",
     name: 88,
-    x: 2300,
+    x: 2450,
     y: 650 - 48,
     animations: [
       { name: "idle", frames: [0], rate: 1, loop: false },
@@ -403,7 +404,7 @@ gameData.ingame.items = [
     type: 1,
     sprite: "woofer",
     name: 92,
-    x: 2300,
+    x: 2450,
     y: 650 - 48,
     currentAnimation: "idle",
     onStart: true,
@@ -764,7 +765,7 @@ gameData.ingame.items = [
     name: 80,
     x: 1360,
     y: 592,
-    open: true,
+    open: false,
     onStart: true,
     interactive: true,
     offsetX: 40,
@@ -809,7 +810,7 @@ gameData.ingame.items = [
     y: 368,
     onStart: true,
     interactive: true,
-    offsetX: 10,
+    offsetX: 40,
     fixedToCamera: false,
     checkIntersect: false
   },
@@ -822,7 +823,38 @@ gameData.ingame.items = [
     y: 375,
     onStart: true,
     interactive: true,
-    offsetX: 10,
+    offsetX: 30,
+    fixedToCamera: false,
+    checkIntersect: false
+  },
+  {
+    id: 39,
+    type: 1,
+    sprite: "tree",
+    animations: [
+      { name: "light", frames: [0, 1, 2, 3, 4, 5], rate: 2, loop: true }
+    ],
+    currentAnimation: "light",
+    name: 222,
+    x: 100,
+    y: 604,
+    onStart: true,
+    interactive: false,
+    offsetX: 40,
+    fixedToCamera: false,
+    checkIntersect: true
+  },
+
+  {
+    id: 40,
+    type: 1,
+    sprite: "room-door",
+    name: 80,
+    x: 910,
+    y: 480,
+    onStart: true,
+    interactive: true,
+    offsetX: 40,
     fixedToCamera: false,
     checkIntersect: false
   },

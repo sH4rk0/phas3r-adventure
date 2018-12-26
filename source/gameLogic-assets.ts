@@ -180,10 +180,17 @@ gameData.assets = {
     },
     {
       name: "room-64",
-      path: "assets/images/game/rooms/room-64.png",
+      path: "assets/images/game/rooms/home/room-64.png",
       width: 83,
       height: 59,
       frames: 2
+    },
+    {
+      name: "tree",
+      path: "assets/images/game/items/tree.png",
+      width: 250,
+      height: 305,
+      frames: 6
     }
   ],
 
@@ -245,19 +252,25 @@ gameData.assets = {
     { name: "door", path: "assets/images/game/items/door.png" },
     { name: "stairs", path: "assets/images/game/items/stairs.png" },
     { name: "mask", path: "assets/images/game/items/mask.png" },
-    { name: "room-home", path: "assets/images/game/rooms/room-home.png" },
+
+    { name: "room-home", path: "assets/images/game/rooms/home/room-home.png" },
     {
       name: "room-home-bed",
-      path: "assets/images/game/rooms/room-home-bed.png"
+      path: "assets/images/game/rooms/home/room-home-bed.png"
     },
 
     {
       name: "room-zak-poster",
-      path: "assets/images/game/rooms/room-zak-poster.png"
+      path: "assets/images/game/rooms/home/room-zak-poster.png"
     },
     {
       name: "room-foto-frame",
-      path: "assets/images/game/rooms/room-foto-frame.png"
+      path: "assets/images/game/rooms/home/room-foto-frame.png"
+    },
+
+    {
+      name: "room-door",
+      path: "assets/images/game/rooms/home/room-door.png"
     },
 
     /*

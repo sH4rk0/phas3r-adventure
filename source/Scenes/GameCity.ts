@@ -315,6 +315,7 @@ namespace z89 {
         this.processSavedGameMulti();
       } else {
         this.setUpScene("city");
+
         this.playerMenu.openOnStart();
         this.saveGameObj.updatePlayerPosition(this.player.x, this.player.y);
       }
@@ -323,7 +324,7 @@ namespace z89 {
       this.started = true;
     }
 
-    setUpScene(name: string) {
+    setUpScene(name: string, _x?: integer, _y?: integer) {
       //console.log("setup scene");
       gameData.ingame.scenes.forEach(element => {
         if (element.name === name) {
@@ -365,6 +366,13 @@ namespace z89 {
               .setX(element.playerStartPosition.x)
               .setY(element.playerStartPosition.y)
               .setDepth(element.playerStartPosition.y);
+          }
+
+          if (_x != null && _y != null) {
+            this.player
+              .setX(_x)
+              .setY(_y)
+              .setDepth(_y);
           }
 
           //this.gameUtils.composeVertexMap(element);

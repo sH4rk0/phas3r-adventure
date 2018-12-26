@@ -373,6 +373,20 @@ gameData.ingame.logic = {
   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    */
 
+  OPEN_40: (cs: z89.GameCity) => {
+    cs.addTween({
+      targets: cs.player,
+      alpha: 1,
+      duration: 500,
+      onComplete: () => {
+        cs.transition.show(() => {
+          cs.setUpScene("city", 1360, 604);
+          cs.transitionHide();
+        }, 1);
+      }
+    });
+  },
+
   //open door
   OPEN_34: (cs: z89.GameCity) => {
     cs.playerAnimation("player-use");
@@ -383,7 +397,9 @@ gameData.ingame.logic = {
         cs.addTween({ targets: _item, x: _item.x + 76, ease: "Quad.easeOut" });
       });
     } else {
-      cs.showPlayerBaloon(156);
+      cs.addDelay(500, () => {
+        cs.showPlayerBaloon(156);
+      });
     }
   },
   /*

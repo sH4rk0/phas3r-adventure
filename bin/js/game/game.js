@@ -479,7 +479,7 @@ var z89;
             this.mainCamera.startFollow(this.player, true, 0.15, 1);
             this.started = true;
         };
-        GameCity.prototype.setUpScene = function (name) {
+        GameCity.prototype.setUpScene = function (name, _x, _y) {
             var _this = this;
             //console.log("setup scene");
             gameData.ingame.scenes.forEach(function (element) {
@@ -511,6 +511,12 @@ var z89;
                             .setX(element.playerStartPosition.x)
                             .setY(element.playerStartPosition.y)
                             .setDepth(element.playerStartPosition.y);
+                    }
+                    if (_x != null && _y != null) {
+                        _this.player
+                            .setX(_x)
+                            .setY(_y)
+                            .setDepth(_y);
                     }
                     //this.gameUtils.composeVertexMap(element);
                     if (_this.graphics != undefined)
@@ -2462,10 +2468,17 @@ gameData.assets = {
         },
         {
             name: "room-64",
-            path: "assets/images/game/rooms/room-64.png",
+            path: "assets/images/game/rooms/home/room-64.png",
             width: 83,
             height: 59,
             frames: 2
+        },
+        {
+            name: "tree",
+            path: "assets/images/game/items/tree.png",
+            width: 250,
+            height: 305,
+            frames: 6
         }
     ],
     images: [
@@ -2517,18 +2530,22 @@ gameData.assets = {
         { name: "door", path: "assets/images/game/items/door.png" },
         { name: "stairs", path: "assets/images/game/items/stairs.png" },
         { name: "mask", path: "assets/images/game/items/mask.png" },
-        { name: "room-home", path: "assets/images/game/rooms/room-home.png" },
+        { name: "room-home", path: "assets/images/game/rooms/home/room-home.png" },
         {
             name: "room-home-bed",
-            path: "assets/images/game/rooms/room-home-bed.png"
+            path: "assets/images/game/rooms/home/room-home-bed.png"
         },
         {
             name: "room-zak-poster",
-            path: "assets/images/game/rooms/room-zak-poster.png"
+            path: "assets/images/game/rooms/home/room-zak-poster.png"
         },
         {
             name: "room-foto-frame",
-            path: "assets/images/game/rooms/room-foto-frame.png"
+            path: "assets/images/game/rooms/home/room-foto-frame.png"
+        },
+        {
+            name: "room-door",
+            path: "assets/images/game/rooms/home/room-door.png"
         },
         /*
         Photos
@@ -3170,7 +3187,7 @@ gameData.ingame.conversation = {
     }
 };
 /*https://www.amazon.com/Harry-Potter-Cloak-of-Invisibility/dp/B00421A5FS*/
-// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "daniele", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
+// 1 "drink-machine", 2 "terminal", 3 "coke", 4 "trash", 5 "cake", 6 "terminal", 7 "trash", 8 "bottle", 9 "floppy", 10 "screwdriver", 11 "jukebox", 12 "woofer", 13 "amazonPack", 14 "arcade", 15 "phaser-logo", 16 "arete", 17 "daniele", 18 "davide", 19 "michele", 20 "chris", 21 "sidney", 22 "newsbg", 23 "cable", 24 "scotch", 25 "coins", 26 "devday", 27 "governor", 28 "photonstorm", 29 "interphone", 30 "bitcoins", 31 "invite", 32 "blockchain", 33 "stairs", 34 "door", 35 "mask", 36 "room-64", 37 "room-zak-poster", 38 "room-foto-frame", 39 "tree", 40 "room door", 50 "skills", 100 "badguy 1",  101 "jumper",  102 "runner", 103 "badguy 2", 104 "badguy 3", 105 "girl 1", 106 "pastry"
 gameData.ingame.scenes = [
     {
         name: "city",
@@ -3264,11 +3281,12 @@ gameData.ingame.scenes = [
             24,
             25,
             26,
-            27,
+            //27,//governor
             28,
             29,
             33,
             34,
+            39,
             50,
             100,
             101,
@@ -3327,7 +3345,7 @@ gameData.ingame.scenes = [
         ],
         obstacles: [],
         cameraBounds: { x: 0, y: 0, width: 1080, height: 720 },
-        startItems: [36, 37, 38],
+        startItems: [36, 37, 38, 40],
         items: [],
         playerStartPosition: { x: 852, y: 500 },
         playerPosition: { x: null, y: null }
@@ -3364,7 +3382,7 @@ gameData.ingame.items = [
             { name: "working", frames: [5, 6], rate: 1, loop: true }
         ],
         currentAnimation: "notWorking",
-        working: true,
+        working: false,
         name: 12,
         x: 1214,
         y: 596,
@@ -3510,7 +3528,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "jukebox",
         name: 88,
-        x: 2300,
+        x: 2450,
         y: 650 - 48,
         animations: [
             { name: "idle", frames: [0], rate: 1, loop: false },
@@ -3556,7 +3574,7 @@ gameData.ingame.items = [
         type: 1,
         sprite: "woofer",
         name: 92,
-        x: 2300,
+        x: 2450,
         y: 650 - 48,
         currentAnimation: "idle",
         onStart: true,
@@ -3899,7 +3917,7 @@ gameData.ingame.items = [
         name: 80,
         x: 1360,
         y: 592,
-        open: true,
+        open: false,
         onStart: true,
         interactive: true,
         offsetX: 40,
@@ -3944,7 +3962,7 @@ gameData.ingame.items = [
         y: 368,
         onStart: true,
         interactive: true,
-        offsetX: 10,
+        offsetX: 40,
         fixedToCamera: false,
         checkIntersect: false
     },
@@ -3957,7 +3975,37 @@ gameData.ingame.items = [
         y: 375,
         onStart: true,
         interactive: true,
-        offsetX: 10,
+        offsetX: 30,
+        fixedToCamera: false,
+        checkIntersect: false
+    },
+    {
+        id: 39,
+        type: 1,
+        sprite: "tree",
+        animations: [
+            { name: "light", frames: [0, 1, 2, 3, 4, 5], rate: 2, loop: true }
+        ],
+        currentAnimation: "light",
+        name: 222,
+        x: 100,
+        y: 604,
+        onStart: true,
+        interactive: false,
+        offsetX: 40,
+        fixedToCamera: false,
+        checkIntersect: true
+    },
+    {
+        id: 40,
+        type: 1,
+        sprite: "room-door",
+        name: 80,
+        x: 910,
+        y: 480,
+        onStart: true,
+        interactive: true,
+        offsetX: 40,
         fixedToCamera: false,
         checkIntersect: false
     },
@@ -4588,6 +4636,19 @@ gameData.ingame.logic = {
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
+    OPEN_40: function (cs) {
+        cs.addTween({
+            targets: cs.player,
+            alpha: 1,
+            duration: 500,
+            onComplete: function () {
+                cs.transition.show(function () {
+                    cs.setUpScene("city", 1360, 604);
+                    cs.transitionHide();
+                }, 1);
+            }
+        });
+    },
     //open door
     OPEN_34: function (cs) {
         cs.playerAnimation("player-use");
@@ -4598,7 +4659,9 @@ gameData.ingame.logic = {
             });
         }
         else {
-            cs.showPlayerBaloon(156);
+            cs.addDelay(500, function () {
+                cs.showPlayerBaloon(156);
+            });
         }
     },
     /*
@@ -6367,13 +6430,10 @@ var z89;
         __extends(Player, _super);
         function Player(scene) {
             var _this = _super.call(this, scene, 0, 0, "player") || this;
-            // private yMin: number = 606;
-            // private yMax: number = 720;
             _this.direction = PlayerDirection.RIGHT;
             _this.playerState = PlayerStates.IDLE;
             _this._isMasked = false;
             _this._isTalking = false;
-            // private myArea: Phaser.GameObjects.Sprite;
             _this.illogicText = [19, 20, 13, 21];
             _this.animations = [
                 {
@@ -6449,13 +6509,14 @@ var z89;
             ];
             //this.setPipeline("testPipeline");
             //this.pipeline.setFloat2('uResolution', this.width, this.height);
-            /*this.scene.input.keyboard.on("keyup", event => {
+            /* this.scene.input.keyboard.on("keyup", event => {
               //console.log("player",event.key);
               if (event.key == "p") {
                 // console.log("punch");
                 this.playAnimation("player-punch");
               }
-            });*/
+            });
+            */
             _this.scene = scene;
             var config;
             _this.animations.forEach(function (element) {
@@ -6566,12 +6627,39 @@ var z89;
                 _x = _intersect.point.x + _offsetX;
                 _y = _intersect.point.y + _offsetY;
                 this.intersect = true;
-                /*  var graphics = this.scene.add.graphics({
+                if (_item != null) {
+                    //console.log("my case");
+                    //console.log(_item.itemObj.x, _x, _item.itemObj.y, _y);
+                    if (_item.itemObj.y <= _y || _item.itemObj.y >= _y) {
+                        if (_item.itemObj.x <= _x) {
+                            _x = _item.itemObj.x + _item.itemObj.offsetX;
+                        }
+                        else {
+                            _x = _item.itemObj.x - _item.itemObj.offsetX;
+                        }
+                    }
+                    else if (_item.itemObj.x < _x || _item.itemObj.x > _x) {
+                        if (_item.itemObj.y <= _y) {
+                            _y = _item.itemObj.y - _item.itemObj.offsetY;
+                        }
+                        else {
+                            _y = _item.itemObj.y + _item.itemObj.offsetY;
+                        }
+                    }
+                }
+                /**
+                 * print destination point
+                 */
+                /* var graphics = this.scene.add.graphics({
                   fillStyle: { color: 0xff0000 }
                 });
                 var point1 = new Phaser.Geom.Point(_x, _y); // point at 0/0
                 graphics.fillPointShape(point1, 2);
-                */
+                *
+                /
+                /**
+                 *
+                 */
             }
             var distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
             var distanceX = Phaser.Math.Distance.Between(this.x, 0, _x, 0);
@@ -6604,6 +6692,30 @@ var z89;
                 }
                 return;
             }
+            else {
+                if (_item != null && _intersect.point != null) {
+                    //console.log("my case");
+                    //console.log(_item.itemObj.x, _x, _item.itemObj.y, _y);
+                    if (_item.itemObj.y <= _y || _item.itemObj.y >= _y) {
+                        if (_item.itemObj.x <= _x) {
+                            _x = _item.itemObj.x + _item.itemObj.offsetX;
+                        }
+                        else {
+                            _x = _item.itemObj.x - _item.itemObj.offsetX;
+                        }
+                        distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
+                    }
+                    else if (_item.itemObj.x < _x || _item.itemObj.x > _x) {
+                        if (_item.itemObj.y <= _y) {
+                            _y = _item.itemObj.y - _item.itemObj.offsetY;
+                        }
+                        else {
+                            _y = _item.itemObj.y + _item.itemObj.offsetY;
+                        }
+                        distance = Phaser.Math.Distance.Between(this.x, this.y, _x, _y);
+                    }
+                }
+            }
             /*
             if (distanceX > distanceY) {
               distance = distanceX;
@@ -6622,6 +6734,7 @@ var z89;
                     _this.setDepth(_this.y);
                 },
                 onComplete: function () {
+                    //console.log(this.x, this.y, _x, _y, _item);
                     //console.log(this.x, this.y, _item);
                     _this.playerTween.stop();
                     _this.playerTween = null;
@@ -6656,7 +6769,7 @@ var z89;
             }
         };
         Player.prototype.illogicAction = function () {
-            this.showBaloon(this.illogicText[z89.getLabel(Phaser.Math.RND.integerInRange(0, this.illogicText.length - 1))]);
+            this.showBaloon(z89.getLabel(this.illogicText[Phaser.Math.RND.integerInRange(0, this.illogicText.length - 1)]));
         };
         Player.prototype.turnLeft = function () {
             this.scaleX = -1;
@@ -7361,8 +7474,9 @@ var z89;
                 if (_actionObj.key != "noAction" &&
                     _actionObj.key.indexOf("_") != -1 &&
                     ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
-                        (_actionObj.inventory.length == 0 && _actionObj.item != undefined)))
+                        (_actionObj.inventory.length == 0 && _actionObj.item != undefined))) {
                     this.scene.player.illogicAction();
+                }
             }
             this.actionTimer = this.scene.time.delayedCall(3000, function () {
                 _this.resetActions();
@@ -7615,7 +7729,7 @@ var z89;
                     this.scene.playerAnimation("player-pickdrop");
             }
             else {
-                var _currActionObj = this.playerActions.getActionObject();
+                var _currActionObj = this.getActionObject();
                 if (_currActionObj != undefined) {
                     var _item = void 0;
                     if (_currActionObj.item == null) {
@@ -7650,9 +7764,7 @@ var z89;
             var _this = _super.call(this, scene, 0, 0) || this;
             _this.setAlpha(0);
             _this.baloonBg = _this.scene.add.image(0, 20, "baloonBg");
-            _this.baloonBg
-                .setOrigin(0.5, 1)
-                .setAlpha(0.8);
+            _this.baloonBg.setOrigin(0.5, 1).setAlpha(0.8);
             _this.baloonBorder = _this.scene.add.image(0, 20, "baloonBorder");
             _this.baloonBorder.setOrigin(0.5, 1).setTint(0x00ff00);
             _this.baloonPin = _this.scene.add.image(0, 30, "baloonPin");
@@ -7664,9 +7776,14 @@ var z89;
             _this.baloonText
                 .setWordWrapWidth(320)
                 .setTint(0x00ff00)
-                .setOrigin(.5)
+                .setOrigin(0.5)
                 .setDepth(2001);
-            _this.add([_this.baloonBg, _this.baloonBorder, _this.baloonPin, _this.baloonText]);
+            _this.add([
+                _this.baloonBg,
+                _this.baloonBorder,
+                _this.baloonPin,
+                _this.baloonText
+            ]);
             _this.scene.add.existing(_this);
             return _this;
         }
@@ -7698,10 +7815,12 @@ var z89;
         PlayerBaloon.prototype.fixSize = function () {
             this.setX(this.scene.player.x);
             this.setY(this.scene.player.y - this.scene.player.height - 50);
-            this.baloonBg.setScale(1, ((this.baloonText.getBounds().height + 20) / 50));
+            this.baloonBg.setScale(1, (this.baloonText.getBounds().height + 20) / 50);
             var bound = this.baloonBg.getBounds();
             //console.log(this.baloonText.getBounds().y-this.baloonBg.getBounds().y);
-            this.baloonText.setY(this.baloonText.y - (this.baloonText.getBounds().y - this.baloonBg.getBounds().y) + 10);
+            this.baloonText.setY(this.baloonText.y -
+                (this.baloonText.getBounds().y - this.baloonBg.getBounds().y) +
+                10);
         };
         return PlayerBaloon;
     }(Phaser.GameObjects.Container));

@@ -541,8 +541,9 @@ namespace z89 {
           _actionObj.key.indexOf("_") != -1 &&
           ((_actionObj.inventory.length > 0 && _actionObj.item != undefined) ||
             (_actionObj.inventory.length == 0 && _actionObj.item != undefined))
-        )
+        ) {
           this.scene.player.illogicAction();
+        }
       }
 
       this.actionTimer = this.scene.time.delayedCall(
@@ -845,7 +846,7 @@ namespace z89 {
         if (noAnimation != undefined && !noAnimation)
           this.scene.playerAnimation("player-pickdrop");
       } else {
-        let _currActionObj: any = this.playerActions.getActionObject();
+        let _currActionObj: any = this.getActionObject();
 
         if (_currActionObj != undefined) {
           let _item: Items;
