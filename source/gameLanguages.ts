@@ -520,16 +520,45 @@ let gameData = {
     phaser: [
       {
         image: "phaser-foto-1",
+        url: "http://www.zero89.it/assets/images/foto/phaser/1.jpg",
         text: "Universal JS day - Ferrara 2017",
         link: "https://vimeo.com/218937256"
       },
-      { image: "phaser-foto-2", text: "Hello all!" },
-      { image: "phaser-foto-3", text: "Let's start with phaser!" },
-      { image: "phaser-foto-4", text: "Alert! The game is started..." },
-      { image: "phaser-foto-5", text: "Game Over!" },
-      { image: "phaser-foto-6", text: "Multiplayer example with Firebase..." },
-      { image: "phaser-foto-7", text: "...ready to run!" },
-      { image: "phaser-foto-8", text: "...winners and loosers!" }
+      {
+        image: "phaser-foto-2",
+        text: "Hello all!",
+        url: "http://www.zero89.it/assets/images/foto/phaser/2.jpg"
+      },
+      {
+        image: "phaser-foto-3",
+        text: "Let's start with phaser!",
+        url: "http://www.zero89.it/assets/images/foto/phaser/3.jpg"
+      },
+      {
+        image: "phaser-foto-4",
+        text: "Alert! The game is started...",
+        url: "http://www.zero89.it/assets/images/foto/phaser/4.jpg"
+      },
+      {
+        image: "phaser-foto-5",
+        text: "Game Over!",
+        url: "http://www.zero89.it/assets/images/foto/phaser/5.jpg"
+      },
+      {
+        image: "phaser-foto-6",
+        text: "Multiplayer example with Firebase...",
+        url: "http://www.zero89.it/assets/images/foto/phaser/6.jpg"
+      },
+      {
+        image: "phaser-foto-7",
+        text: "...ready to run!",
+        url: "http://www.zero89.it/assets/images/foto/phaser/7.jpg"
+      },
+      {
+        image: "phaser-foto-8",
+        text: "...winners and loosers!",
+        url: "http://www.zero89.it/assets/images/foto/phaser/8.jpg"
+      }
     ],
     cake: [
       {

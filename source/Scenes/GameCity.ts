@@ -855,7 +855,7 @@ namespace z89 {
     }
 
     showViewer(images: Array<any>, callback?: any): void {
-      this.viewer.show(images, callback);
+      this.viewer.preload(images, callback);
       //console.log("showViewer");
     }
   }

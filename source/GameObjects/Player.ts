@@ -392,9 +392,21 @@ namespace z89 {
             }
 
             this.scene.playerActions.doActionSequence(_item);
+            if (_item.isInteractive()) this.scene.playerActions.show();
+            /*let distance: number = Phaser.Math.Distance.Between(
+              this.x,
+              this.y,
+              _item.x,
+              _item.y
+            );
+
+            if (distance < 100) {
+              this.scene.playerActions.doActionSequence(_item);
+              
+            }
+            */
 
             // console.log(_item);
-            if (_item.isInteractive()) this.scene.playerActions.show();
           }
 
           if (_intersect[0]) this.showBaloon(z89.getLabel(11));

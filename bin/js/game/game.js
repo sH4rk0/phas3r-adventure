@@ -134,14 +134,16 @@ var z89;
         __extends(Preloader, _super);
         function Preloader(test) {
             return _super.call(this, {
-                key: 'Preloader',
+                key: "Preloader",
                 pack: {
-                    files: [{
-                            type: 'plugin',
-                            key: 'rexwebfontloaderplugin',
-                            url: '/js/libs/webfonts.plugin.js',
+                    files: [
+                        {
+                            type: "plugin",
+                            key: "rexwebfontloaderplugin",
+                            url: "/js/libs/webfonts.plugin.js",
                             start: true
-                        }]
+                        }
+                    ]
                 }
             }) || this;
         }
@@ -179,7 +181,7 @@ var z89;
                     z89.pushSound(_sound);
                 });
                 _this.body.className = "";
-                _this.scene.start('GameCity');
+                _this.scene.start("GameCity");
                 console.log("load assetts complete");
             });
             //Assets Load
@@ -209,10 +211,10 @@ var z89;
                 z89.getZero89Data().forEach(function (element) {
                     _this.load.image("zeroImg" + element.key, "http://www.zero89.it/" + element.c);
                 });
-                this.plugins.get('rexwebfontloaderplugin').addToScene(this);
+                this.plugins.get("rexwebfontloaderplugin").addToScene(this);
                 var config = {
                     google: {
-                        families: ['Roboto']
+                        families: ["Roboto"]
                     }
                 };
                 this.load.rexWebFont(config);
@@ -892,7 +894,7 @@ var z89;
             this.saveGameObj.updateItems();
         };
         GameCity.prototype.showViewer = function (images, callback) {
-            this.viewer.show(images, callback);
+            this.viewer.preload(images, callback);
             //console.log("showViewer");
         };
         return GameCity;
@@ -1914,16 +1916,45 @@ var gameData = {
         phaser: [
             {
                 image: "phaser-foto-1",
+                url: "http://www.zero89.it/assets/images/foto/phaser/1.jpg",
                 text: "Universal JS day - Ferrara 2017",
                 link: "https://vimeo.com/218937256"
             },
-            { image: "phaser-foto-2", text: "Hello all!" },
-            { image: "phaser-foto-3", text: "Let's start with phaser!" },
-            { image: "phaser-foto-4", text: "Alert! The game is started..." },
-            { image: "phaser-foto-5", text: "Game Over!" },
-            { image: "phaser-foto-6", text: "Multiplayer example with Firebase..." },
-            { image: "phaser-foto-7", text: "...ready to run!" },
-            { image: "phaser-foto-8", text: "...winners and loosers!" }
+            {
+                image: "phaser-foto-2",
+                text: "Hello all!",
+                url: "http://www.zero89.it/assets/images/foto/phaser/2.jpg"
+            },
+            {
+                image: "phaser-foto-3",
+                text: "Let's start with phaser!",
+                url: "http://www.zero89.it/assets/images/foto/phaser/3.jpg"
+            },
+            {
+                image: "phaser-foto-4",
+                text: "Alert! The game is started...",
+                url: "http://www.zero89.it/assets/images/foto/phaser/4.jpg"
+            },
+            {
+                image: "phaser-foto-5",
+                text: "Game Over!",
+                url: "http://www.zero89.it/assets/images/foto/phaser/5.jpg"
+            },
+            {
+                image: "phaser-foto-6",
+                text: "Multiplayer example with Firebase...",
+                url: "http://www.zero89.it/assets/images/foto/phaser/6.jpg"
+            },
+            {
+                image: "phaser-foto-7",
+                text: "...ready to run!",
+                url: "http://www.zero89.it/assets/images/foto/phaser/7.jpg"
+            },
+            {
+                image: "phaser-foto-8",
+                text: "...winners and loosers!",
+                url: "http://www.zero89.it/assets/images/foto/phaser/8.jpg"
+            }
         ],
         cake: [
             {
@@ -2546,10 +2577,11 @@ gameData.assets = {
         {
             name: "room-door",
             path: "assets/images/game/rooms/home/room-door.png"
-        },
+        }
         /*
         Photos
         -------------------------------------------------------------*/
+        /*
         { name: "phaser-foto-1", path: "assets/images/foto/phaser/1.jpg" },
         { name: "phaser-foto-2", path: "assets/images/foto/phaser/2.jpg" },
         { name: "phaser-foto-3", path: "assets/images/foto/phaser/3.jpg" },
@@ -2558,6 +2590,7 @@ gameData.assets = {
         { name: "phaser-foto-6", path: "assets/images/foto/phaser/6.jpg" },
         { name: "phaser-foto-7", path: "assets/images/foto/phaser/7.jpg" },
         { name: "phaser-foto-8", path: "assets/images/foto/phaser/8.jpg" },
+    
         { name: "cake-foto-1", path: "assets/images/foto/cake/1.jpg" },
         { name: "cake-foto-2", path: "assets/images/foto/cake/2.jpg" },
         { name: "cake-foto-3", path: "assets/images/foto/cake/3.jpg" },
@@ -2569,6 +2602,7 @@ gameData.assets = {
         { name: "cake-foto-9", path: "assets/images/foto/cake/9.jpg" },
         { name: "cake-foto-10", path: "assets/images/foto/cake/10.jpg" },
         { name: "cake-foto-11", path: "assets/images/foto/cake/11.jpg" }
+        */
     ],
     sounds: [
         {
@@ -6751,9 +6785,21 @@ var z89;
                                 _this.changeDirection();
                         }
                         _this.scene.playerActions.doActionSequence(_item);
-                        // console.log(_item);
                         if (_item.isInteractive())
                             _this.scene.playerActions.show();
+                        /*let distance: number = Phaser.Math.Distance.Between(
+                          this.x,
+                          this.y,
+                          _item.x,
+                          _item.y
+                        );
+            
+                        if (distance < 100) {
+                          this.scene.playerActions.doActionSequence(_item);
+                          
+                        }
+                        */
+                        // console.log(_item);
                     }
                     if (_intersect[0])
                         _this.showBaloon(z89.getLabel(11));
@@ -8992,7 +9038,7 @@ var z89;
         TerminalLogic.prototype.addChar = function (key) {
             if (this.inputIsDisabled)
                 return;
-            console.log(key);
+            // console.log(key);
             var col = this.getCursorCol();
             var row = this.getCursorRow();
             if (this.isShell) {
@@ -9149,7 +9195,12 @@ var z89;
                 this.scrollDown();
                 this.cursor.y = this.setCursorY(row - 1);
             }
-            console.log("row: " + row, "command: " + command, "login: " + this.login, "shelltype: " + this.shellType);
+            /*console.log(
+              "row: " + row,
+              "command: " + command,
+              "login: " + this.login,
+              "shelltype: " + this.shellType
+            );*/
             if (this.isShell) {
                 switch (this.shellType) {
                     case 0:
@@ -9549,6 +9600,7 @@ var z89;
             _this.currentIndex = 0;
             _this.isAnim = false;
             _this.fontFamily = "commodore";
+            _this.isLoading = false;
             _this.scene = scene;
             _this.setScrollFactor(0).setAlpha(0);
             _this.layer = _this.scene.add.sprite(540, 360, "menu-phone-bg");
@@ -9567,7 +9619,6 @@ var z89;
                 .setTint(0x00ff00)
                 .setDepth(3000)
                 .setScrollFactor(0);
-            _this.add(_this.layer);
             _this.arrowLeft = _this.scene.add.sprite(100, 360, "triangleBtn");
             _this.image = _this.scene.add.image(540, 360, "");
             _this.arrowLeft
@@ -9587,13 +9638,16 @@ var z89;
             _this.arrowRight.addListener("pointerdown", function () {
                 _this.nextImage();
             });
+            _this.spinner = _this.scene.add.sprite(540, 360, "spinner");
+            _this.spinner.setOrigin(0.5).setAlpha(0);
             _this.add([
                 _this.layer,
                 _this.image,
                 _this.arrowLeft,
                 _this.arrowRight,
                 _this.textLayer,
-                _this.text
+                _this.text,
+                _this.spinner
             ]);
             _this.scene.add.existing(_this);
             return _this;
@@ -9604,7 +9658,7 @@ var z89;
             this.currentIndex--;
             if (this.currentIndex < 0)
                 this.currentIndex = this.images.length - 1;
-            console.log("prev", this.currentIndex);
+            //console.log("prev", this.currentIndex);
             this.displayImage();
         };
         Viewer.prototype.nextImage = function () {
@@ -9613,7 +9667,7 @@ var z89;
             this.currentIndex++;
             if (this.currentIndex > this.images.length - 1)
                 this.currentIndex = 0;
-            console.log("next", this.currentIndex);
+            //console.log("next", this.currentIndex);
             this.displayImage();
         };
         Viewer.prototype.displayImage = function () {
@@ -9639,7 +9693,8 @@ var z89;
                         _this.text.setText(_this.images[_this.currentIndex].text);
                     else
                         _this.text.setText("");
-                    _this.image.setTexture(_this.images[_this.currentIndex].image);
+                    // console.log("zeroImg" + this.images[this.currentIndex].image);
+                    _this.image.setTexture("zeroImg" + _this.images[_this.currentIndex].image);
                     _this.scene.tweens.add({
                         targets: [_this.image, _this.text],
                         scaleY: 1,
@@ -9654,7 +9709,17 @@ var z89;
                 }
             });
         };
-        Viewer.prototype.show = function (images, callback) {
+        Viewer.prototype.preload = function (images, callback) {
+            var _this = this;
+            this.scene.tweens.add({
+                targets: this.spinner,
+                alpha: 1,
+                ease: null,
+                duration: 500,
+                onComplete: function () { }
+            });
+            this.isLoading = true;
+            this.image.setAlpha(0);
             this.images = images;
             if (callback != undefined)
                 this.callback = callback;
@@ -9664,11 +9729,6 @@ var z89;
             }
             this.setX(0);
             this.scene.disableInteraction();
-            this.image.setTexture(images[0].image);
-            if (this.images[this.currentIndex].text != undefined)
-                this.text.setText(this.images[this.currentIndex].text).setAlpha(1);
-            else
-                this.text.setText("").setAlpha(1);
             this.scene.tweens.add({
                 targets: this,
                 scaleY: 1,
@@ -9678,6 +9738,43 @@ var z89;
                 duration: 200,
                 onComplete: function () { }
             });
+            images.forEach(function (element) {
+                _this.scene.load.image({
+                    key: "zeroImg" + element.image,
+                    url: element.url
+                });
+            });
+            this.scene.load.on("fileprogress", function (file, progress) {
+                if (_this.isLoading) {
+                    _this.spinner.setAngle(_this.spinner.angle + 2);
+                }
+            });
+            this.scene.load.on("complete", function () {
+                _this.show();
+                _this.isLoading = false;
+            });
+            this.scene.load.start();
+        };
+        Viewer.prototype.show = function () {
+            this.scene.tweens.add({
+                targets: this.image,
+                alpha: 1,
+                ease: null,
+                duration: 500,
+                onComplete: function () { }
+            });
+            this.scene.tweens.add({
+                targets: this.spinner,
+                alpha: 0,
+                ease: null,
+                duration: 500,
+                onComplete: function () { }
+            });
+            this.image.setTexture("zeroImg" + this.images[0].image);
+            if (this.images[this.currentIndex].text != undefined)
+                this.text.setText(this.images[this.currentIndex].text).setAlpha(1);
+            else
+                this.text.setText("").setAlpha(1);
         };
         Viewer.prototype.hide = function () {
             var _this = this;

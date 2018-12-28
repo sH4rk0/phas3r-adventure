@@ -13,6 +13,8 @@ namespace z89 {
     private isAnim: boolean = false;
     private fontFamily: string = "commodore";
     private callback: any;
+    private spinner: Phaser.GameObjects.Sprite;
+    private isLoading: boolean = false;
 
     constructor(scene: GameCity) {
       super(scene, -1080, 0);
@@ -38,7 +40,6 @@ namespace z89 {
         .setDepth(3000)
         .setScrollFactor(0);
 
-      this.add(this.layer);
       this.arrowLeft = this.scene.add.sprite(100, 360, "triangleBtn");
       this.image = this.scene.add.image(540, 360, "");
       this.arrowLeft
@@ -59,13 +60,17 @@ namespace z89 {
         this.nextImage();
       });
 
+      this.spinner = this.scene.add.sprite(540, 360, "spinner");
+      this.spinner.setOrigin(0.5).setAlpha(0);
+
       this.add([
         this.layer,
         this.image,
         this.arrowLeft,
         this.arrowRight,
         this.textLayer,
-        this.text
+        this.text,
+        this.spinner
       ]);
       this.scene.add.existing(this);
     }
@@ -74,7 +79,7 @@ namespace z89 {
       if (this.isAnim) return;
       this.currentIndex--;
       if (this.currentIndex < 0) this.currentIndex = this.images.length - 1;
-      console.log("prev", this.currentIndex);
+      //console.log("prev", this.currentIndex);
       this.displayImage();
     }
 
@@ -82,7 +87,7 @@ namespace z89 {
       if (this.isAnim) return;
       this.currentIndex++;
       if (this.currentIndex > this.images.length - 1) this.currentIndex = 0;
-      console.log("next", this.currentIndex);
+      //console.log("next", this.currentIndex);
       this.displayImage();
     }
 
@@ -109,7 +114,10 @@ namespace z89 {
             this.text.setText(this.images[this.currentIndex].text);
           else this.text.setText("");
 
-          this.image.setTexture(this.images[this.currentIndex].image);
+          // console.log("zeroImg" + this.images[this.currentIndex].image);
+          this.image.setTexture(
+            "zeroImg" + this.images[this.currentIndex].image
+          );
           this.scene.tweens.add({
             targets: [this.image, this.text],
             scaleY: 1,
@@ -125,7 +133,17 @@ namespace z89 {
       });
     }
 
-    show(images: Array<any>, callback?: any): void {
+    preload(images: Array<any>, callback?: any) {
+      this.scene.tweens.add({
+        targets: this.spinner,
+        alpha: 1,
+        ease: null,
+        duration: 500,
+        onComplete: () => {}
+      });
+
+      this.isLoading = true;
+      this.image.setAlpha(0);
       this.images = images;
       if (callback != undefined) this.callback = callback;
       if (this.images.length == 1) {
@@ -134,11 +152,6 @@ namespace z89 {
       }
       this.setX(0);
       this.scene.disableInteraction();
-      this.image.setTexture(images[0].image);
-      if (this.images[this.currentIndex].text != undefined)
-        this.text.setText(this.images[this.currentIndex].text).setAlpha(1);
-      else this.text.setText("").setAlpha(1);
-
       this.scene.tweens.add({
         targets: this,
         scaleY: 1,
@@ -148,6 +161,52 @@ namespace z89 {
         duration: 200,
         onComplete: () => {}
       });
+
+      images.forEach(element => {
+        this.scene.load.image({
+          key: "zeroImg" + element.image,
+          url: element.url
+        });
+      });
+
+      this.scene.load.on(
+        "fileprogress",
+        (file: Phaser.Loader.File, progress: number) => {
+          if (this.isLoading) {
+            this.spinner.setAngle(this.spinner.angle + 2);
+          }
+        }
+      );
+
+      this.scene.load.on("complete", () => {
+        this.show();
+        this.isLoading = false;
+      });
+
+      this.scene.load.start();
+    }
+
+    show(): void {
+      this.scene.tweens.add({
+        targets: this.image,
+        alpha: 1,
+        ease: null,
+        duration: 500,
+        onComplete: () => {}
+      });
+
+      this.scene.tweens.add({
+        targets: this.spinner,
+        alpha: 0,
+        ease: null,
+        duration: 500,
+        onComplete: () => {}
+      });
+
+      this.image.setTexture("zeroImg" + this.images[0].image);
+      if (this.images[this.currentIndex].text != undefined)
+        this.text.setText(this.images[this.currentIndex].text).setAlpha(1);
+      else this.text.setText("").setAlpha(1);
     }
 
     hide(): void {

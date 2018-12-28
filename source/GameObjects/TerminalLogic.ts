@@ -471,7 +471,7 @@ namespace z89 {
 
     addChar(key: string): void {
       if (this.inputIsDisabled) return;
-      console.log(key);
+      // console.log(key);
       let col: number = this.getCursorCol();
       let row: number = this.getCursorRow();
 
@@ -642,12 +642,12 @@ namespace z89 {
         this.cursor.y = this.setCursorY(row - 1);
       }
 
-      console.log(
+      /*console.log(
         "row: " + row,
         "command: " + command,
         "login: " + this.login,
         "shelltype: " + this.shellType
-      );
+      );*/
 
       if (this.isShell) {
         switch (this.shellType) {

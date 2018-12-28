@@ -4,35 +4,32 @@ namespace z89 {
 
     constructor(test) {
       super({
-        key: 'Preloader',
+        key: "Preloader",
         pack: {
-            files: [{
-                type: 'plugin',
-                key: 'rexwebfontloaderplugin',
-                url: '/js/libs/webfonts.plugin.js',
-                start: true
-            }]
+          files: [
+            {
+              type: "plugin",
+              key: "rexwebfontloaderplugin",
+              url: "/js/libs/webfonts.plugin.js",
+              start: true
+            }
+          ]
         }
-    });
-
+      });
     }
 
     preload() {
+      console.log("Preloader:preload");
 
-	  console.log("Preloader:preload");
-	  
-	  this.loadAssets();
-
+      this.loadAssets();
     }
 
     init() {
       this.body = document.getElementsByTagName("body")[0];
-      
     }
 
     create() {
-	  console.log("Preloader:create");
-	 
+      console.log("Preloader:create");
     }
 
     loadAssets(): void {
@@ -58,25 +55,21 @@ namespace z89 {
       this.load.on("complete", () => {
         //progress.destroy();
 
-        
         gameData.assets.sounds.forEach(element => {
-              var _sound:Phaser.Sound.BaseSound= this.sound.add(element.name);
-              pushSound(_sound);
+          var _sound: Phaser.Sound.BaseSound = this.sound.add(element.name);
+          pushSound(_sound);
         });
-        
 
-		this.body.className = "";
-		this.scene.start('GameCity');
+        this.body.className = "";
+        this.scene.start("GameCity");
         console.log("load assetts complete");
       });
-
-      
 
       //Assets Load
       //--------------------------
       // IMAGES
       gameData.assets.images.forEach(element => {
-		 // console.log(element);
+        // console.log(element);
         this.load.image(element.name, element.path);
       });
 
@@ -96,38 +89,26 @@ namespace z89 {
 
       // SOUNDS
       gameData.assets.sounds.forEach(element => {
-       this.load.audio(element.name, element.paths);
-
-       
+        this.load.audio(element.name, element.paths);
       });
 
-  
-
-
-      if(isOnline()){
+      if (isOnline()) {
         getZero89Data().forEach(element => {
-          this.load.image("zeroImg"+element.key,"http://www.zero89.it/"+element.c);
-         });
+          this.load.image(
+            "zeroImg" + element.key,
+            "http://www.zero89.it/" + element.c
+          );
+        });
 
-         
-         this.plugins.get('rexwebfontloaderplugin').addToScene(this);
+        this.plugins.get("rexwebfontloaderplugin").addToScene(this);
 
-         var config = {
-             google: {
-                 families: ['Roboto']
-             }
-         };
+        var config = {
+          google: {
+            families: ["Roboto"]
+          }
+        };
         this.load.rexWebFont(config);
-
-
       }
-     
-
-
-      
-      
-
-
 
       /*this.load.shader("noise", "js/game/fragments/noise.frag");
       this.load.shader("convergence", "js/game/fragments/convergence.frag");

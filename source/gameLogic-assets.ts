@@ -271,11 +271,12 @@ gameData.assets = {
     {
       name: "room-door",
       path: "assets/images/game/rooms/home/room-door.png"
-    },
+    }
 
     /*
     Photos
     -------------------------------------------------------------*/
+    /*
     { name: "phaser-foto-1", path: "assets/images/foto/phaser/1.jpg" },
     { name: "phaser-foto-2", path: "assets/images/foto/phaser/2.jpg" },
     { name: "phaser-foto-3", path: "assets/images/foto/phaser/3.jpg" },
@@ -296,6 +297,7 @@ gameData.assets = {
     { name: "cake-foto-9", path: "assets/images/foto/cake/9.jpg" },
     { name: "cake-foto-10", path: "assets/images/foto/cake/10.jpg" },
     { name: "cake-foto-11", path: "assets/images/foto/cake/11.jpg" }
+    */
   ],
 
   sounds: [
